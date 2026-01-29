@@ -1,0 +1,3409 @@
+Country,Year,R&D_GDP,Sector
+Austria,2002,1.39,Business enterprise sector
+Austria,2004,1.48,Business enterprise sector
+Austria,2005,1.67,Business enterprise sector
+Austria,2006,1.67,Business enterprise sector
+Austria,2007,1.72,Business enterprise sector
+Austria,2008,1.79,Business enterprise sector
+Austria,2009,1.78,Business enterprise sector
+Austria,2010,1.88,Business enterprise sector
+Austria,2011,1.85,Business enterprise sector
+Austria,2012,2.07,Business enterprise sector
+Austria,2013,2.11,Business enterprise sector
+Austria,2014,2.22,Business enterprise sector
+Austria,2015,2.19,Business enterprise sector
+Austria,2016,2.2,Business enterprise sector
+Austria,2017,2.15,Business enterprise sector
+Austria,2018,2.17,Business enterprise sector
+Austria,2019,2.21,Business enterprise sector
+Austria,2020,2.23,Business enterprise sector
+Austria,2021,2.24,Business enterprise sector
+Austria,2022,2.19,Business enterprise sector
+Austria,2023,2.27,Business enterprise sector
+Belgium,2000,1.4,Business enterprise sector
+Belgium,2001,1.48,Business enterprise sector
+Belgium,2002,1.34,Business enterprise sector
+Belgium,2003,1.28,Business enterprise sector
+Belgium,2004,1.26,Business enterprise sector
+Belgium,2005,1.22,Business enterprise sector
+Belgium,2006,1.26,Business enterprise sector
+Belgium,2007,1.29,Business enterprise sector
+Belgium,2008,1.32,Business enterprise sector
+Belgium,2009,1.32,Business enterprise sector
+Belgium,2010,1.38,Business enterprise sector
+Belgium,2011,1.48,Business enterprise sector
+Belgium,2012,1.59,Business enterprise sector
+Belgium,2013,1.61,Business enterprise sector
+Belgium,2014,1.65,Business enterprise sector
+Belgium,2015,1.7,Business enterprise sector
+Belgium,2016,1.74,Business enterprise sector
+Belgium,2017,1.88,Business enterprise sector
+Belgium,2018,2.05,Business enterprise sector
+Belgium,2019,2.32,Business enterprise sector
+Belgium,2020,2.49,Business enterprise sector
+Belgium,2021,2.54,Business enterprise sector
+Belgium,2022,2.43,Business enterprise sector
+Belgium,2023,2.46,Business enterprise sector
+Bulgaria,2000,0.11,Business enterprise sector
+Bulgaria,2001,0.09,Business enterprise sector
+Bulgaria,2002,0.09,Business enterprise sector
+Bulgaria,2003,0.09,Business enterprise sector
+Bulgaria,2004,0.11,Business enterprise sector
+Bulgaria,2005,0.1,Business enterprise sector
+Bulgaria,2006,0.11,Business enterprise sector
+Bulgaria,2007,0.13,Business enterprise sector
+Bulgaria,2008,0.14,Business enterprise sector
+Bulgaria,2009,0.15,Business enterprise sector
+Bulgaria,2010,0.28,Business enterprise sector
+Bulgaria,2011,0.28,Business enterprise sector
+Bulgaria,2012,0.36,Business enterprise sector
+Bulgaria,2013,0.39,Business enterprise sector
+Bulgaria,2014,0.52,Business enterprise sector
+Bulgaria,2015,0.7,Business enterprise sector
+Bulgaria,2016,0.56,Business enterprise sector
+Bulgaria,2017,0.52,Business enterprise sector
+Bulgaria,2018,0.54,Business enterprise sector
+Bulgaria,2019,0.56,Business enterprise sector
+Bulgaria,2020,0.57,Business enterprise sector
+Bulgaria,2021,0.51,Business enterprise sector
+Bulgaria,2022,0.51,Business enterprise sector
+Bulgaria,2023,0.51,Business enterprise sector
+Switzerland,2000,1.67,Business enterprise sector
+Switzerland,2004,1.92,Business enterprise sector
+Switzerland,2008,1.95,Business enterprise sector
+Switzerland,2012,1.99,Business enterprise sector
+Switzerland,2015,2.09,Business enterprise sector
+Switzerland,2017,2.06,Business enterprise sector
+Switzerland,2019,2.16,Business enterprise sector
+Switzerland,2021,2.25,Business enterprise sector
+Cyprus,2000,0.05,Business enterprise sector
+Cyprus,2001,0.05,Business enterprise sector
+Cyprus,2002,0.06,Business enterprise sector
+Cyprus,2003,0.07,Business enterprise sector
+Cyprus,2004,0.07,Business enterprise sector
+Cyprus,2005,0.08,Business enterprise sector
+Cyprus,2006,0.09,Business enterprise sector
+Cyprus,2007,0.09,Business enterprise sector
+Cyprus,2008,0.09,Business enterprise sector
+Cyprus,2009,0.09,Business enterprise sector
+Cyprus,2010,0.08,Business enterprise sector
+Cyprus,2011,0.07,Business enterprise sector
+Cyprus,2012,0.07,Business enterprise sector
+Cyprus,2013,0.09,Business enterprise sector
+Cyprus,2014,0.11,Business enterprise sector
+Cyprus,2015,0.11,Business enterprise sector
+Cyprus,2016,0.19,Business enterprise sector
+Cyprus,2017,0.2,Business enterprise sector
+Cyprus,2018,0.25,Business enterprise sector
+Cyprus,2019,0.3,Business enterprise sector
+Cyprus,2020,0.37,Business enterprise sector
+Cyprus,2021,0.33,Business enterprise sector
+Cyprus,2022,0.29,Business enterprise sector
+Cyprus,2023,0.28,Business enterprise sector
+Czechia,2000,0.66,Business enterprise sector
+Czechia,2001,0.66,Business enterprise sector
+Czechia,2002,0.67,Business enterprise sector
+Czechia,2003,0.69,Business enterprise sector
+Czechia,2004,0.71,Business enterprise sector
+Czechia,2005,0.67,Business enterprise sector
+Czechia,2006,0.72,Business enterprise sector
+Czechia,2007,0.75,Business enterprise sector
+Czechia,2008,0.71,Business enterprise sector
+Czechia,2009,0.71,Business enterprise sector
+Czechia,2010,0.74,Business enterprise sector
+Czechia,2011,0.83,Business enterprise sector
+Czechia,2012,0.93,Business enterprise sector
+Czechia,2013,1.0,Business enterprise sector
+Czechia,2014,1.07,Business enterprise sector
+Czechia,2015,1.04,Business enterprise sector
+Czechia,2016,1.01,Business enterprise sector
+Czechia,2017,1.1,Business enterprise sector
+Czechia,2018,1.16,Business enterprise sector
+Czechia,2019,1.17,Business enterprise sector
+Czechia,2020,1.19,Business enterprise sector
+Czechia,2021,1.21,Business enterprise sector
+Czechia,2022,1.21,Business enterprise sector
+Czechia,2023,1.19,Business enterprise sector
+Germany,2000,1.67,Business enterprise sector
+Germany,2001,1.65,Business enterprise sector
+Germany,2002,1.66,Business enterprise sector
+Germany,2003,1.7,Business enterprise sector
+Germany,2004,1.67,Business enterprise sector
+Germany,2005,1.66,Business enterprise sector
+Germany,2006,1.7,Business enterprise sector
+Germany,2007,1.69,Business enterprise sector
+Germany,2008,1.78,Business enterprise sector
+Germany,2009,1.81,Business enterprise sector
+Germany,2010,1.79,Business enterprise sector
+Germany,2011,1.86,Business enterprise sector
+Germany,2012,1.92,Business enterprise sector
+Germany,2013,1.87,Business enterprise sector
+Germany,2014,1.91,Business enterprise sector
+Germany,2015,1.98,Business enterprise sector
+Germany,2016,1.97,Business enterprise sector
+Germany,2017,2.06,Business enterprise sector
+Germany,2018,2.1,Business enterprise sector
+Germany,2019,2.15,Business enterprise sector
+Germany,2020,2.06,Business enterprise sector
+Germany,2021,2.06,Business enterprise sector
+Germany,2022,2.07,Business enterprise sector
+Germany,2023,2.12,Business enterprise sector
+Denmark,2000,1.46,Business enterprise sector
+Denmark,2001,1.59,Business enterprise sector
+Denmark,2002,1.68,Business enterprise sector
+Denmark,2003,1.73,Business enterprise sector
+Denmark,2004,1.64,Business enterprise sector
+Denmark,2005,1.63,Business enterprise sector
+Denmark,2006,1.61,Business enterprise sector
+Denmark,2007,1.75,Business enterprise sector
+Denmark,2008,1.93,Business enterprise sector
+Denmark,2009,2.12,Business enterprise sector
+Denmark,2010,1.95,Business enterprise sector
+Denmark,2011,1.96,Business enterprise sector
+Denmark,2012,1.96,Business enterprise sector
+Denmark,2013,1.88,Business enterprise sector
+Denmark,2014,1.86,Business enterprise sector
+Denmark,2015,1.94,Business enterprise sector
+Denmark,2016,2.02,Business enterprise sector
+Denmark,2017,1.86,Business enterprise sector
+Denmark,2018,1.88,Business enterprise sector
+Denmark,2019,1.85,Business enterprise sector
+Denmark,2020,1.83,Business enterprise sector
+Denmark,2021,1.7,Business enterprise sector
+Denmark,2022,1.76,Business enterprise sector
+Denmark,2023,1.83,Business enterprise sector
+Estonia,2000,0.14,Business enterprise sector
+Estonia,2001,0.23,Business enterprise sector
+Estonia,2002,0.22,Business enterprise sector
+Estonia,2003,0.26,Business enterprise sector
+Estonia,2004,0.33,Business enterprise sector
+Estonia,2005,0.41,Business enterprise sector
+Estonia,2006,0.49,Business enterprise sector
+Estonia,2007,0.5,Business enterprise sector
+Estonia,2008,0.54,Business enterprise sector
+Estonia,2009,0.62,Business enterprise sector
+Estonia,2010,0.79,Business enterprise sector
+Estonia,2011,1.45,Business enterprise sector
+Estonia,2012,1.21,Business enterprise sector
+Estonia,2013,0.81,Business enterprise sector
+Estonia,2014,0.61,Business enterprise sector
+Estonia,2015,0.66,Business enterprise sector
+Estonia,2016,0.63,Business enterprise sector
+Estonia,2017,0.59,Business enterprise sector
+Estonia,2018,0.59,Business enterprise sector
+Estonia,2019,0.85,Business enterprise sector
+Estonia,2020,0.95,Business enterprise sector
+Estonia,2021,0.98,Business enterprise sector
+Estonia,2022,0.99,Business enterprise sector
+Estonia,2023,1.06,Business enterprise sector
+Greece,2000,0.15,Business enterprise sector
+Greece,2001,0.19,Business enterprise sector
+Greece,2002,0.18,Business enterprise sector
+Greece,2003,0.18,Business enterprise sector
+Greece,2004,0.17,Business enterprise sector
+Greece,2005,0.18,Business enterprise sector
+Greece,2006,0.17,Business enterprise sector
+Greece,2007,0.17,Business enterprise sector
+Greece,2008,0.21,Business enterprise sector
+Greece,2009,0.23,Business enterprise sector
+Greece,2010,0.24,Business enterprise sector
+Greece,2011,0.24,Business enterprise sector
+Greece,2012,0.25,Business enterprise sector
+Greece,2013,0.27,Business enterprise sector
+Greece,2014,0.29,Business enterprise sector
+Greece,2015,0.32,Business enterprise sector
+Greece,2016,0.42,Business enterprise sector
+Greece,2017,0.56,Business enterprise sector
+Greece,2018,0.58,Business enterprise sector
+Greece,2019,0.58,Business enterprise sector
+Greece,2020,0.69,Business enterprise sector
+Greece,2021,0.67,Business enterprise sector
+Greece,2022,0.72,Business enterprise sector
+Greece,2023,0.74,Business enterprise sector
+Spain,2000,0.47,Business enterprise sector
+Spain,2001,0.47,Business enterprise sector
+Spain,2002,0.52,Business enterprise sector
+Spain,2003,0.55,Business enterprise sector
+Spain,2004,0.57,Business enterprise sector
+Spain,2005,0.59,Business enterprise sector
+Spain,2006,0.65,Business enterprise sector
+Spain,2007,0.69,Business enterprise sector
+Spain,2008,0.73,Business enterprise sector
+Spain,2009,0.71,Business enterprise sector
+Spain,2010,0.7,Business enterprise sector
+Spain,2011,0.69,Business enterprise sector
+Spain,2012,0.68,Business enterprise sector
+Spain,2013,0.67,Business enterprise sector
+Spain,2014,0.65,Business enterprise sector
+Spain,2015,0.64,Business enterprise sector
+Spain,2016,0.63,Business enterprise sector
+Spain,2017,0.66,Business enterprise sector
+Spain,2018,0.7,Business enterprise sector
+Spain,2019,0.7,Business enterprise sector
+Spain,2020,0.78,Business enterprise sector
+Spain,2021,0.78,Business enterprise sector
+Spain,2022,0.79,Business enterprise sector
+Spain,2023,0.84,Business enterprise sector
+Finland,2000,2.3,Business enterprise sector
+Finland,2001,2.27,Business enterprise sector
+Finland,2002,2.27,Business enterprise sector
+Finland,2003,2.33,Business enterprise sector
+Finland,2004,2.32,Business enterprise sector
+Finland,2005,2.35,Business enterprise sector
+Finland,2006,2.38,Business enterprise sector
+Finland,2007,2.41,Business enterprise sector
+Finland,2008,2.63,Business enterprise sector
+Finland,2009,2.67,Business enterprise sector
+Finland,2010,2.58,Business enterprise sector
+Finland,2011,2.55,Business enterprise sector
+Finland,2012,2.34,Business enterprise sector
+Finland,2013,2.26,Business enterprise sector
+Finland,2014,2.14,Business enterprise sector
+Finland,2015,1.93,Business enterprise sector
+Finland,2016,1.81,Business enterprise sector
+Finland,2017,1.79,Business enterprise sector
+Finland,2018,1.82,Business enterprise sector
+Finland,2019,1.85,Business enterprise sector
+Finland,2020,1.96,Business enterprise sector
+Finland,2021,2.07,Business enterprise sector
+Finland,2022,2.03,Business enterprise sector
+Finland,2023,2.09,Business enterprise sector
+France,2000,1.31,Business enterprise sector
+France,2001,1.36,Business enterprise sector
+France,2002,1.38,Business enterprise sector
+France,2003,1.33,Business enterprise sector
+France,2004,1.33,Business enterprise sector
+France,2005,1.28,Business enterprise sector
+France,2006,1.3,Business enterprise sector
+France,2007,1.28,Business enterprise sector
+France,2008,1.29,Business enterprise sector
+France,2009,1.37,Business enterprise sector
+France,2010,1.38,Business enterprise sector
+France,2011,1.4,Business enterprise sector
+France,2012,1.44,Business enterprise sector
+France,2013,1.44,Business enterprise sector
+France,2014,1.45,Business enterprise sector
+France,2015,1.44,Business enterprise sector
+France,2016,1.45,Business enterprise sector
+France,2017,1.44,Business enterprise sector
+France,2018,1.44,Business enterprise sector
+France,2019,1.45,Business enterprise sector
+France,2020,1.49,Business enterprise sector
+France,2021,1.45,Business enterprise sector
+France,2022,1.47,Business enterprise sector
+France,2023,1.44,Business enterprise sector
+Croatia,2002,0.4,Business enterprise sector
+Croatia,2003,0.37,Business enterprise sector
+Croatia,2004,0.43,Business enterprise sector
+Croatia,2005,0.35,Business enterprise sector
+Croatia,2006,0.27,Business enterprise sector
+Croatia,2007,0.32,Business enterprise sector
+Croatia,2008,0.39,Business enterprise sector
+Croatia,2009,0.34,Business enterprise sector
+Croatia,2010,0.32,Business enterprise sector
+Croatia,2011,0.33,Business enterprise sector
+Croatia,2012,0.34,Business enterprise sector
+Croatia,2013,0.4,Business enterprise sector
+Croatia,2014,0.37,Business enterprise sector
+Croatia,2015,0.42,Business enterprise sector
+Croatia,2016,0.39,Business enterprise sector
+Croatia,2017,0.41,Business enterprise sector
+Croatia,2018,0.45,Business enterprise sector
+Croatia,2019,0.53,Business enterprise sector
+Croatia,2020,0.59,Business enterprise sector
+Croatia,2021,0.58,Business enterprise sector
+Croatia,2022,0.77,Business enterprise sector
+Croatia,2023,0.76,Business enterprise sector
+Hungary,2000,0.35,Business enterprise sector
+Hungary,2001,0.37,Business enterprise sector
+Hungary,2002,0.35,Business enterprise sector
+Hungary,2003,0.34,Business enterprise sector
+Hungary,2004,0.35,Business enterprise sector
+Hungary,2005,0.4,Business enterprise sector
+Hungary,2006,0.47,Business enterprise sector
+Hungary,2007,0.48,Business enterprise sector
+Hungary,2008,0.51,Business enterprise sector
+Hungary,2009,0.65,Business enterprise sector
+Hungary,2010,0.68,Business enterprise sector
+Hungary,2011,0.74,Business enterprise sector
+Hungary,2012,0.83,Business enterprise sector
+Hungary,2013,0.96,Business enterprise sector
+Hungary,2014,0.96,Business enterprise sector
+Hungary,2015,0.98,Business enterprise sector
+Hungary,2016,0.87,Business enterprise sector
+Hungary,2017,0.96,Business enterprise sector
+Hungary,2018,1.14,Business enterprise sector
+Hungary,2019,1.1,Business enterprise sector
+Hungary,2020,1.21,Business enterprise sector
+Hungary,2021,1.23,Business enterprise sector
+Hungary,2022,1.0,Business enterprise sector
+Hungary,2023,1.01,Business enterprise sector
+Ireland,2000,0.78,Business enterprise sector
+Ireland,2001,0.74,Business enterprise sector
+Ireland,2002,0.73,Business enterprise sector
+Ireland,2003,0.76,Business enterprise sector
+Ireland,2004,0.77,Business enterprise sector
+Ireland,2005,0.78,Business enterprise sector
+Ireland,2006,0.79,Business enterprise sector
+Ireland,2007,0.81,Business enterprise sector
+Ireland,2008,0.9,Business enterprise sector
+Ireland,2009,1.1,Business enterprise sector
+Ireland,2010,1.1,Business enterprise sector
+Ireland,2011,1.07,Business enterprise sector
+Ireland,2012,1.11,Business enterprise sector
+Ireland,2013,1.1,Business enterprise sector
+Ireland,2014,1.05,Business enterprise sector
+Ireland,2015,0.82,Business enterprise sector
+Ireland,2016,0.83,Business enterprise sector
+Ireland,2017,0.9,Business enterprise sector
+Ireland,2018,0.83,Business enterprise sector
+Ireland,2019,0.9,Business enterprise sector
+Ireland,2020,0.89,Business enterprise sector
+Ireland,2021,0.86,Business enterprise sector
+Iceland,2000,1.45,Business enterprise sector
+Iceland,2001,1.67,Business enterprise sector
+Iceland,2002,1.61,Business enterprise sector
+Iceland,2003,1.4,Business enterprise sector
+Iceland,2005,1.38,Business enterprise sector
+Iceland,2006,1.52,Business enterprise sector
+Iceland,2007,1.38,Business enterprise sector
+Iceland,2008,1.34,Business enterprise sector
+Iceland,2009,1.31,Business enterprise sector
+Iceland,2010,1.27,Business enterprise sector
+Iceland,2011,1.28,Business enterprise sector
+Iceland,2013,0.95,Business enterprise sector
+Iceland,2014,1.18,Business enterprise sector
+Iceland,2015,1.44,Business enterprise sector
+Iceland,2016,1.36,Business enterprise sector
+Iceland,2017,1.34,Business enterprise sector
+Iceland,2018,1.29,Business enterprise sector
+Iceland,2019,1.61,Business enterprise sector
+Iceland,2020,1.69,Business enterprise sector
+Iceland,2021,1.99,Business enterprise sector
+Iceland,2022,1.88,Business enterprise sector
+Iceland,2023,1.87,Business enterprise sector
+Italy,2000,0.5,Business enterprise sector
+Italy,2001,0.51,Business enterprise sector
+Italy,2002,0.52,Business enterprise sector
+Italy,2003,0.5,Business enterprise sector
+Italy,2004,0.5,Business enterprise sector
+Italy,2005,0.52,Business enterprise sector
+Italy,2006,0.53,Business enterprise sector
+Italy,2007,0.58,Business enterprise sector
+Italy,2008,0.62,Business enterprise sector
+Italy,2009,0.65,Business enterprise sector
+Italy,2010,0.65,Business enterprise sector
+Italy,2011,0.65,Business enterprise sector
+Italy,2012,0.68,Business enterprise sector
+Italy,2013,0.71,Business enterprise sector
+Italy,2014,0.75,Business enterprise sector
+Italy,2015,0.77,Business enterprise sector
+Italy,2016,0.83,Business enterprise sector
+Italy,2017,0.85,Business enterprise sector
+Italy,2018,0.9,Business enterprise sector
+Italy,2019,0.92,Business enterprise sector
+Italy,2020,0.93,Business enterprise sector
+Italy,2021,0.85,Business enterprise sector
+Italy,2022,0.81,Business enterprise sector
+Italy,2023,0.76,Business enterprise sector
+Lithuania,2000,0.13,Business enterprise sector
+Lithuania,2001,0.19,Business enterprise sector
+Lithuania,2002,0.11,Business enterprise sector
+Lithuania,2003,0.14,Business enterprise sector
+Lithuania,2004,0.16,Business enterprise sector
+Lithuania,2005,0.15,Business enterprise sector
+Lithuania,2006,0.22,Business enterprise sector
+Lithuania,2007,0.23,Business enterprise sector
+Lithuania,2008,0.19,Business enterprise sector
+Lithuania,2009,0.2,Business enterprise sector
+Lithuania,2010,0.23,Business enterprise sector
+Lithuania,2011,0.24,Business enterprise sector
+Lithuania,2012,0.24,Business enterprise sector
+Lithuania,2013,0.24,Business enterprise sector
+Lithuania,2014,0.32,Business enterprise sector
+Lithuania,2015,0.29,Business enterprise sector
+Lithuania,2016,0.3,Business enterprise sector
+Lithuania,2017,0.33,Business enterprise sector
+Lithuania,2018,0.39,Business enterprise sector
+Lithuania,2019,0.43,Business enterprise sector
+Lithuania,2020,0.53,Business enterprise sector
+Lithuania,2021,0.54,Business enterprise sector
+Lithuania,2022,0.53,Business enterprise sector
+Lithuania,2023,0.44,Business enterprise sector
+Luxembourg,2000,1.47,Business enterprise sector
+Luxembourg,2003,1.45,Business enterprise sector
+Luxembourg,2004,1.39,Business enterprise sector
+Luxembourg,2005,1.35,Business enterprise sector
+Luxembourg,2006,1.42,Business enterprise sector
+Luxembourg,2007,1.32,Business enterprise sector
+Luxembourg,2008,1.2,Business enterprise sector
+Luxembourg,2009,1.21,Business enterprise sector
+Luxembourg,2010,0.94,Business enterprise sector
+Luxembourg,2011,0.94,Business enterprise sector
+Luxembourg,2012,0.67,Business enterprise sector
+Luxembourg,2013,0.65,Business enterprise sector
+Luxembourg,2014,0.64,Business enterprise sector
+Luxembourg,2015,0.66,Business enterprise sector
+Luxembourg,2016,0.7,Business enterprise sector
+Luxembourg,2017,0.69,Business enterprise sector
+Luxembourg,2018,0.62,Business enterprise sector
+Luxembourg,2019,0.64,Business enterprise sector
+Luxembourg,2020,0.55,Business enterprise sector
+Luxembourg,2021,0.53,Business enterprise sector
+Luxembourg,2022,0.51,Business enterprise sector
+Luxembourg,2023,0.48,Business enterprise sector
+Latvia,2000,0.18,Business enterprise sector
+Latvia,2001,0.15,Business enterprise sector
+Latvia,2002,0.17,Business enterprise sector
+Latvia,2003,0.13,Business enterprise sector
+Latvia,2004,0.19,Business enterprise sector
+Latvia,2005,0.22,Business enterprise sector
+Latvia,2006,0.34,Business enterprise sector
+Latvia,2007,0.19,Business enterprise sector
+Latvia,2008,0.15,Business enterprise sector
+Latvia,2009,0.17,Business enterprise sector
+Latvia,2010,0.23,Business enterprise sector
+Latvia,2011,0.21,Business enterprise sector
+Latvia,2012,0.16,Business enterprise sector
+Latvia,2013,0.18,Business enterprise sector
+Latvia,2014,0.25,Business enterprise sector
+Latvia,2015,0.16,Business enterprise sector
+Latvia,2016,0.11,Business enterprise sector
+Latvia,2017,0.14,Business enterprise sector
+Latvia,2018,0.16,Business enterprise sector
+Latvia,2019,0.17,Business enterprise sector
+Latvia,2020,0.26,Business enterprise sector
+Latvia,2021,0.29,Business enterprise sector
+Latvia,2022,0.29,Business enterprise sector
+Latvia,2023,0.3,Business enterprise sector
+Montenegro,2011,0.09,Business enterprise sector
+Montenegro,2013,0.18,Business enterprise sector
+Montenegro,2014,0.14,Business enterprise sector
+Montenegro,2015,0.11,Business enterprise sector
+Montenegro,2016,0.05,Business enterprise sector
+Montenegro,2017,0.07,Business enterprise sector
+Montenegro,2018,0.19,Business enterprise sector
+Montenegro,2019,0.05,Business enterprise sector
+North Macedonia,2015,0.08,Business enterprise sector
+North Macedonia,2016,0.1,Business enterprise sector
+North Macedonia,2017,0.09,Business enterprise sector
+North Macedonia,2018,0.11,Business enterprise sector
+North Macedonia,2019,0.1,Business enterprise sector
+North Macedonia,2020,0.1,Business enterprise sector
+North Macedonia,2022,0.1,Business enterprise sector
+Malta,2002,0.06,Business enterprise sector
+Malta,2003,0.07,Business enterprise sector
+Malta,2004,0.32,Business enterprise sector
+Malta,2005,0.35,Business enterprise sector
+Malta,2006,0.38,Business enterprise sector
+Malta,2007,0.36,Business enterprise sector
+Malta,2008,0.34,Business enterprise sector
+Malta,2009,0.32,Business enterprise sector
+Malta,2010,0.36,Business enterprise sector
+Malta,2011,0.43,Business enterprise sector
+Malta,2012,0.46,Business enterprise sector
+Malta,2013,0.38,Business enterprise sector
+Malta,2014,0.37,Business enterprise sector
+Malta,2015,0.36,Business enterprise sector
+Malta,2016,0.33,Business enterprise sector
+Malta,2017,0.34,Business enterprise sector
+Malta,2018,0.34,Business enterprise sector
+Malta,2019,0.34,Business enterprise sector
+Malta,2020,0.38,Business enterprise sector
+Malta,2021,0.39,Business enterprise sector
+Malta,2022,0.36,Business enterprise sector
+Malta,2023,0.34,Business enterprise sector
+Netherlands,2000,0.99,Business enterprise sector
+Netherlands,2001,0.98,Business enterprise sector
+Netherlands,2002,0.9,Business enterprise sector
+Netherlands,2003,0.93,Business enterprise sector
+Netherlands,2004,0.95,Business enterprise sector
+Netherlands,2005,0.93,Business enterprise sector
+Netherlands,2006,0.93,Business enterprise sector
+Netherlands,2007,0.88,Business enterprise sector
+Netherlands,2008,0.81,Business enterprise sector
+Netherlands,2009,0.78,Business enterprise sector
+Netherlands,2010,0.81,Business enterprise sector
+Netherlands,2011,1.06,Business enterprise sector
+Netherlands,2012,1.08,Business enterprise sector
+Netherlands,2013,1.4,Business enterprise sector
+Netherlands,2014,1.39,Business enterprise sector
+Netherlands,2015,1.36,Business enterprise sector
+Netherlands,2016,1.39,Business enterprise sector
+Netherlands,2017,1.42,Business enterprise sector
+Netherlands,2018,1.4,Business enterprise sector
+Netherlands,2019,1.43,Business enterprise sector
+Netherlands,2020,1.51,Business enterprise sector
+Netherlands,2021,1.46,Business enterprise sector
+Netherlands,2022,1.49,Business enterprise sector
+Netherlands,2023,1.44,Business enterprise sector
+Norway,2001,0.93,Business enterprise sector
+Norway,2002,0.93,Business enterprise sector
+Norway,2003,0.96,Business enterprise sector
+Norway,2004,0.84,Business enterprise sector
+Norway,2005,0.79,Business enterprise sector
+Norway,2006,0.77,Business enterprise sector
+Norway,2007,0.82,Business enterprise sector
+Norway,2008,0.82,Business enterprise sector
+Norway,2009,0.89,Business enterprise sector
+Norway,2010,0.84,Business enterprise sector
+Norway,2011,0.84,Business enterprise sector
+Norway,2012,0.84,Business enterprise sector
+Norway,2013,0.86,Business enterprise sector
+Norway,2014,0.92,Business enterprise sector
+Norway,2015,1.04,Business enterprise sector
+Norway,2016,1.08,Business enterprise sector
+Norway,2017,1.1,Business enterprise sector
+Norway,2018,1.05,Business enterprise sector
+Norway,2019,1.13,Business enterprise sector
+Norway,2020,1.22,Business enterprise sector
+Norway,2021,1.02,Business enterprise sector
+Norway,2022,0.86,Business enterprise sector
+Norway,2023,1.05,Business enterprise sector
+Poland,2000,0.23,Business enterprise sector
+Poland,2001,0.22,Business enterprise sector
+Poland,2002,0.11,Business enterprise sector
+Poland,2003,0.15,Business enterprise sector
+Poland,2004,0.16,Business enterprise sector
+Poland,2005,0.18,Business enterprise sector
+Poland,2006,0.17,Business enterprise sector
+Poland,2007,0.17,Business enterprise sector
+Poland,2008,0.18,Business enterprise sector
+Poland,2009,0.19,Business enterprise sector
+Poland,2010,0.19,Business enterprise sector
+Poland,2011,0.23,Business enterprise sector
+Poland,2012,0.33,Business enterprise sector
+Poland,2013,0.38,Business enterprise sector
+Poland,2014,0.44,Business enterprise sector
+Poland,2015,0.46,Business enterprise sector
+Poland,2016,0.63,Business enterprise sector
+Poland,2017,0.66,Business enterprise sector
+Poland,2018,0.79,Business enterprise sector
+Poland,2019,0.82,Business enterprise sector
+Poland,2020,0.86,Business enterprise sector
+Poland,2021,0.89,Business enterprise sector
+Poland,2022,0.95,Business enterprise sector
+Poland,2023,1.01,Business enterprise sector
+Portugal,2000,0.2,Business enterprise sector
+Portugal,2001,0.24,Business enterprise sector
+Portugal,2002,0.23,Business enterprise sector
+Portugal,2003,0.23,Business enterprise sector
+Portugal,2004,0.26,Business enterprise sector
+Portugal,2005,0.29,Business enterprise sector
+Portugal,2006,0.44,Business enterprise sector
+Portugal,2007,0.58,Business enterprise sector
+Portugal,2008,0.72,Business enterprise sector
+Portugal,2009,0.75,Business enterprise sector
+Portugal,2010,0.7,Business enterprise sector
+Portugal,2011,0.69,Business enterprise sector
+Portugal,2012,0.68,Business enterprise sector
+Portugal,2013,0.63,Business enterprise sector
+Portugal,2014,0.6,Business enterprise sector
+Portugal,2015,0.58,Business enterprise sector
+Portugal,2016,0.62,Business enterprise sector
+Portugal,2017,0.67,Business enterprise sector
+Portugal,2018,0.69,Business enterprise sector
+Portugal,2019,0.73,Business enterprise sector
+Portugal,2020,0.92,Business enterprise sector
+Portugal,2021,0.99,Business enterprise sector
+Portugal,2022,1.05,Business enterprise sector
+Portugal,2023,1.06,Business enterprise sector
+Romania,2000,0.25,Business enterprise sector
+Romania,2001,0.24,Business enterprise sector
+Romania,2002,0.23,Business enterprise sector
+Romania,2003,0.23,Business enterprise sector
+Romania,2004,0.22,Business enterprise sector
+Romania,2005,0.21,Business enterprise sector
+Romania,2006,0.22,Business enterprise sector
+Romania,2007,0.21,Business enterprise sector
+Romania,2008,0.17,Business enterprise sector
+Romania,2009,0.18,Business enterprise sector
+Romania,2010,0.17,Business enterprise sector
+Romania,2011,0.17,Business enterprise sector
+Romania,2012,0.18,Business enterprise sector
+Romania,2013,0.12,Business enterprise sector
+Romania,2014,0.16,Business enterprise sector
+Romania,2015,0.21,Business enterprise sector
+Romania,2016,0.27,Business enterprise sector
+Romania,2017,0.29,Business enterprise sector
+Romania,2018,0.29,Business enterprise sector
+Romania,2019,0.27,Business enterprise sector
+Romania,2020,0.27,Business enterprise sector
+Romania,2021,0.28,Business enterprise sector
+Romania,2022,0.29,Business enterprise sector
+Romania,2023,0.32,Business enterprise sector
+Serbia,2009,0.11,Business enterprise sector
+Serbia,2010,0.08,Business enterprise sector
+Serbia,2011,0.06,Business enterprise sector
+Serbia,2012,0.2,Business enterprise sector
+Serbia,2013,0.09,Business enterprise sector
+Serbia,2014,0.21,Business enterprise sector
+Serbia,2015,0.25,Business enterprise sector
+Serbia,2016,0.3,Business enterprise sector
+Serbia,2017,0.31,Business enterprise sector
+Serbia,2018,0.34,Business enterprise sector
+Serbia,2019,0.34,Business enterprise sector
+Serbia,2020,0.34,Business enterprise sector
+Serbia,2021,0.43,Business enterprise sector
+Serbia,2022,0.4,Business enterprise sector
+Serbia,2023,0.38,Business enterprise sector
+Sweden,2001,3.0,Business enterprise sector
+Sweden,2003,2.66,Business enterprise sector
+Sweden,2004,2.48,Business enterprise sector
+Sweden,2005,2.45,Business enterprise sector
+Sweden,2006,2.6,Business enterprise sector
+Sweden,2007,2.37,Business enterprise sector
+Sweden,2008,2.59,Business enterprise sector
+Sweden,2009,2.42,Business enterprise sector
+Sweden,2010,2.19,Business enterprise sector
+Sweden,2011,2.22,Business enterprise sector
+Sweden,2012,2.2,Business enterprise sector
+Sweden,2013,2.26,Business enterprise sector
+Sweden,2014,2.09,Business enterprise sector
+Sweden,2015,2.26,Business enterprise sector
+Sweden,2016,2.27,Business enterprise sector
+Sweden,2017,2.42,Business enterprise sector
+Sweden,2018,2.37,Business enterprise sector
+Sweden,2019,2.44,Business enterprise sector
+Sweden,2020,2.53,Business enterprise sector
+Sweden,2021,2.47,Business enterprise sector
+Sweden,2022,2.56,Business enterprise sector
+Sweden,2023,2.65,Business enterprise sector
+Slovenia,2000,0.77,Business enterprise sector
+Slovenia,2001,0.86,Business enterprise sector
+Slovenia,2002,0.87,Business enterprise sector
+Slovenia,2003,0.81,Business enterprise sector
+Slovenia,2004,0.92,Business enterprise sector
+Slovenia,2005,0.84,Business enterprise sector
+Slovenia,2006,0.93,Business enterprise sector
+Slovenia,2007,0.86,Business enterprise sector
+Slovenia,2008,1.06,Business enterprise sector
+Slovenia,2009,1.18,Business enterprise sector
+Slovenia,2010,1.4,Business enterprise sector
+Slovenia,2011,1.8,Business enterprise sector
+Slovenia,2012,1.96,Business enterprise sector
+Slovenia,2013,1.99,Business enterprise sector
+Slovenia,2014,1.85,Business enterprise sector
+Slovenia,2015,1.69,Business enterprise sector
+Slovenia,2016,1.54,Business enterprise sector
+Slovenia,2017,1.41,Business enterprise sector
+Slovenia,2018,1.46,Business enterprise sector
+Slovenia,2019,1.52,Business enterprise sector
+Slovenia,2020,1.58,Business enterprise sector
+Slovenia,2021,1.57,Business enterprise sector
+Slovenia,2022,1.48,Business enterprise sector
+Slovenia,2023,1.47,Business enterprise sector
+Slovakia,2000,0.42,Business enterprise sector
+Slovakia,2001,0.42,Business enterprise sector
+Slovakia,2002,0.36,Business enterprise sector
+Slovakia,2003,0.31,Business enterprise sector
+Slovakia,2004,0.25,Business enterprise sector
+Slovakia,2005,0.25,Business enterprise sector
+Slovakia,2006,0.2,Business enterprise sector
+Slovakia,2007,0.18,Business enterprise sector
+Slovakia,2008,0.2,Business enterprise sector
+Slovakia,2009,0.19,Business enterprise sector
+Slovakia,2010,0.25,Business enterprise sector
+Slovakia,2011,0.24,Business enterprise sector
+Slovakia,2012,0.33,Business enterprise sector
+Slovakia,2013,0.38,Business enterprise sector
+Slovakia,2014,0.32,Business enterprise sector
+Slovakia,2015,0.32,Business enterprise sector
+Slovakia,2016,0.4,Business enterprise sector
+Slovakia,2017,0.48,Business enterprise sector
+Slovakia,2018,0.45,Business enterprise sector
+Slovakia,2019,0.45,Business enterprise sector
+Slovakia,2020,0.48,Business enterprise sector
+Slovakia,2021,0.5,Business enterprise sector
+Slovakia,2022,0.56,Business enterprise sector
+Slovakia,2023,0.58,Business enterprise sector
+Austria,2002,0.12,Government sector
+Austria,2004,0.11,Government sector
+Austria,2005,0.12,Government sector
+Austria,2006,0.12,Government sector
+Austria,2007,0.13,Government sector
+Austria,2008,0.14,Government sector
+Austria,2009,0.14,Government sector
+Austria,2010,0.14,Government sector
+Austria,2011,0.14,Government sector
+Austria,2012,0.13,Government sector
+Austria,2013,0.13,Government sector
+Austria,2014,0.14,Government sector
+Austria,2015,0.14,Government sector
+Austria,2016,0.22,Government sector
+Austria,2017,0.22,Government sector
+Austria,2018,0.22,Government sector
+Austria,2019,0.23,Government sector
+Austria,2020,0.24,Government sector
+Austria,2021,0.25,Government sector
+Austria,2022,0.24,Government sector
+Austria,2023,0.25,Government sector
+Belgium,2000,0.12,Government sector
+Belgium,2001,0.13,Government sector
+Belgium,2002,0.14,Government sector
+Belgium,2003,0.13,Government sector
+Belgium,2004,0.14,Government sector
+Belgium,2005,0.15,Government sector
+Belgium,2006,0.15,Government sector
+Belgium,2007,0.15,Government sector
+Belgium,2008,0.17,Government sector
+Belgium,2009,0.18,Government sector
+Belgium,2010,0.17,Government sector
+Belgium,2011,0.17,Government sector
+Belgium,2012,0.19,Government sector
+Belgium,2013,0.2,Government sector
+Belgium,2014,0.21,Government sector
+Belgium,2015,0.22,Government sector
+Belgium,2016,0.24,Government sector
+Belgium,2017,0.25,Government sector
+Belgium,2018,0.26,Government sector
+Belgium,2019,0.28,Government sector
+Belgium,2020,0.3,Government sector
+Belgium,2021,0.29,Government sector
+Belgium,2022,0.29,Government sector
+Belgium,2023,0.31,Government sector
+Bulgaria,2000,0.34,Government sector
+Bulgaria,2001,0.3,Government sector
+Bulgaria,2002,0.33,Government sector
+Bulgaria,2003,0.33,Government sector
+Bulgaria,2004,0.32,Government sector
+Bulgaria,2005,0.3,Government sector
+Bulgaria,2006,0.28,Government sector
+Bulgaria,2007,0.25,Government sector
+Bulgaria,2008,0.26,Government sector
+Bulgaria,2009,0.27,Government sector
+Bulgaria,2010,0.21,Government sector
+Bulgaria,2011,0.19,Government sector
+Bulgaria,2012,0.18,Government sector
+Bulgaria,2013,0.19,Government sector
+Bulgaria,2014,0.2,Government sector
+Bulgaria,2015,0.2,Government sector
+Bulgaria,2016,0.16,Government sector
+Bulgaria,2017,0.17,Government sector
+Bulgaria,2018,0.17,Government sector
+Bulgaria,2019,0.21,Government sector
+Bulgaria,2020,0.22,Government sector
+Bulgaria,2021,0.21,Government sector
+Bulgaria,2022,0.19,Government sector
+Bulgaria,2023,0.23,Government sector
+Switzerland,2000,0.03,Government sector
+Switzerland,2002,0.03,Government sector
+Switzerland,2004,0.03,Government sector
+Switzerland,2006,0.02,Government sector
+Switzerland,2008,0.02,Government sector
+Switzerland,2010,0.02,Government sector
+Switzerland,2012,0.02,Government sector
+Switzerland,2014,0.03,Government sector
+Switzerland,2015,0.03,Government sector
+Switzerland,2017,0.03,Government sector
+Switzerland,2019,0.03,Government sector
+Switzerland,2021,0.03,Government sector
+Switzerland,2022,0.03,Government sector
+Cyprus,2000,0.11,Government sector
+Cyprus,2001,0.11,Government sector
+Cyprus,2002,0.11,Government sector
+Cyprus,2003,0.12,Government sector
+Cyprus,2004,0.12,Government sector
+Cyprus,2005,0.12,Government sector
+Cyprus,2006,0.11,Government sector
+Cyprus,2007,0.1,Government sector
+Cyprus,2008,0.09,Government sector
+Cyprus,2009,0.09,Government sector
+Cyprus,2010,0.09,Government sector
+Cyprus,2011,0.07,Government sector
+Cyprus,2012,0.07,Government sector
+Cyprus,2013,0.07,Government sector
+Cyprus,2014,0.07,Government sector
+Cyprus,2015,0.06,Government sector
+Cyprus,2016,0.06,Government sector
+Cyprus,2017,0.05,Government sector
+Cyprus,2018,0.05,Government sector
+Cyprus,2019,0.05,Government sector
+Cyprus,2020,0.05,Government sector
+Cyprus,2021,0.05,Government sector
+Cyprus,2022,0.04,Government sector
+Cyprus,2023,0.04,Government sector
+Czechia,2000,0.28,Government sector
+Czechia,2001,0.26,Government sector
+Czechia,2002,0.25,Government sector
+Czechia,2003,0.27,Government sector
+Czechia,2004,0.25,Government sector
+Czechia,2005,0.26,Government sector
+Czechia,2006,0.27,Government sector
+Czechia,2007,0.3,Government sector
+Czechia,2008,0.29,Government sector
+Czechia,2009,0.31,Government sector
+Czechia,2010,0.3,Government sector
+Czechia,2011,0.32,Government sector
+Czechia,2012,0.34,Government sector
+Czechia,2013,0.36,Government sector
+Czechia,2014,0.37,Government sector
+Czechia,2015,0.39,Government sector
+Czechia,2016,0.3,Government sector
+Czechia,2017,0.3,Government sector
+Czechia,2018,0.31,Government sector
+Czechia,2019,0.31,Government sector
+Czechia,2020,0.33,Government sector
+Czechia,2021,0.32,Government sector
+Czechia,2022,0.3,Government sector
+Czechia,2023,0.29,Government sector
+Germany,2000,0.32,Government sector
+Germany,2001,0.33,Government sector
+Germany,2002,0.33,Government sector
+Germany,2003,0.33,Government sector
+Germany,2004,0.33,Government sector
+Germany,2005,0.34,Government sector
+Germany,2006,0.34,Government sector
+Germany,2007,0.34,Government sector
+Germany,2008,0.36,Government sector
+Germany,2009,0.4,Government sector
+Germany,2010,0.4,Government sector
+Germany,2011,0.4,Government sector
+Germany,2012,0.4,Government sector
+Germany,2013,0.41,Government sector
+Germany,2014,0.41,Government sector
+Germany,2015,0.4,Government sector
+Germany,2016,0.4,Government sector
+Germany,2017,0.4,Government sector
+Germany,2018,0.41,Government sector
+Germany,2019,0.42,Government sector
+Germany,2020,0.45,Government sector
+Germany,2021,0.46,Government sector
+Germany,2022,0.37,Government sector
+Germany,2023,0.38,Government sector
+Denmark,2000,0.28,Government sector
+Denmark,2001,0.27,Government sector
+Denmark,2002,0.18,Government sector
+Denmark,2003,0.18,Government sector
+Denmark,2004,0.17,Government sector
+Denmark,2005,0.15,Government sector
+Denmark,2006,0.16,Government sector
+Denmark,2007,0.08,Government sector
+Denmark,2008,0.07,Government sector
+Denmark,2009,0.06,Government sector
+Denmark,2010,0.06,Government sector
+Denmark,2011,0.06,Government sector
+Denmark,2012,0.07,Government sector
+Denmark,2013,0.07,Government sector
+Denmark,2014,0.07,Government sector
+Denmark,2015,0.07,Government sector
+Denmark,2016,0.07,Government sector
+Denmark,2017,0.09,Government sector
+Denmark,2018,0.09,Government sector
+Denmark,2019,0.09,Government sector
+Denmark,2020,0.1,Government sector
+Denmark,2021,0.09,Government sector
+Denmark,2022,0.09,Government sector
+Denmark,2023,0.09,Government sector
+Estonia,2000,0.14,Government sector
+Estonia,2001,0.1,Government sector
+Estonia,2002,0.12,Government sector
+Estonia,2003,0.12,Government sector
+Estonia,2004,0.11,Government sector
+Estonia,2005,0.1,Government sector
+Estonia,2006,0.15,Government sector
+Estonia,2007,0.09,Government sector
+Estonia,2008,0.15,Government sector
+Estonia,2009,0.15,Government sector
+Estonia,2010,0.17,Government sector
+Estonia,2011,0.19,Government sector
+Estonia,2012,0.2,Government sector
+Estonia,2013,0.15,Government sector
+Estonia,2014,0.15,Government sector
+Estonia,2015,0.16,Government sector
+Estonia,2016,0.14,Government sector
+Estonia,2017,0.15,Government sector
+Estonia,2018,0.16,Government sector
+Estonia,2019,0.16,Government sector
+Estonia,2020,0.17,Government sector
+Estonia,2021,0.16,Government sector
+Estonia,2022,0.18,Government sector
+Estonia,2023,0.16,Government sector
+Greece,2001,0.13,Government sector
+Greece,2003,0.11,Government sector
+Greece,2004,0.11,Government sector
+Greece,2005,0.12,Government sector
+Greece,2006,0.12,Government sector
+Greece,2007,0.12,Government sector
+Greece,2008,0.23,Government sector
+Greece,2009,0.17,Government sector
+Greece,2010,0.14,Government sector
+Greece,2011,0.16,Government sector
+Greece,2012,0.18,Government sector
+Greece,2013,0.23,Government sector
+Greece,2014,0.23,Government sector
+Greece,2015,0.27,Government sector
+Greece,2016,0.25,Government sector
+Greece,2017,0.25,Government sector
+Greece,2018,0.27,Government sector
+Greece,2019,0.28,Government sector
+Greece,2020,0.32,Government sector
+Greece,2021,0.32,Government sector
+Greece,2022,0.31,Government sector
+Greece,2023,0.31,Government sector
+Spain,2000,0.14,Government sector
+Spain,2001,0.14,Government sector
+Spain,2002,0.15,Government sector
+Spain,2003,0.16,Government sector
+Spain,2004,0.17,Government sector
+Spain,2005,0.19,Government sector
+Spain,2006,0.2,Government sector
+Spain,2007,0.22,Government sector
+Spain,2008,0.24,Government sector
+Spain,2009,0.27,Government sector
+Spain,2010,0.27,Government sector
+Spain,2011,0.26,Government sector
+Spain,2012,0.25,Government sector
+Spain,2013,0.24,Government sector
+Spain,2014,0.23,Government sector
+Spain,2015,0.23,Government sector
+Spain,2016,0.22,Government sector
+Spain,2017,0.21,Government sector
+Spain,2018,0.21,Government sector
+Spain,2019,0.21,Government sector
+Spain,2020,0.24,Government sector
+Spain,2021,0.24,Government sector
+Spain,2022,0.24,Government sector
+Spain,2023,0.27,Government sector
+Finland,2000,0.34,Government sector
+Finland,2001,0.33,Government sector
+Finland,2002,0.34,Government sector
+Finland,2003,0.32,Government sector
+Finland,2004,0.31,Government sector
+Finland,2005,0.32,Government sector
+Finland,2006,0.31,Government sector
+Finland,2007,0.28,Government sector
+Finland,2008,0.28,Government sector
+Finland,2009,0.34,Government sector
+Finland,2010,0.34,Government sector
+Finland,2011,0.32,Government sector
+Finland,2012,0.31,Government sector
+Finland,2013,0.29,Government sector
+Finland,2014,0.27,Government sector
+Finland,2015,0.24,Government sector
+Finland,2016,0.22,Government sector
+Finland,2017,0.23,Government sector
+Finland,2018,0.23,Government sector
+Finland,2019,0.23,Government sector
+Finland,2020,0.22,Government sector
+Finland,2021,0.22,Government sector
+Finland,2022,0.22,Government sector
+Finland,2023,0.23,Government sector
+France,2000,0.36,Government sector
+France,2001,0.36,Government sector
+France,2002,0.36,Government sector
+France,2003,0.36,Government sector
+France,2004,0.36,Government sector
+France,2005,0.37,Government sector
+France,2006,0.34,Government sector
+France,2007,0.33,Government sector
+France,2008,0.33,Government sector
+France,2009,0.36,Government sector
+France,2010,0.31,Government sector
+France,2011,0.3,Government sector
+France,2012,0.29,Government sector
+France,2013,0.29,Government sector
+France,2014,0.29,Government sector
+France,2015,0.29,Government sector
+France,2016,0.28,Government sector
+France,2017,0.27,Government sector
+France,2018,0.27,Government sector
+France,2019,0.27,Government sector
+France,2020,0.27,Government sector
+France,2021,0.26,Government sector
+France,2022,0.26,Government sector
+France,2023,0.25,Government sector
+Croatia,2002,0.21,Government sector
+Croatia,2003,0.21,Government sector
+Croatia,2004,0.21,Government sector
+Croatia,2005,0.2,Government sector
+Croatia,2006,0.19,Government sector
+Croatia,2007,0.2,Government sector
+Croatia,2008,0.22,Government sector
+Croatia,2009,0.23,Government sector
+Croatia,2010,0.2,Government sector
+Croatia,2011,0.2,Government sector
+Croatia,2012,0.2,Government sector
+Croatia,2013,0.2,Government sector
+Croatia,2014,0.2,Government sector
+Croatia,2015,0.2,Government sector
+Croatia,2016,0.18,Government sector
+Croatia,2017,0.19,Government sector
+Croatia,2018,0.19,Government sector
+Croatia,2019,0.2,Government sector
+Croatia,2020,0.25,Government sector
+Croatia,2021,0.26,Government sector
+Croatia,2022,0.25,Government sector
+Croatia,2023,0.24,Government sector
+Hungary,2000,0.21,Government sector
+Hungary,2001,0.24,Government sector
+Hungary,2002,0.32,Government sector
+Hungary,2003,0.29,Government sector
+Hungary,2004,0.25,Government sector
+Hungary,2005,0.26,Government sector
+Hungary,2006,0.25,Government sector
+Hungary,2007,0.23,Government sector
+Hungary,2008,0.23,Government sector
+Hungary,2009,0.23,Government sector
+Hungary,2010,0.21,Government sector
+Hungary,2011,0.19,Government sector
+Hungary,2012,0.18,Government sector
+Hungary,2013,0.21,Government sector
+Hungary,2014,0.18,Government sector
+Hungary,2015,0.18,Government sector
+Hungary,2016,0.16,Government sector
+Hungary,2017,0.17,Government sector
+Hungary,2018,0.16,Government sector
+Hungary,2019,0.15,Government sector
+Hungary,2020,0.16,Government sector
+Hungary,2021,0.17,Government sector
+Hungary,2022,0.17,Government sector
+Hungary,2023,0.15,Government sector
+Ireland,2000,0.09,Government sector
+Ireland,2001,0.09,Government sector
+Ireland,2002,0.09,Government sector
+Ireland,2003,0.09,Government sector
+Ireland,2004,0.09,Government sector
+Ireland,2005,0.09,Government sector
+Ireland,2006,0.08,Government sector
+Ireland,2007,0.09,Government sector
+Ireland,2008,0.09,Government sector
+Ireland,2009,0.08,Government sector
+Ireland,2010,0.08,Government sector
+Ireland,2011,0.08,Government sector
+Ireland,2012,0.07,Government sector
+Ireland,2013,0.07,Government sector
+Ireland,2014,0.06,Government sector
+Ireland,2015,0.05,Government sector
+Ireland,2016,0.05,Government sector
+Ireland,2017,0.05,Government sector
+Ireland,2018,0.05,Government sector
+Ireland,2019,0.05,Government sector
+Ireland,2020,0.04,Government sector
+Ireland,2021,0.04,Government sector
+Ireland,2022,0.03,Government sector
+Ireland,2023,0.04,Government sector
+Iceland,2000,0.66,Government sector
+Iceland,2001,0.57,Government sector
+Iceland,2002,0.69,Government sector
+Iceland,2003,0.67,Government sector
+Iceland,2005,0.63,Government sector
+Iceland,2006,0.58,Government sector
+Iceland,2007,0.45,Government sector
+Iceland,2008,0.44,Government sector
+Iceland,2009,0.57,Government sector
+Iceland,2011,0.43,Government sector
+Iceland,2013,0.12,Government sector
+Iceland,2014,0.12,Government sector
+Iceland,2015,0.1,Government sector
+Iceland,2016,0.1,Government sector
+Iceland,2017,0.09,Government sector
+Iceland,2018,0.08,Government sector
+Iceland,2019,0.08,Government sector
+Iceland,2020,0.09,Government sector
+Iceland,2021,0.08,Government sector
+Iceland,2022,0.07,Government sector
+Iceland,2023,0.06,Government sector
+Italy,2000,0.19,Government sector
+Italy,2001,0.19,Government sector
+Italy,2002,0.19,Government sector
+Italy,2003,0.18,Government sector
+Italy,2004,0.19,Government sector
+Italy,2005,0.18,Government sector
+Italy,2006,0.19,Government sector
+Italy,2007,0.16,Government sector
+Italy,2008,0.15,Government sector
+Italy,2009,0.16,Government sector
+Italy,2010,0.17,Government sector
+Italy,2011,0.16,Government sector
+Italy,2012,0.19,Government sector
+Italy,2013,0.18,Government sector
+Italy,2014,0.18,Government sector
+Italy,2015,0.17,Government sector
+Italy,2016,0.17,Government sector
+Italy,2017,0.17,Government sector
+Italy,2018,0.18,Government sector
+Italy,2019,0.18,Government sector
+Italy,2020,0.2,Government sector
+Italy,2021,0.2,Government sector
+Italy,2022,0.19,Government sector
+Italy,2023,0.19,Government sector
+Lithuania,2000,0.25,Government sector
+Lithuania,2001,0.26,Government sector
+Lithuania,2002,0.22,Government sector
+Lithuania,2003,0.18,Government sector
+Lithuania,2004,0.18,Government sector
+Lithuania,2005,0.19,Government sector
+Lithuania,2006,0.18,Government sector
+Lithuania,2007,0.17,Government sector
+Lithuania,2008,0.18,Government sector
+Lithuania,2009,0.19,Government sector
+Lithuania,2010,0.14,Government sector
+Lithuania,2011,0.18,Government sector
+Lithuania,2012,0.18,Government sector
+Lithuania,2013,0.19,Government sector
+Lithuania,2014,0.18,Government sector
+Lithuania,2015,0.18,Government sector
+Lithuania,2016,0.22,Government sector
+Lithuania,2017,0.25,Government sector
+Lithuania,2018,0.21,Government sector
+Lithuania,2019,0.2,Government sector
+Lithuania,2020,0.18,Government sector
+Lithuania,2021,0.17,Government sector
+Lithuania,2022,0.15,Government sector
+Lithuania,2023,0.16,Government sector
+Luxembourg,2000,0.11,Government sector
+Luxembourg,2001,0.14,Government sector
+Luxembourg,2002,0.15,Government sector
+Luxembourg,2003,0.17,Government sector
+Luxembourg,2004,0.17,Government sector
+Luxembourg,2005,0.19,Government sector
+Luxembourg,2006,0.19,Government sector
+Luxembourg,2007,0.21,Government sector
+Luxembourg,2008,0.25,Government sector
+Luxembourg,2009,0.26,Government sector
+Luxembourg,2010,0.3,Government sector
+Luxembourg,2011,0.33,Government sector
+Luxembourg,2012,0.34,Government sector
+Luxembourg,2013,0.36,Government sector
+Luxembourg,2014,0.36,Government sector
+Luxembourg,2015,0.36,Government sector
+Luxembourg,2016,0.32,Government sector
+Luxembourg,2017,0.3,Government sector
+Luxembourg,2018,0.31,Government sector
+Luxembourg,2019,0.28,Government sector
+Luxembourg,2020,0.28,Government sector
+Luxembourg,2021,0.25,Government sector
+Luxembourg,2022,0.27,Government sector
+Luxembourg,2023,0.27,Government sector
+Latvia,2000,0.1,Government sector
+Latvia,2001,0.09,Government sector
+Latvia,2002,0.08,Government sector
+Latvia,2003,0.09,Government sector
+Latvia,2004,0.08,Government sector
+Latvia,2005,0.1,Government sector
+Latvia,2006,0.1,Government sector
+Latvia,2007,0.14,Government sector
+Latvia,2008,0.17,Government sector
+Latvia,2009,0.11,Government sector
+Latvia,2010,0.14,Government sector
+Latvia,2011,0.17,Government sector
+Latvia,2012,0.19,Government sector
+Latvia,2013,0.18,Government sector
+Latvia,2014,0.17,Government sector
+Latvia,2015,0.16,Government sector
+Latvia,2016,0.14,Government sector
+Latvia,2017,0.14,Government sector
+Latvia,2018,0.15,Government sector
+Latvia,2019,0.12,Government sector
+Latvia,2020,0.13,Government sector
+Latvia,2021,0.14,Government sector
+Latvia,2022,0.14,Government sector
+Latvia,2023,0.16,Government sector
+Montenegro,2011,0.08,Government sector
+Montenegro,2013,0.06,Government sector
+Montenegro,2014,0.08,Government sector
+Montenegro,2015,0.07,Government sector
+Montenegro,2016,0.07,Government sector
+Montenegro,2017,0.1,Government sector
+Montenegro,2018,0.13,Government sector
+Montenegro,2019,0.18,Government sector
+North Macedonia,2015,0.06,Government sector
+North Macedonia,2016,0.05,Government sector
+North Macedonia,2017,0.04,Government sector
+North Macedonia,2018,0.04,Government sector
+North Macedonia,2019,0.03,Government sector
+North Macedonia,2020,0.04,Government sector
+North Macedonia,2022,0.03,Government sector
+Malta,2002,0.04,Government sector
+Malta,2003,0.02,Government sector
+Malta,2004,0.01,Government sector
+Malta,2005,0.03,Government sector
+Malta,2006,0.03,Government sector
+Malta,2007,0.01,Government sector
+Malta,2008,0.02,Government sector
+Malta,2009,0.02,Government sector
+Malta,2010,0.02,Government sector
+Malta,2011,0.03,Government sector
+Malta,2012,0.06,Government sector
+Malta,2013,0.07,Government sector
+Malta,2014,0.07,Government sector
+Malta,2015,0.12,Government sector
+Malta,2016,0.01,Government sector
+Malta,2017,0.0,Government sector
+Malta,2018,0.01,Government sector
+Malta,2019,0.01,Government sector
+Malta,2020,0.01,Government sector
+Malta,2021,0.01,Government sector
+Malta,2022,0.01,Government sector
+Malta,2023,0.01,Government sector
+Netherlands,2000,0.22,Government sector
+Netherlands,2001,0.24,Government sector
+Netherlands,2002,0.22,Government sector
+Netherlands,2003,0.24,Government sector
+Netherlands,2004,0.24,Government sector
+Netherlands,2005,0.22,Government sector
+Netherlands,2006,0.21,Government sector
+Netherlands,2007,0.2,Government sector
+Netherlands,2008,0.19,Government sector
+Netherlands,2009,0.21,Government sector
+Netherlands,2010,0.2,Government sector
+Netherlands,2011,0.2,Government sector
+Netherlands,2012,0.23,Government sector
+Netherlands,2013,0.13,Government sector
+Netherlands,2014,0.13,Government sector
+Netherlands,2015,0.13,Government sector
+Netherlands,2016,0.13,Government sector
+Netherlands,2017,0.12,Government sector
+Netherlands,2018,0.12,Government sector
+Netherlands,2019,0.12,Government sector
+Netherlands,2020,0.13,Government sector
+Netherlands,2021,0.12,Government sector
+Netherlands,2022,0.1,Government sector
+Netherlands,2023,0.1,Government sector
+Norway,2001,0.23,Government sector
+Norway,2002,0.26,Government sector
+Norway,2003,0.25,Government sector
+Norway,2004,0.24,Government sector
+Norway,2005,0.23,Government sector
+Norway,2006,0.23,Government sector
+Norway,2007,0.24,Government sector
+Norway,2008,0.23,Government sector
+Norway,2009,0.28,Government sector
+Norway,2010,0.27,Government sector
+Norway,2011,0.27,Government sector
+Norway,2012,0.26,Government sector
+Norway,2013,0.26,Government sector
+Norway,2014,0.26,Government sector
+Norway,2015,0.29,Government sector
+Norway,2016,0.29,Government sector
+Norway,2017,0.28,Government sector
+Norway,2018,0.28,Government sector
+Norway,2019,0.27,Government sector
+Norway,2020,0.28,Government sector
+Norway,2021,0.25,Government sector
+Norway,2022,0.19,Government sector
+Norway,2023,0.22,Government sector
+Poland,2000,0.21,Government sector
+Poland,2001,0.19,Government sector
+Poland,2002,0.25,Government sector
+Poland,2003,0.22,Government sector
+Poland,2004,0.21,Government sector
+Poland,2005,0.2,Government sector
+Poland,2006,0.2,Government sector
+Poland,2007,0.2,Government sector
+Poland,2008,0.21,Government sector
+Poland,2009,0.23,Government sector
+Poland,2010,0.26,Government sector
+Poland,2011,0.26,Government sector
+Poland,2012,0.25,Government sector
+Poland,2013,0.24,Government sector
+Poland,2014,0.23,Government sector
+Poland,2015,0.24,Government sector
+Poland,2016,0.02,Government sector
+Poland,2017,0.02,Government sector
+Poland,2018,0.02,Government sector
+Poland,2019,0.02,Government sector
+Poland,2020,0.03,Government sector
+Poland,2021,0.03,Government sector
+Poland,2022,0.03,Government sector
+Poland,2023,0.03,Government sector
+Portugal,2000,0.17,Government sector
+Portugal,2001,0.16,Government sector
+Portugal,2002,0.14,Government sector
+Portugal,2003,0.12,Government sector
+Portugal,2004,0.11,Government sector
+Portugal,2005,0.11,Government sector
+Portugal,2006,0.11,Government sector
+Portugal,2007,0.11,Government sector
+Portugal,2008,0.11,Government sector
+Portugal,2009,0.12,Government sector
+Portugal,2010,0.11,Government sector
+Portugal,2011,0.11,Government sector
+Portugal,2012,0.07,Government sector
+Portugal,2013,0.09,Government sector
+Portugal,2014,0.08,Government sector
+Portugal,2015,0.08,Government sector
+Portugal,2016,0.07,Government sector
+Portugal,2017,0.07,Government sector
+Portugal,2018,0.07,Government sector
+Portugal,2019,0.07,Government sector
+Portugal,2020,0.08,Government sector
+Portugal,2021,0.08,Government sector
+Portugal,2022,0.07,Government sector
+Portugal,2023,0.08,Government sector
+Romania,2000,0.07,Government sector
+Romania,2001,0.11,Government sector
+Romania,2002,0.09,Government sector
+Romania,2003,0.13,Government sector
+Romania,2004,0.13,Government sector
+Romania,2005,0.14,Government sector
+Romania,2006,0.15,Government sector
+Romania,2007,0.17,Government sector
+Romania,2008,0.23,Government sector
+Romania,2009,0.15,Government sector
+Romania,2010,0.16,Government sector
+Romania,2011,0.19,Government sector
+Romania,2012,0.19,Government sector
+Romania,2013,0.19,Government sector
+Romania,2014,0.16,Government sector
+Romania,2015,0.19,Government sector
+Romania,2016,0.16,Government sector
+Romania,2017,0.16,Government sector
+Romania,2018,0.15,Government sector
+Romania,2019,0.15,Government sector
+Romania,2020,0.15,Government sector
+Romania,2021,0.14,Government sector
+Romania,2022,0.13,Government sector
+Romania,2023,0.14,Government sector
+Serbia,2009,0.24,Government sector
+Serbia,2010,0.25,Government sector
+Serbia,2011,0.22,Government sector
+Serbia,2012,0.24,Government sector
+Serbia,2013,0.22,Government sector
+Serbia,2014,0.17,Government sector
+Serbia,2015,0.21,Government sector
+Serbia,2016,0.21,Government sector
+Serbia,2017,0.23,Government sector
+Serbia,2018,0.25,Government sector
+Serbia,2019,0.22,Government sector
+Serbia,2020,0.25,Government sector
+Serbia,2021,0.25,Government sector
+Serbia,2022,0.24,Government sector
+Serbia,2023,0.23,Government sector
+Sweden,2001,0.11,Government sector
+Sweden,2003,0.13,Government sector
+Sweden,2004,0.1,Government sector
+Sweden,2005,0.16,Government sector
+Sweden,2006,0.16,Government sector
+Sweden,2007,0.16,Government sector
+Sweden,2008,0.16,Government sector
+Sweden,2009,0.15,Government sector
+Sweden,2010,0.16,Government sector
+Sweden,2011,0.14,Government sector
+Sweden,2012,0.16,Government sector
+Sweden,2013,0.12,Government sector
+Sweden,2014,0.12,Government sector
+Sweden,2015,0.11,Government sector
+Sweden,2016,0.11,Government sector
+Sweden,2017,0.12,Government sector
+Sweden,2018,0.12,Government sector
+Sweden,2019,0.15,Government sector
+Sweden,2020,0.15,Government sector
+Sweden,2021,0.15,Government sector
+Sweden,2022,0.15,Government sector
+Sweden,2023,0.15,Government sector
+Slovenia,2000,0.35,Government sector
+Slovenia,2001,0.36,Government sector
+Slovenia,2002,0.34,Government sector
+Slovenia,2003,0.28,Government sector
+Slovenia,2004,0.27,Government sector
+Slovenia,2005,0.35,Government sector
+Slovenia,2006,0.38,Government sector
+Slovenia,2007,0.35,Government sector
+Slovenia,2008,0.36,Government sector
+Slovenia,2009,0.38,Government sector
+Slovenia,2010,0.38,Government sector
+Slovenia,2011,0.35,Government sector
+Slovenia,2012,0.34,Government sector
+Slovenia,2013,0.34,Government sector
+Slovenia,2014,0.29,Government sector
+Slovenia,2015,0.3,Government sector
+Slovenia,2016,0.27,Government sector
+Slovenia,2017,0.26,Government sector
+Slovenia,2018,0.27,Government sector
+Slovenia,2019,0.28,Government sector
+Slovenia,2020,0.3,Government sector
+Slovenia,2021,0.29,Government sector
+Slovenia,2022,0.33,Government sector
+Slovenia,2023,0.35,Government sector
+Slovakia,2000,0.16,Government sector
+Slovakia,2001,0.15,Government sector
+Slovakia,2002,0.15,Government sector
+Slovakia,2003,0.18,Government sector
+Slovakia,2004,0.15,Government sector
+Slovakia,2005,0.15,Government sector
+Slovakia,2006,0.16,Government sector
+Slovakia,2007,0.16,Government sector
+Slovakia,2008,0.15,Government sector
+Slovakia,2009,0.16,Government sector
+Slovakia,2010,0.18,Government sector
+Slovakia,2011,0.18,Government sector
+Slovakia,2012,0.19,Government sector
+Slovakia,2013,0.17,Government sector
+Slovakia,2014,0.25,Government sector
+Slovakia,2015,0.32,Government sector
+Slovakia,2016,0.17,Government sector
+Slovakia,2017,0.18,Government sector
+Slovakia,2018,0.18,Government sector
+Slovakia,2019,0.16,Government sector
+Slovakia,2020,0.18,Government sector
+Slovakia,2021,0.17,Government sector
+Slovakia,2022,0.17,Government sector
+Slovakia,2023,0.19,Government sector
+Austria,2002,0.56,Higher education sector
+Austria,2004,0.58,Higher education sector
+Austria,2005,0.59,Higher education sector
+Austria,2006,0.57,Higher education sector
+Austria,2007,0.58,Higher education sector
+Austria,2008,0.65,Higher education sector
+Austria,2009,0.68,Higher education sector
+Austria,2010,0.71,Higher education sector
+Austria,2011,0.69,Higher education sector
+Austria,2012,0.72,Higher education sector
+Austria,2013,0.72,Higher education sector
+Austria,2014,0.74,Higher education sector
+Austria,2015,0.72,Higher education sector
+Austria,2016,0.7,Higher education sector
+Austria,2017,0.69,Higher education sector
+Austria,2018,0.7,Higher education sector
+Austria,2019,0.69,Higher education sector
+Austria,2020,0.72,Higher education sector
+Austria,2021,0.75,Higher education sector
+Austria,2022,0.73,Higher education sector
+Austria,2023,0.76,Higher education sector
+Belgium,2000,0.39,Higher education sector
+Belgium,2001,0.4,Higher education sector
+Belgium,2002,0.4,Higher education sector
+Belgium,2003,0.41,Higher education sector
+Belgium,2004,0.4,Higher education sector
+Belgium,2005,0.4,Higher education sector
+Belgium,2006,0.39,Higher education sector
+Belgium,2007,0.39,Higher education sector
+Belgium,2008,0.42,Higher education sector
+Belgium,2009,0.47,Higher education sector
+Belgium,2010,0.48,Higher education sector
+Belgium,2011,0.48,Higher education sector
+Belgium,2012,0.48,Higher education sector
+Belgium,2013,0.5,Higher education sector
+Belgium,2014,0.49,Higher education sector
+Belgium,2015,0.49,Higher education sector
+Belgium,2016,0.54,Higher education sector
+Belgium,2017,0.53,Higher education sector
+Belgium,2018,0.53,Higher education sector
+Belgium,2019,0.53,Higher education sector
+Belgium,2020,0.56,Higher education sector
+Belgium,2021,0.55,Higher education sector
+Belgium,2022,0.56,Higher education sector
+Belgium,2023,0.54,Higher education sector
+Bulgaria,2000,0.05,Higher education sector
+Bulgaria,2001,0.05,Higher education sector
+Bulgaria,2002,0.05,Higher education sector
+Bulgaria,2003,0.05,Higher education sector
+Bulgaria,2004,0.04,Higher education sector
+Bulgaria,2005,0.05,Higher education sector
+Bulgaria,2006,0.04,Higher education sector
+Bulgaria,2007,0.04,Higher education sector
+Bulgaria,2008,0.04,Higher education sector
+Bulgaria,2009,0.07,Higher education sector
+Bulgaria,2010,0.07,Higher education sector
+Bulgaria,2011,0.05,Higher education sector
+Bulgaria,2012,0.05,Higher education sector
+Bulgaria,2013,0.05,Higher education sector
+Bulgaria,2014,0.07,Higher education sector
+Bulgaria,2015,0.05,Higher education sector
+Bulgaria,2016,0.04,Higher education sector
+Bulgaria,2017,0.04,Higher education sector
+Bulgaria,2018,0.04,Higher education sector
+Bulgaria,2019,0.06,Higher education sector
+Bulgaria,2020,0.05,Higher education sector
+Bulgaria,2021,0.05,Higher education sector
+Bulgaria,2022,0.05,Higher education sector
+Bulgaria,2023,0.05,Higher education sector
+Switzerland,2000,0.52,Higher education sector
+Switzerland,2002,0.57,Higher education sector
+Switzerland,2004,0.6,Higher education sector
+Switzerland,2006,0.58,Higher education sector
+Switzerland,2008,0.64,Higher education sector
+Switzerland,2010,0.71,Higher education sector
+Switzerland,2012,0.81,Higher education sector
+Switzerland,2014,0.85,Higher education sector
+Switzerland,2015,0.88,Higher education sector
+Switzerland,2017,0.91,Higher education sector
+Switzerland,2019,0.92,Higher education sector
+Switzerland,2021,0.93,Higher education sector
+Switzerland,2022,0.9,Higher education sector
+Cyprus,2000,0.06,Higher education sector
+Cyprus,2001,0.06,Higher education sector
+Cyprus,2002,0.08,Higher education sector
+Cyprus,2003,0.1,Higher education sector
+Cyprus,2004,0.12,Higher education sector
+Cyprus,2005,0.14,Higher education sector
+Cyprus,2006,0.16,Higher education sector
+Cyprus,2007,0.18,Higher education sector
+Cyprus,2008,0.17,Higher education sector
+Cyprus,2009,0.2,Higher education sector
+Cyprus,2010,0.22,Higher education sector
+Cyprus,2011,0.24,Higher education sector
+Cyprus,2012,0.24,Higher education sector
+Cyprus,2013,0.26,Higher education sector
+Cyprus,2014,0.25,Higher education sector
+Cyprus,2015,0.24,Higher education sector
+Cyprus,2016,0.21,Higher education sector
+Cyprus,2017,0.22,Higher education sector
+Cyprus,2018,0.24,Higher education sector
+Cyprus,2019,0.27,Higher education sector
+Cyprus,2020,0.3,Higher education sector
+Cyprus,2021,0.3,Higher education sector
+Cyprus,2022,0.26,Higher education sector
+Cyprus,2023,0.25,Higher education sector
+Czechia,2000,0.16,Higher education sector
+Czechia,2001,0.17,Higher education sector
+Czechia,2002,0.17,Higher education sector
+Czechia,2003,0.17,Higher education sector
+Czechia,2004,0.17,Higher education sector
+Czechia,2005,0.22,Higher education sector
+Czechia,2006,0.23,Higher education sector
+Czechia,2007,0.24,Higher education sector
+Czechia,2008,0.23,Higher education sector
+Czechia,2009,0.26,Higher education sector
+Czechia,2010,0.26,Higher education sector
+Czechia,2011,0.37,Higher education sector
+Czechia,2012,0.48,Higher education sector
+Czechia,2013,0.51,Higher education sector
+Czechia,2014,0.49,Higher education sector
+Czechia,2015,0.47,Higher education sector
+Czechia,2016,0.34,Higher education sector
+Czechia,2017,0.34,Higher education sector
+Czechia,2018,0.4,Higher education sector
+Czechia,2019,0.41,Higher education sector
+Czechia,2020,0.42,Higher education sector
+Czechia,2021,0.39,Higher education sector
+Czechia,2022,0.37,Higher education sector
+Czechia,2023,0.34,Higher education sector
+Germany,2000,0.39,Higher education sector
+Germany,2001,0.4,Higher education sector
+Germany,2002,0.42,Higher education sector
+Germany,2003,0.42,Higher education sector
+Germany,2004,0.4,Higher education sector
+Germany,2005,0.4,Higher education sector
+Germany,2006,0.4,Higher education sector
+Germany,2007,0.39,Higher education sector
+Germany,2008,0.43,Higher education sector
+Germany,2009,0.48,Higher education sector
+Germany,2010,0.49,Higher education sector
+Germany,2011,0.49,Higher education sector
+Germany,2012,0.5,Higher education sector
+Germany,2013,0.5,Higher education sector
+Germany,2014,0.5,Higher education sector
+Germany,2015,0.5,Higher education sector
+Germany,2016,0.52,Higher education sector
+Germany,2017,0.52,Higher education sector
+Germany,2018,0.54,Higher education sector
+Germany,2019,0.54,Higher education sector
+Germany,2020,0.58,Higher education sector
+Germany,2021,0.56,Higher education sector
+Germany,2022,0.56,Higher education sector
+Germany,2023,0.54,Higher education sector
+Denmark,2000,0.43,Higher education sector
+Denmark,2001,0.44,Higher education sector
+Denmark,2002,0.56,Higher education sector
+Denmark,2003,0.58,Higher education sector
+Denmark,2004,0.59,Higher education sector
+Denmark,2005,0.59,Higher education sector
+Denmark,2006,0.62,Higher education sector
+Denmark,2007,0.66,Higher education sector
+Denmark,2008,0.75,Higher education sector
+Denmark,2009,0.84,Higher education sector
+Denmark,2010,0.88,Higher education sector
+Denmark,2011,0.91,Higher education sector
+Denmark,2012,0.94,Higher education sector
+Denmark,2013,1.0,Higher education sector
+Denmark,2014,0.98,Higher education sector
+Denmark,2015,1.04,Higher education sector
+Denmark,2016,1.0,Higher education sector
+Denmark,2017,0.98,Higher education sector
+Denmark,2018,1.0,Higher education sector
+Denmark,2019,1.01,Higher education sector
+Denmark,2020,1.03,Higher education sector
+Denmark,2021,0.94,Higher education sector
+Denmark,2022,1.01,Higher education sector
+Denmark,2023,1.06,Higher education sector
+Estonia,2000,0.31,Higher education sector
+Estonia,2001,0.35,Higher education sector
+Estonia,2002,0.34,Higher education sector
+Estonia,2003,0.36,Higher education sector
+Estonia,2004,0.38,Higher education sector
+Estonia,2005,0.38,Higher education sector
+Estonia,2006,0.45,Higher education sector
+Estonia,2007,0.44,Higher education sector
+Estonia,2008,0.54,Higher education sector
+Estonia,2009,0.59,Higher education sector
+Estonia,2010,0.6,Higher education sector
+Estonia,2011,0.64,Higher education sector
+Estonia,2012,0.68,Higher education sector
+Estonia,2013,0.72,Higher education sector
+Estonia,2014,0.62,Higher education sector
+Estonia,2015,0.6,Higher education sector
+Estonia,2016,0.43,Higher education sector
+Estonia,2017,0.5,Higher education sector
+Estonia,2018,0.62,Higher education sector
+Estonia,2019,0.56,Higher education sector
+Estonia,2020,0.58,Higher education sector
+Estonia,2021,0.59,Higher education sector
+Estonia,2022,0.58,Higher education sector
+Estonia,2023,0.6,Higher education sector
+Greece,2001,0.26,Higher education sector
+Greece,2003,0.26,Higher education sector
+Greece,2004,0.26,Higher education sector
+Greece,2005,0.28,Higher education sector
+Greece,2006,0.27,Higher education sector
+Greece,2007,0.29,Higher education sector
+Greece,2008,0.23,Higher education sector
+Greece,2009,0.23,Higher education sector
+Greece,2010,0.22,Higher education sector
+Greece,2011,0.27,Higher education sector
+Greece,2012,0.29,Higher education sector
+Greece,2013,0.31,Higher education sector
+Greece,2014,0.31,Higher education sector
+Greece,2015,0.37,Higher education sector
+Greece,2016,0.32,Higher education sector
+Greece,2017,0.33,Higher education sector
+Greece,2018,0.34,Higher education sector
+Greece,2019,0.39,Higher education sector
+Greece,2020,0.47,Higher education sector
+Greece,2021,0.43,Higher education sector
+Greece,2022,0.44,Higher education sector
+Greece,2023,0.44,Higher education sector
+Spain,2000,0.26,Higher education sector
+Spain,2001,0.27,Higher education sector
+Spain,2002,0.29,Higher education sector
+Spain,2003,0.31,Higher education sector
+Spain,2004,0.31,Higher education sector
+Spain,2005,0.32,Higher education sector
+Spain,2006,0.32,Higher education sector
+Spain,2007,0.33,Higher education sector
+Spain,2008,0.35,Higher education sector
+Spain,2009,0.38,Higher education sector
+Spain,2010,0.38,Higher education sector
+Spain,2011,0.37,Higher education sector
+Spain,2012,0.36,Higher education sector
+Spain,2013,0.36,Higher education sector
+Spain,2014,0.35,Higher education sector
+Spain,2015,0.34,Higher education sector
+Spain,2016,0.32,Higher education sector
+Spain,2017,0.33,Higher education sector
+Spain,2018,0.33,Higher education sector
+Spain,2019,0.33,Higher education sector
+Spain,2020,0.37,Higher education sector
+Spain,2021,0.37,Higher education sector
+Spain,2022,0.37,Higher education sector
+Spain,2023,0.38,Higher education sector
+Finland,2000,0.58,Higher education sector
+Finland,2001,0.58,Higher education sector
+Finland,2002,0.62,Higher education sector
+Finland,2003,0.63,Higher education sector
+Finland,2004,0.66,Higher education sector
+Finland,2005,0.63,Higher education sector
+Finland,2006,0.62,Higher education sector
+Finland,2007,0.62,Higher education sector
+Finland,2008,0.61,Higher education sector
+Finland,2009,0.71,Higher education sector
+Finland,2010,0.76,Higher education sector
+Finland,2011,0.72,Higher education sector
+Finland,2012,0.74,Higher education sector
+Finland,2013,0.71,Higher education sector
+Finland,2014,0.72,Higher education sector
+Finland,2015,0.7,Higher education sector
+Finland,2016,0.69,Higher education sector
+Finland,2017,0.7,Higher education sector
+Finland,2018,0.7,Higher education sector
+Finland,2019,0.71,Higher education sector
+Finland,2020,0.72,Higher education sector
+Finland,2021,0.7,Higher education sector
+Finland,2022,0.71,Higher education sector
+Finland,2023,0.75,Higher education sector
+France,2000,0.39,Higher education sector
+France,2001,0.41,Higher education sector
+France,2002,0.41,Higher education sector
+France,2003,0.41,Higher education sector
+France,2004,0.39,Higher education sector
+France,2005,0.39,Higher education sector
+France,2006,0.39,Higher education sector
+France,2007,0.4,Higher education sector
+France,2008,0.41,Higher education sector
+France,2009,0.46,Higher education sector
+France,2010,0.47,Higher education sector
+France,2011,0.46,Higher education sector
+France,2012,0.46,Higher education sector
+France,2013,0.47,Higher education sector
+France,2014,0.46,Higher education sector
+France,2015,0.46,Higher education sector
+France,2016,0.46,Higher education sector
+France,2017,0.45,Higher education sector
+France,2018,0.45,Higher education sector
+France,2019,0.44,Higher education sector
+France,2020,0.47,Higher education sector
+France,2021,0.45,Higher education sector
+France,2022,0.45,Higher education sector
+France,2023,0.46,Higher education sector
+Croatia,2002,0.33,Higher education sector
+Croatia,2003,0.37,Higher education sector
+Croatia,2004,0.38,Higher education sector
+Croatia,2005,0.29,Higher education sector
+Croatia,2006,0.27,Higher education sector
+Croatia,2007,0.26,Higher education sector
+Croatia,2008,0.27,Higher education sector
+Croatia,2009,0.27,Higher education sector
+Croatia,2010,0.21,Higher education sector
+Croatia,2011,0.2,Higher education sector
+Croatia,2012,0.2,Higher education sector
+Croatia,2013,0.19,Higher education sector
+Croatia,2014,0.2,Higher education sector
+Croatia,2015,0.2,Higher education sector
+Croatia,2016,0.28,Higher education sector
+Croatia,2017,0.25,Higher education sector
+Croatia,2018,0.3,Higher education sector
+Croatia,2019,0.35,Higher education sector
+Croatia,2020,0.4,Higher education sector
+Croatia,2021,0.4,Higher education sector
+Croatia,2022,0.4,Higher education sector
+Croatia,2023,0.39,Higher education sector
+Hungary,2000,0.19,Higher education sector
+Hungary,2001,0.23,Higher education sector
+Hungary,2002,0.25,Higher education sector
+Hungary,2003,0.25,Higher education sector
+Hungary,2004,0.21,Higher education sector
+Hungary,2005,0.23,Higher education sector
+Hungary,2006,0.24,Higher education sector
+Hungary,2007,0.22,Higher education sector
+Hungary,2008,0.22,Higher education sector
+Hungary,2009,0.24,Higher education sector
+Hungary,2010,0.23,Higher education sector
+Hungary,2011,0.24,Higher education sector
+Hungary,2012,0.23,Higher education sector
+Hungary,2013,0.2,Higher education sector
+Hungary,2014,0.18,Higher education sector
+Hungary,2015,0.16,Higher education sector
+Hungary,2016,0.13,Higher education sector
+Hungary,2017,0.17,Higher education sector
+Hungary,2018,0.19,Higher education sector
+Hungary,2019,0.21,Higher education sector
+Hungary,2020,0.2,Higher education sector
+Hungary,2021,0.23,Higher education sector
+Hungary,2022,0.21,Higher education sector
+Hungary,2023,0.22,Higher education sector
+Ireland,2000,0.22,Higher education sector
+Ireland,2001,0.23,Higher education sector
+Ireland,2002,0.24,Higher education sector
+Ireland,2003,0.28,Higher education sector
+Ireland,2004,0.31,Higher education sector
+Ireland,2005,0.32,Higher education sector
+Ireland,2006,0.32,Higher education sector
+Ireland,2007,0.33,Higher education sector
+Ireland,2008,0.4,Higher education sector
+Ireland,2009,0.43,Higher education sector
+Ireland,2010,0.42,Higher education sector
+Ireland,2011,0.39,Higher education sector
+Ireland,2012,0.36,Higher education sector
+Ireland,2013,0.36,Higher education sector
+Ireland,2014,0.36,Higher education sector
+Ireland,2015,0.27,Higher education sector
+Ireland,2016,0.27,Higher education sector
+Ireland,2017,0.26,Higher education sector
+Ireland,2018,0.21,Higher education sector
+Ireland,2019,0.2,Higher education sector
+Ireland,2020,0.19,Higher education sector
+Ireland,2021,0.17,Higher education sector
+Ireland,2022,0.16,Higher education sector
+Ireland,2023,0.18,Higher education sector
+Iceland,2000,0.42,Higher education sector
+Iceland,2001,0.53,Higher education sector
+Iceland,2002,0.45,Higher education sector
+Iceland,2003,0.58,Higher education sector
+Iceland,2005,0.59,Higher education sector
+Iceland,2006,0.68,Higher education sector
+Iceland,2007,0.64,Higher education sector
+Iceland,2008,0.62,Higher education sector
+Iceland,2009,0.65,Higher education sector
+Iceland,2010,0.64,Higher education sector
+Iceland,2011,0.63,Higher education sector
+Iceland,2013,0.63,Higher education sector
+Iceland,2014,0.64,Higher education sector
+Iceland,2015,0.64,Higher education sector
+Iceland,2016,0.65,Higher education sector
+Iceland,2017,0.66,Higher education sector
+Iceland,2018,0.63,Higher education sector
+Iceland,2019,0.66,Higher education sector
+Iceland,2020,0.71,Higher education sector
+Iceland,2021,0.71,Higher education sector
+Iceland,2022,0.65,Higher education sector
+Iceland,2023,0.6,Higher education sector
+Italy,2000,0.31,Higher education sector
+Italy,2001,0.34,Higher education sector
+Italy,2002,0.35,Higher education sector
+Italy,2003,0.36,Higher education sector
+Italy,2004,0.34,Higher education sector
+Italy,2005,0.31,Higher education sector
+Italy,2006,0.33,Higher education sector
+Italy,2007,0.34,Higher education sector
+Italy,2008,0.35,Higher education sector
+Italy,2009,0.37,Higher education sector
+Italy,2010,0.35,Higher education sector
+Italy,2011,0.34,Higher education sector
+Italy,2012,0.35,Higher education sector
+Italy,2013,0.37,Higher education sector
+Italy,2014,0.36,Higher education sector
+Italy,2015,0.34,Higher education sector
+Italy,2016,0.33,Higher education sector
+Italy,2017,0.32,Higher education sector
+Italy,2018,0.32,Higher education sector
+Italy,2019,0.33,Higher education sector
+Italy,2020,0.35,Higher education sector
+Italy,2021,0.34,Higher education sector
+Italy,2022,0.34,Higher education sector
+Italy,2023,0.33,Higher education sector
+Lithuania,2000,0.21,Higher education sector
+Lithuania,2001,0.21,Higher education sector
+Lithuania,2002,0.33,Higher education sector
+Lithuania,2003,0.35,Higher education sector
+Lithuania,2004,0.4,Higher education sector
+Lithuania,2005,0.41,Higher education sector
+Lithuania,2006,0.39,Higher education sector
+Lithuania,2007,0.41,Higher education sector
+Lithuania,2008,0.42,Higher education sector
+Lithuania,2009,0.43,Higher education sector
+Lithuania,2010,0.42,Higher education sector
+Lithuania,2011,0.49,Higher education sector
+Lithuania,2012,0.48,Higher education sector
+Lithuania,2013,0.52,Higher education sector
+Lithuania,2014,0.54,Higher education sector
+Lithuania,2015,0.58,Higher education sector
+Lithuania,2016,0.33,Higher education sector
+Lithuania,2017,0.32,Higher education sector
+Lithuania,2018,0.33,Higher education sector
+Lithuania,2019,0.36,Higher education sector
+Lithuania,2020,0.42,Higher education sector
+Lithuania,2021,0.39,Higher education sector
+Lithuania,2022,0.37,Higher education sector
+Lithuania,2023,0.45,Higher education sector
+Luxembourg,2000,0.0,Higher education sector
+Luxembourg,2001,0.01,Higher education sector
+Luxembourg,2003,0.01,Higher education sector
+Luxembourg,2004,0.02,Higher education sector
+Luxembourg,2005,0.02,Higher education sector
+Luxembourg,2006,0.04,Higher education sector
+Luxembourg,2007,0.05,Higher education sector
+Luxembourg,2008,0.09,Higher education sector
+Luxembourg,2009,0.13,Higher education sector
+Luxembourg,2010,0.18,Higher education sector
+Luxembourg,2011,0.15,Higher education sector
+Luxembourg,2012,0.2,Higher education sector
+Luxembourg,2013,0.23,Higher education sector
+Luxembourg,2014,0.21,Higher education sector
+Luxembourg,2015,0.23,Higher education sector
+Luxembourg,2016,0.24,Higher education sector
+Luxembourg,2017,0.25,Higher education sector
+Luxembourg,2018,0.24,Higher education sector
+Luxembourg,2019,0.26,Higher education sector
+Luxembourg,2020,0.27,Higher education sector
+Luxembourg,2021,0.26,Higher education sector
+Luxembourg,2022,0.27,Higher education sector
+Luxembourg,2023,0.28,Higher education sector
+Latvia,2000,0.17,Higher education sector
+Latvia,2001,0.17,Higher education sector
+Latvia,2002,0.17,Higher education sector
+Latvia,2003,0.16,Higher education sector
+Latvia,2004,0.15,Higher education sector
+Latvia,2005,0.22,Higher education sector
+Latvia,2006,0.24,Higher education sector
+Latvia,2007,0.25,Higher education sector
+Latvia,2008,0.29,Higher education sector
+Latvia,2009,0.18,Higher education sector
+Latvia,2010,0.25,Higher education sector
+Latvia,2011,0.36,Higher education sector
+Latvia,2012,0.35,Higher education sector
+Latvia,2013,0.27,Higher education sector
+Latvia,2014,0.29,Higher education sector
+Latvia,2015,0.32,Higher education sector
+Latvia,2016,0.2,Higher education sector
+Latvia,2017,0.25,Higher education sector
+Latvia,2018,0.35,Higher education sector
+Latvia,2019,0.36,Higher education sector
+Latvia,2020,0.36,Higher education sector
+Latvia,2021,0.34,Higher education sector
+Latvia,2022,0.38,Higher education sector
+Latvia,2023,0.37,Higher education sector
+Montenegro,2011,0.14,Higher education sector
+Montenegro,2013,0.12,Higher education sector
+Montenegro,2014,0.14,Higher education sector
+Montenegro,2015,0.17,Higher education sector
+Montenegro,2016,0.19,Higher education sector
+Montenegro,2017,0.17,Higher education sector
+Montenegro,2018,0.17,Higher education sector
+Montenegro,2019,0.13,Higher education sector
+North Macedonia,2015,0.3,Higher education sector
+North Macedonia,2016,0.27,Higher education sector
+North Macedonia,2017,0.22,Higher education sector
+North Macedonia,2018,0.21,Higher education sector
+North Macedonia,2019,0.23,Higher education sector
+North Macedonia,2020,0.24,Higher education sector
+North Macedonia,2022,0.24,Higher education sector
+Malta,2002,0.15,Higher education sector
+Malta,2003,0.15,Higher education sector
+Malta,2004,0.15,Higher education sector
+Malta,2005,0.15,Higher education sector
+Malta,2006,0.17,Higher education sector
+Malta,2007,0.17,Higher education sector
+Malta,2008,0.16,Higher education sector
+Malta,2009,0.16,Higher education sector
+Malta,2010,0.21,Higher education sector
+Malta,2011,0.2,Higher education sector
+Malta,2012,0.28,Higher education sector
+Malta,2013,0.28,Higher education sector
+Malta,2014,0.24,Higher education sector
+Malta,2015,0.22,Higher education sector
+Malta,2016,0.2,Higher education sector
+Malta,2017,0.18,Higher education sector
+Malta,2018,0.2,Higher education sector
+Malta,2019,0.2,Higher education sector
+Malta,2020,0.21,Higher education sector
+Malta,2021,0.21,Higher education sector
+Malta,2022,0.21,Higher education sector
+Malta,2023,0.26,Higher education sector
+Netherlands,2000,0.57,Higher education sector
+Netherlands,2001,0.57,Higher education sector
+Netherlands,2002,0.6,Higher education sector
+Netherlands,2003,0.61,Higher education sector
+Netherlands,2004,0.59,Higher education sector
+Netherlands,2005,0.61,Higher education sector
+Netherlands,2006,0.58,Higher education sector
+Netherlands,2007,0.58,Higher education sector
+Netherlands,2008,0.61,Higher education sector
+Netherlands,2009,0.66,Higher education sector
+Netherlands,2010,0.68,Higher education sector
+Netherlands,2011,0.61,Higher education sector
+Netherlands,2012,0.6,Higher education sector
+Netherlands,2013,0.61,Higher education sector
+Netherlands,2014,0.63,Higher education sector
+Netherlands,2015,0.63,Higher education sector
+Netherlands,2016,0.6,Higher education sector
+Netherlands,2017,0.6,Higher education sector
+Netherlands,2018,0.58,Higher education sector
+Netherlands,2019,0.59,Higher education sector
+Netherlands,2020,0.63,Higher education sector
+Netherlands,2021,0.63,Higher education sector
+Netherlands,2022,0.58,Higher education sector
+Netherlands,2023,0.54,Higher education sector
+Norway,2001,0.4,Higher education sector
+Norway,2002,0.44,Higher education sector
+Norway,2003,0.46,Higher education sector
+Norway,2004,0.46,Higher education sector
+Norway,2005,0.46,Higher education sector
+Norway,2006,0.44,Higher education sector
+Norway,2007,0.5,Higher education sector
+Norway,2008,0.5,Higher education sector
+Norway,2009,0.55,Higher education sector
+Norway,2010,0.53,Higher education sector
+Norway,2011,0.51,Higher education sector
+Norway,2012,0.5,Higher education sector
+Norway,2013,0.52,Higher education sector
+Norway,2014,0.53,Higher education sector
+Norway,2015,0.6,Higher education sector
+Norway,2016,0.66,Higher education sector
+Norway,2017,0.7,Higher education sector
+Norway,2018,0.7,Higher education sector
+Norway,2019,0.73,Higher education sector
+Norway,2020,0.75,Higher education sector
+Norway,2021,0.62,Higher education sector
+Norway,2022,0.51,Higher education sector
+Norway,2023,0.58,Higher education sector
+Poland,2000,0.2,Higher education sector
+Poland,2001,0.2,Higher education sector
+Poland,2002,0.19,Higher education sector
+Poland,2003,0.17,Higher education sector
+Poland,2004,0.18,Higher education sector
+Poland,2005,0.18,Higher education sector
+Poland,2006,0.17,Higher education sector
+Poland,2007,0.19,Higher education sector
+Poland,2008,0.2,Higher education sector
+Poland,2009,0.24,Higher education sector
+Poland,2010,0.27,Higher education sector
+Poland,2011,0.26,Higher education sector
+Poland,2012,0.3,Higher education sector
+Poland,2013,0.26,Higher education sector
+Poland,2014,0.28,Higher education sector
+Poland,2015,0.29,Higher education sector
+Poland,2016,0.3,Higher education sector
+Poland,2017,0.34,Higher education sector
+Poland,2018,0.38,Higher education sector
+Poland,2019,0.47,Higher education sector
+Poland,2020,0.48,Higher education sector
+Poland,2021,0.49,Higher education sector
+Poland,2022,0.46,Higher education sector
+Poland,2023,0.52,Higher education sector
+Portugal,2000,0.27,Higher education sector
+Portugal,2001,0.28,Higher education sector
+Portugal,2002,0.27,Higher education sector
+Portugal,2003,0.27,Higher education sector
+Portugal,2004,0.27,Higher education sector
+Portugal,2005,0.27,Higher education sector
+Portugal,2006,0.3,Higher education sector
+Portugal,2007,0.33,Higher education sector
+Portugal,2008,0.5,Higher education sector
+Portugal,2009,0.58,Higher education sector
+Portugal,2010,0.57,Higher education sector
+Portugal,2011,0.53,Higher education sector
+Portugal,2012,0.5,Higher education sector
+Portugal,2013,0.59,Higher education sector
+Portugal,2014,0.59,Higher education sector
+Portugal,2015,0.57,Higher education sector
+Portugal,2016,0.57,Higher education sector
+Portugal,2017,0.56,Higher education sector
+Portugal,2018,0.56,Higher education sector
+Portugal,2019,0.56,Higher education sector
+Portugal,2020,0.58,Higher education sector
+Portugal,2021,0.56,Higher education sector
+Portugal,2022,0.53,Higher education sector
+Portugal,2023,0.51,Higher education sector
+Romania,2000,0.04,Higher education sector
+Romania,2001,0.04,Higher education sector
+Romania,2002,0.06,Higher education sector
+Romania,2003,0.04,Higher education sector
+Romania,2004,0.04,Higher education sector
+Romania,2005,0.06,Higher education sector
+Romania,2006,0.08,Higher education sector
+Romania,2007,0.12,Higher education sector
+Romania,2008,0.16,Higher education sector
+Romania,2009,0.11,Higher education sector
+Romania,2010,0.11,Higher education sector
+Romania,2011,0.11,Higher education sector
+Romania,2012,0.09,Higher education sector
+Romania,2013,0.08,Higher education sector
+Romania,2014,0.06,Higher education sector
+Romania,2015,0.09,Higher education sector
+Romania,2016,0.06,Higher education sector
+Romania,2017,0.05,Higher education sector
+Romania,2018,0.05,Higher education sector
+Romania,2019,0.05,Higher education sector
+Romania,2020,0.04,Higher education sector
+Romania,2021,0.04,Higher education sector
+Romania,2022,0.04,Higher education sector
+Romania,2023,0.06,Higher education sector
+Serbia,2009,0.43,Higher education sector
+Serbia,2010,0.35,Higher education sector
+Serbia,2011,0.37,Higher education sector
+Serbia,2012,0.38,Higher education sector
+Serbia,2013,0.35,Higher education sector
+Serbia,2014,0.32,Higher education sector
+Serbia,2015,0.32,Higher education sector
+Serbia,2016,0.29,Higher education sector
+Serbia,2017,0.3,Higher education sector
+Serbia,2018,0.29,Higher education sector
+Serbia,2019,0.29,Higher education sector
+Serbia,2020,0.27,Higher education sector
+Serbia,2021,0.27,Higher education sector
+Serbia,2022,0.28,Higher education sector
+Serbia,2023,0.26,Higher education sector
+Sweden,2001,0.76,Higher education sector
+Sweden,2003,0.78,Higher education sector
+Sweden,2004,0.77,Higher education sector
+Sweden,2005,0.74,Higher education sector
+Sweden,2006,0.72,Higher education sector
+Sweden,2007,0.71,Higher education sector
+Sweden,2008,0.74,Higher education sector
+Sweden,2009,0.84,Higher education sector
+Sweden,2010,0.84,Higher education sector
+Sweden,2011,0.84,Higher education sector
+Sweden,2012,0.88,Higher education sector
+Sweden,2013,0.89,Higher education sector
+Sweden,2014,0.91,Higher education sector
+Sweden,2015,0.87,Higher education sector
+Sweden,2016,0.87,Higher education sector
+Sweden,2017,0.85,Higher education sector
+Sweden,2018,0.85,Higher education sector
+Sweden,2019,0.8,Higher education sector
+Sweden,2020,0.81,Higher education sector
+Sweden,2021,0.79,Higher education sector
+Sweden,2022,0.76,Higher education sector
+Sweden,2023,0.77,Higher education sector
+Slovenia,2000,0.23,Higher education sector
+Slovenia,2001,0.24,Higher education sector
+Slovenia,2002,0.23,Higher education sector
+Slovenia,2003,0.17,Higher education sector
+Slovenia,2004,0.18,Higher education sector
+Slovenia,2005,0.24,Higher education sector
+Slovenia,2006,0.23,Higher education sector
+Slovenia,2007,0.22,Higher education sector
+Slovenia,2008,0.22,Higher education sector
+Slovenia,2009,0.27,Higher education sector
+Slovenia,2010,0.29,Higher education sector
+Slovenia,2011,0.29,Higher education sector
+Slovenia,2012,0.29,Higher education sector
+Slovenia,2013,0.27,Higher education sector
+Slovenia,2014,0.25,Higher education sector
+Slovenia,2015,0.23,Higher education sector
+Slovenia,2016,0.22,Higher education sector
+Slovenia,2017,0.21,Higher education sector
+Slovenia,2018,0.23,Higher education sector
+Slovenia,2019,0.24,Higher education sector
+Slovenia,2020,0.26,Higher education sector
+Slovenia,2021,0.26,Higher education sector
+Slovenia,2022,0.27,Higher education sector
+Slovenia,2023,0.29,Higher education sector
+Slovakia,2000,0.06,Higher education sector
+Slovakia,2001,0.06,Higher education sector
+Slovakia,2002,0.05,Higher education sector
+Slovakia,2003,0.07,Higher education sector
+Slovakia,2004,0.1,Higher education sector
+Slovakia,2005,0.1,Higher education sector
+Slovakia,2006,0.11,Higher education sector
+Slovakia,2007,0.11,Higher education sector
+Slovakia,2008,0.11,Higher education sector
+Slovakia,2009,0.12,Higher education sector
+Slovakia,2010,0.17,Higher education sector
+Slovakia,2011,0.23,Higher education sector
+Slovakia,2012,0.27,Higher education sector
+Slovakia,2013,0.27,Higher education sector
+Slovakia,2014,0.3,Higher education sector
+Slovakia,2015,0.51,Higher education sector
+Slovakia,2016,0.22,Higher education sector
+Slovakia,2017,0.22,Higher education sector
+Slovakia,2018,0.2,Higher education sector
+Slovakia,2019,0.21,Higher education sector
+Slovakia,2020,0.23,Higher education sector
+Slovakia,2021,0.23,Higher education sector
+Slovakia,2022,0.25,Higher education sector
+Slovakia,2023,0.27,Higher education sector
+Austria,2002,0.01,Private non-profit sector
+Austria,2004,0.01,Private non-profit sector
+Austria,2005,0.01,Private non-profit sector
+Austria,2006,0.01,Private non-profit sector
+Austria,2007,0.01,Private non-profit sector
+Austria,2008,0.01,Private non-profit sector
+Austria,2009,0.01,Private non-profit sector
+Austria,2010,0.01,Private non-profit sector
+Austria,2011,0.01,Private non-profit sector
+Austria,2012,0.01,Private non-profit sector
+Austria,2013,0.01,Private non-profit sector
+Austria,2014,0.01,Private non-profit sector
+Austria,2015,0.02,Private non-profit sector
+Austria,2016,0.02,Private non-profit sector
+Austria,2017,0.02,Private non-profit sector
+Austria,2018,0.02,Private non-profit sector
+Austria,2019,0.02,Private non-profit sector
+Austria,2020,0.02,Private non-profit sector
+Austria,2021,0.02,Private non-profit sector
+Austria,2022,0.02,Private non-profit sector
+Austria,2023,0.02,Private non-profit sector
+Belgium,2000,0.02,Private non-profit sector
+Belgium,2001,0.02,Private non-profit sector
+Belgium,2002,0.02,Private non-profit sector
+Belgium,2003,0.02,Private non-profit sector
+Belgium,2004,0.03,Private non-profit sector
+Belgium,2005,0.02,Private non-profit sector
+Belgium,2006,0.03,Private non-profit sector
+Belgium,2007,0.02,Private non-profit sector
+Belgium,2008,0.02,Private non-profit sector
+Belgium,2009,0.02,Private non-profit sector
+Belgium,2010,0.02,Private non-profit sector
+Belgium,2011,0.02,Private non-profit sector
+Belgium,2012,0.01,Private non-profit sector
+Belgium,2013,0.01,Private non-profit sector
+Belgium,2014,0.01,Private non-profit sector
+Belgium,2015,0.01,Private non-profit sector
+Belgium,2016,0.02,Private non-profit sector
+Belgium,2017,0.01,Private non-profit sector
+Belgium,2018,0.02,Private non-profit sector
+Belgium,2019,0.02,Private non-profit sector
+Belgium,2020,0.02,Private non-profit sector
+Belgium,2021,0.02,Private non-profit sector
+Belgium,2022,0.02,Private non-profit sector
+Belgium,2023,0.02,Private non-profit sector
+Bulgaria,2000,0.0,Private non-profit sector
+Bulgaria,2001,0.0,Private non-profit sector
+Bulgaria,2002,0.0,Private non-profit sector
+Bulgaria,2003,0.0,Private non-profit sector
+Bulgaria,2004,0.0,Private non-profit sector
+Bulgaria,2005,0.01,Private non-profit sector
+Bulgaria,2006,0.0,Private non-profit sector
+Bulgaria,2007,0.0,Private non-profit sector
+Bulgaria,2008,0.0,Private non-profit sector
+Bulgaria,2009,0.0,Private non-profit sector
+Bulgaria,2010,0.0,Private non-profit sector
+Bulgaria,2011,0.0,Private non-profit sector
+Bulgaria,2012,0.01,Private non-profit sector
+Bulgaria,2013,0.0,Private non-profit sector
+Bulgaria,2014,0.01,Private non-profit sector
+Bulgaria,2015,0.01,Private non-profit sector
+Bulgaria,2016,0.0,Private non-profit sector
+Bulgaria,2017,0.01,Private non-profit sector
+Bulgaria,2018,0.0,Private non-profit sector
+Bulgaria,2019,0.01,Private non-profit sector
+Bulgaria,2020,0.01,Private non-profit sector
+Bulgaria,2021,0.0,Private non-profit sector
+Bulgaria,2022,0.0,Private non-profit sector
+Bulgaria,2023,0.0,Private non-profit sector
+Switzerland,2000,0.04,Private non-profit sector
+Switzerland,2004,0.06,Private non-profit sector
+Switzerland,2008,0.04,Private non-profit sector
+Switzerland,2012,0.05,Private non-profit sector
+Switzerland,2015,0.08,Private non-profit sector
+Switzerland,2017,0.08,Private non-profit sector
+Switzerland,2019,0.09,Private non-profit sector
+Switzerland,2021,0.09,Private non-profit sector
+Cyprus,2000,0.02,Private non-profit sector
+Cyprus,2001,0.02,Private non-profit sector
+Cyprus,2002,0.03,Private non-profit sector
+Cyprus,2003,0.02,Private non-profit sector
+Cyprus,2004,0.02,Private non-profit sector
+Cyprus,2005,0.03,Private non-profit sector
+Cyprus,2006,0.03,Private non-profit sector
+Cyprus,2007,0.03,Private non-profit sector
+Cyprus,2008,0.04,Private non-profit sector
+Cyprus,2009,0.06,Private non-profit sector
+Cyprus,2010,0.06,Private non-profit sector
+Cyprus,2011,0.07,Private non-profit sector
+Cyprus,2012,0.06,Private non-profit sector
+Cyprus,2013,0.06,Private non-profit sector
+Cyprus,2014,0.08,Private non-profit sector
+Cyprus,2015,0.07,Private non-profit sector
+Cyprus,2016,0.07,Private non-profit sector
+Cyprus,2017,0.06,Private non-profit sector
+Cyprus,2018,0.07,Private non-profit sector
+Cyprus,2019,0.08,Private non-profit sector
+Cyprus,2020,0.11,Private non-profit sector
+Cyprus,2021,0.1,Private non-profit sector
+Cyprus,2022,0.11,Private non-profit sector
+Cyprus,2023,0.11,Private non-profit sector
+Czechia,2000,0.01,Private non-profit sector
+Czechia,2001,0.01,Private non-profit sector
+Czechia,2002,0.0,Private non-profit sector
+Czechia,2003,0.0,Private non-profit sector
+Czechia,2004,0.0,Private non-profit sector
+Czechia,2005,0.01,Private non-profit sector
+Czechia,2006,0.01,Private non-profit sector
+Czechia,2007,0.01,Private non-profit sector
+Czechia,2008,0.01,Private non-profit sector
+Czechia,2009,0.01,Private non-profit sector
+Czechia,2010,0.01,Private non-profit sector
+Czechia,2011,0.01,Private non-profit sector
+Czechia,2012,0.01,Private non-profit sector
+Czechia,2013,0.01,Private non-profit sector
+Czechia,2014,0.01,Private non-profit sector
+Czechia,2015,0.01,Private non-profit sector
+Czechia,2016,0.0,Private non-profit sector
+Czechia,2017,0.0,Private non-profit sector
+Czechia,2018,0.0,Private non-profit sector
+Czechia,2019,0.01,Private non-profit sector
+Czechia,2020,0.01,Private non-profit sector
+Czechia,2021,0.01,Private non-profit sector
+Czechia,2022,0.01,Private non-profit sector
+Czechia,2023,0.02,Private non-profit sector
+Germany,2022,0.07,Private non-profit sector
+Germany,2023,0.07,Private non-profit sector
+Denmark,2000,0.02,Private non-profit sector
+Denmark,2001,0.02,Private non-profit sector
+Denmark,2002,0.01,Private non-profit sector
+Denmark,2003,0.02,Private non-profit sector
+Denmark,2004,0.02,Private non-profit sector
+Denmark,2005,0.02,Private non-profit sector
+Denmark,2006,0.01,Private non-profit sector
+Denmark,2007,0.01,Private non-profit sector
+Denmark,2008,0.01,Private non-profit sector
+Denmark,2009,0.01,Private non-profit sector
+Denmark,2010,0.01,Private non-profit sector
+Denmark,2011,0.01,Private non-profit sector
+Denmark,2012,0.01,Private non-profit sector
+Denmark,2013,0.01,Private non-profit sector
+Denmark,2014,0.01,Private non-profit sector
+Denmark,2015,0.01,Private non-profit sector
+Denmark,2016,0.01,Private non-profit sector
+Denmark,2017,0.01,Private non-profit sector
+Denmark,2018,0.01,Private non-profit sector
+Denmark,2019,0.01,Private non-profit sector
+Denmark,2020,0.01,Private non-profit sector
+Denmark,2021,0.01,Private non-profit sector
+Denmark,2022,0.01,Private non-profit sector
+Denmark,2023,0.01,Private non-profit sector
+Estonia,2000,0.01,Private non-profit sector
+Estonia,2001,0.01,Private non-profit sector
+Estonia,2002,0.03,Private non-profit sector
+Estonia,2003,0.02,Private non-profit sector
+Estonia,2004,0.02,Private non-profit sector
+Estonia,2005,0.02,Private non-profit sector
+Estonia,2006,0.02,Private non-profit sector
+Estonia,2007,0.03,Private non-profit sector
+Estonia,2008,0.03,Private non-profit sector
+Estonia,2009,0.03,Private non-profit sector
+Estonia,2010,0.02,Private non-profit sector
+Estonia,2011,0.02,Private non-profit sector
+Estonia,2012,0.02,Private non-profit sector
+Estonia,2013,0.02,Private non-profit sector
+Estonia,2014,0.02,Private non-profit sector
+Estonia,2015,0.03,Private non-profit sector
+Estonia,2016,0.02,Private non-profit sector
+Estonia,2017,0.02,Private non-profit sector
+Estonia,2018,0.02,Private non-profit sector
+Estonia,2019,0.02,Private non-profit sector
+Estonia,2020,0.03,Private non-profit sector
+Estonia,2021,0.02,Private non-profit sector
+Estonia,2022,0.01,Private non-profit sector
+Estonia,2023,0.02,Private non-profit sector
+Greece,2001,0.0,Private non-profit sector
+Greece,2003,0.01,Private non-profit sector
+Greece,2004,0.01,Private non-profit sector
+Greece,2005,0.01,Private non-profit sector
+Greece,2006,0.01,Private non-profit sector
+Greece,2007,0.01,Private non-profit sector
+Greece,2008,0.01,Private non-profit sector
+Greece,2009,0.01,Private non-profit sector
+Greece,2010,0.01,Private non-profit sector
+Greece,2011,0.01,Private non-profit sector
+Greece,2012,0.01,Private non-profit sector
+Greece,2013,0.01,Private non-profit sector
+Greece,2014,0.01,Private non-profit sector
+Greece,2015,0.01,Private non-profit sector
+Greece,2016,0.01,Private non-profit sector
+Greece,2017,0.01,Private non-profit sector
+Greece,2018,0.01,Private non-profit sector
+Greece,2019,0.01,Private non-profit sector
+Greece,2020,0.01,Private non-profit sector
+Greece,2021,0.01,Private non-profit sector
+Greece,2022,0.01,Private non-profit sector
+Greece,2023,0.01,Private non-profit sector
+Spain,2000,0.01,Private non-profit sector
+Spain,2001,0.01,Private non-profit sector
+Spain,2002,0.0,Private non-profit sector
+Spain,2003,0.0,Private non-profit sector
+Spain,2004,0.0,Private non-profit sector
+Spain,2005,0.0,Private non-profit sector
+Spain,2006,0.0,Private non-profit sector
+Spain,2007,0.0,Private non-profit sector
+Spain,2008,0.0,Private non-profit sector
+Spain,2009,0.0,Private non-profit sector
+Spain,2010,0.0,Private non-profit sector
+Spain,2011,0.0,Private non-profit sector
+Spain,2012,0.0,Private non-profit sector
+Spain,2013,0.0,Private non-profit sector
+Spain,2014,0.0,Private non-profit sector
+Spain,2015,0.0,Private non-profit sector
+Spain,2016,0.0,Private non-profit sector
+Spain,2017,0.0,Private non-profit sector
+Spain,2018,0.0,Private non-profit sector
+Spain,2019,0.0,Private non-profit sector
+Spain,2020,0.0,Private non-profit sector
+Spain,2021,0.0,Private non-profit sector
+Spain,2022,0.0,Private non-profit sector
+Spain,2023,0.0,Private non-profit sector
+Finland,2000,0.02,Private non-profit sector
+Finland,2001,0.02,Private non-profit sector
+Finland,2002,0.02,Private non-profit sector
+Finland,2003,0.02,Private non-profit sector
+Finland,2004,0.02,Private non-profit sector
+Finland,2005,0.02,Private non-profit sector
+Finland,2006,0.02,Private non-profit sector
+Finland,2007,0.02,Private non-profit sector
+Finland,2008,0.02,Private non-profit sector
+Finland,2009,0.02,Private non-profit sector
+Finland,2010,0.03,Private non-profit sector
+Finland,2011,0.03,Private non-profit sector
+Finland,2012,0.02,Private non-profit sector
+Finland,2013,0.02,Private non-profit sector
+Finland,2014,0.02,Private non-profit sector
+Finland,2015,0.02,Private non-profit sector
+Finland,2016,0.02,Private non-profit sector
+Finland,2017,0.02,Private non-profit sector
+Finland,2018,0.02,Private non-profit sector
+Finland,2019,0.02,Private non-profit sector
+Finland,2020,0.02,Private non-profit sector
+Finland,2021,0.02,Private non-profit sector
+Finland,2022,0.02,Private non-profit sector
+Finland,2023,0.02,Private non-profit sector
+France,2000,0.03,Private non-profit sector
+France,2001,0.03,Private non-profit sector
+France,2002,0.03,Private non-profit sector
+France,2003,0.03,Private non-profit sector
+France,2004,0.03,Private non-profit sector
+France,2005,0.03,Private non-profit sector
+France,2006,0.02,Private non-profit sector
+France,2007,0.02,Private non-profit sector
+France,2008,0.03,Private non-profit sector
+France,2009,0.03,Private non-profit sector
+France,2010,0.03,Private non-profit sector
+France,2011,0.03,Private non-profit sector
+France,2012,0.03,Private non-profit sector
+France,2013,0.03,Private non-profit sector
+France,2014,0.03,Private non-profit sector
+France,2015,0.03,Private non-profit sector
+France,2016,0.04,Private non-profit sector
+France,2017,0.03,Private non-profit sector
+France,2018,0.03,Private non-profit sector
+France,2019,0.04,Private non-profit sector
+France,2020,0.05,Private non-profit sector
+France,2021,0.05,Private non-profit sector
+France,2022,0.04,Private non-profit sector
+France,2023,0.04,Private non-profit sector
+Croatia,2005,0.0,Private non-profit sector
+Croatia,2006,0.0,Private non-profit sector
+Croatia,2007,0.0,Private non-profit sector
+Croatia,2008,0.0,Private non-profit sector
+Croatia,2009,0.0,Private non-profit sector
+Croatia,2010,0.0,Private non-profit sector
+Croatia,2011,0.0,Private non-profit sector
+Croatia,2021,0.0,Private non-profit sector
+Croatia,2022,0.0,Private non-profit sector
+Croatia,2023,0.0,Private non-profit sector
+Ireland,2023,0.0,Private non-profit sector
+Iceland,2000,0.05,Private non-profit sector
+Iceland,2001,0.06,Private non-profit sector
+Iceland,2002,0.06,Private non-profit sector
+Iceland,2003,0.06,Private non-profit sector
+Iceland,2005,0.08,Private non-profit sector
+Iceland,2006,0.08,Private non-profit sector
+Iceland,2007,0.06,Private non-profit sector
+Iceland,2008,0.06,Private non-profit sector
+Iceland,2009,0.06,Private non-profit sector
+Iceland,2011,0.07,Private non-profit sector
+Iceland,2013,0.0,Private non-profit sector
+Iceland,2014,0.0,Private non-profit sector
+Iceland,2015,0.0,Private non-profit sector
+Iceland,2017,0.0,Private non-profit sector
+Iceland,2018,0.0,Private non-profit sector
+Iceland,2023,0.0,Private non-profit sector
+Italy,2002,0.01,Private non-profit sector
+Italy,2003,0.01,Private non-profit sector
+Italy,2004,0.02,Private non-profit sector
+Italy,2005,0.02,Private non-profit sector
+Italy,2006,0.04,Private non-profit sector
+Italy,2007,0.04,Private non-profit sector
+Italy,2008,0.04,Private non-profit sector
+Italy,2009,0.04,Private non-profit sector
+Italy,2010,0.04,Private non-profit sector
+Italy,2011,0.04,Private non-profit sector
+Italy,2012,0.04,Private non-profit sector
+Italy,2013,0.04,Private non-profit sector
+Italy,2014,0.04,Private non-profit sector
+Italy,2015,0.04,Private non-profit sector
+Italy,2016,0.03,Private non-profit sector
+Italy,2017,0.02,Private non-profit sector
+Italy,2018,0.02,Private non-profit sector
+Italy,2019,0.03,Private non-profit sector
+Italy,2020,0.03,Private non-profit sector
+Italy,2021,0.03,Private non-profit sector
+Italy,2022,0.02,Private non-profit sector
+Italy,2023,0.02,Private non-profit sector
+Luxembourg,2009,0.0,Private non-profit sector
+Luxembourg,2010,0.0,Private non-profit sector
+Luxembourg,2011,0.0,Private non-profit sector
+Luxembourg,2012,0.0,Private non-profit sector
+Luxembourg,2021,0.0,Private non-profit sector
+Luxembourg,2022,0.0,Private non-profit sector
+Luxembourg,2023,0.0,Private non-profit sector
+Latvia,2000,0.0,Private non-profit sector
+Latvia,2001,0.0,Private non-profit sector
+Latvia,2002,0.0,Private non-profit sector
+Latvia,2003,0.0,Private non-profit sector
+Latvia,2004,0.0,Private non-profit sector
+Latvia,2005,0.0,Private non-profit sector
+Latvia,2006,0.0,Private non-profit sector
+Montenegro,2011,0.01,Private non-profit sector
+Montenegro,2013,0.01,Private non-profit sector
+Montenegro,2014,0.01,Private non-profit sector
+Montenegro,2015,0.01,Private non-profit sector
+Montenegro,2016,0.02,Private non-profit sector
+Montenegro,2017,0.01,Private non-profit sector
+Montenegro,2018,0.01,Private non-profit sector
+Montenegro,2019,0.0,Private non-profit sector
+North Macedonia,2015,0.0,Private non-profit sector
+North Macedonia,2016,0.01,Private non-profit sector
+North Macedonia,2017,0.01,Private non-profit sector
+North Macedonia,2018,0.01,Private non-profit sector
+North Macedonia,2019,0.01,Private non-profit sector
+North Macedonia,2020,0.0,Private non-profit sector
+North Macedonia,2022,0.0,Private non-profit sector
+Malta,2002,0.0,Private non-profit sector
+Malta,2003,0.0,Private non-profit sector
+Malta,2004,0.0,Private non-profit sector
+Malta,2005,0.0,Private non-profit sector
+Malta,2006,0.0,Private non-profit sector
+Malta,2007,0.0,Private non-profit sector
+Malta,2008,0.0,Private non-profit sector
+Malta,2009,0.0,Private non-profit sector
+Netherlands,2000,0.02,Private non-profit sector
+Netherlands,2002,0.01,Private non-profit sector
+Netherlands,2013,0.0,Private non-profit sector
+Netherlands,2014,0.0,Private non-profit sector
+Netherlands,2015,0.0,Private non-profit sector
+Netherlands,2016,0.0,Private non-profit sector
+Netherlands,2017,0.0,Private non-profit sector
+Netherlands,2018,0.0,Private non-profit sector
+Netherlands,2019,0.0,Private non-profit sector
+Netherlands,2020,0.0,Private non-profit sector
+Netherlands,2021,0.0,Private non-profit sector
+Netherlands,2022,0.0,Private non-profit sector
+Netherlands,2023,0.0,Private non-profit sector
+Norway,2022,0.0,Private non-profit sector
+Norway,2023,0.0,Private non-profit sector
+Poland,2000,0.0,Private non-profit sector
+Poland,2001,0.0,Private non-profit sector
+Poland,2002,0.0,Private non-profit sector
+Poland,2003,0.0,Private non-profit sector
+Poland,2004,0.0,Private non-profit sector
+Poland,2005,0.0,Private non-profit sector
+Poland,2006,0.0,Private non-profit sector
+Poland,2007,0.0,Private non-profit sector
+Poland,2008,0.0,Private non-profit sector
+Poland,2009,0.0,Private non-profit sector
+Poland,2010,0.0,Private non-profit sector
+Poland,2011,0.0,Private non-profit sector
+Poland,2012,0.0,Private non-profit sector
+Poland,2013,0.0,Private non-profit sector
+Poland,2014,0.0,Private non-profit sector
+Poland,2015,0.0,Private non-profit sector
+Poland,2016,0.0,Private non-profit sector
+Poland,2017,0.0,Private non-profit sector
+Poland,2018,0.0,Private non-profit sector
+Poland,2019,0.0,Private non-profit sector
+Poland,2020,0.0,Private non-profit sector
+Poland,2021,0.0,Private non-profit sector
+Poland,2022,0.0,Private non-profit sector
+Poland,2023,0.0,Private non-profit sector
+Portugal,2000,0.08,Private non-profit sector
+Portugal,2001,0.08,Private non-profit sector
+Portugal,2002,0.08,Private non-profit sector
+Portugal,2003,0.08,Private non-profit sector
+Portugal,2004,0.08,Private non-profit sector
+Portugal,2005,0.09,Private non-profit sector
+Portugal,2006,0.1,Private non-profit sector
+Portugal,2007,0.11,Private non-profit sector
+Portugal,2008,0.12,Private non-profit sector
+Portugal,2009,0.14,Private non-profit sector
+Portugal,2010,0.15,Private non-profit sector
+Portugal,2011,0.13,Private non-profit sector
+Portugal,2012,0.12,Private non-profit sector
+Portugal,2013,0.02,Private non-profit sector
+Portugal,2014,0.02,Private non-profit sector
+Portugal,2015,0.02,Private non-profit sector
+Portugal,2016,0.02,Private non-profit sector
+Portugal,2017,0.02,Private non-profit sector
+Portugal,2018,0.02,Private non-profit sector
+Portugal,2019,0.03,Private non-profit sector
+Portugal,2020,0.03,Private non-profit sector
+Portugal,2021,0.04,Private non-profit sector
+Portugal,2022,0.04,Private non-profit sector
+Portugal,2023,0.04,Private non-profit sector
+Romania,2003,0.0,Private non-profit sector
+Romania,2004,0.0,Private non-profit sector
+Romania,2005,0.01,Private non-profit sector
+Romania,2006,0.01,Private non-profit sector
+Romania,2007,0.0,Private non-profit sector
+Romania,2008,0.0,Private non-profit sector
+Romania,2009,0.0,Private non-profit sector
+Romania,2010,0.0,Private non-profit sector
+Romania,2011,0.0,Private non-profit sector
+Romania,2012,0.0,Private non-profit sector
+Romania,2013,0.0,Private non-profit sector
+Romania,2014,0.0,Private non-profit sector
+Romania,2015,0.0,Private non-profit sector
+Romania,2016,0.0,Private non-profit sector
+Romania,2017,0.0,Private non-profit sector
+Romania,2018,0.0,Private non-profit sector
+Romania,2019,0.0,Private non-profit sector
+Romania,2020,0.0,Private non-profit sector
+Romania,2021,0.0,Private non-profit sector
+Romania,2022,0.0,Private non-profit sector
+Romania,2023,0.0,Private non-profit sector
+Serbia,2009,0.0,Private non-profit sector
+Serbia,2010,0.0,Private non-profit sector
+Serbia,2011,0.0,Private non-profit sector
+Serbia,2012,0.0,Private non-profit sector
+Serbia,2013,0.0,Private non-profit sector
+Serbia,2014,0.0,Private non-profit sector
+Serbia,2015,0.0,Private non-profit sector
+Serbia,2016,0.0,Private non-profit sector
+Serbia,2017,0.0,Private non-profit sector
+Serbia,2018,0.0,Private non-profit sector
+Serbia,2019,0.0,Private non-profit sector
+Serbia,2020,0.0,Private non-profit sector
+Serbia,2021,0.0,Private non-profit sector
+Serbia,2022,0.0,Private non-profit sector
+Serbia,2023,0.0,Private non-profit sector
+Sweden,2001,0.0,Private non-profit sector
+Sweden,2003,0.01,Private non-profit sector
+Sweden,2004,0.01,Private non-profit sector
+Sweden,2005,0.01,Private non-profit sector
+Sweden,2006,0.01,Private non-profit sector
+Sweden,2007,0.01,Private non-profit sector
+Sweden,2008,0.01,Private non-profit sector
+Sweden,2009,0.0,Private non-profit sector
+Sweden,2010,0.0,Private non-profit sector
+Sweden,2011,0.01,Private non-profit sector
+Sweden,2012,0.01,Private non-profit sector
+Sweden,2013,0.01,Private non-profit sector
+Sweden,2014,0.01,Private non-profit sector
+Sweden,2015,0.01,Private non-profit sector
+Sweden,2016,0.01,Private non-profit sector
+Sweden,2017,0.0,Private non-profit sector
+Sweden,2018,0.0,Private non-profit sector
+Sweden,2019,0.0,Private non-profit sector
+Sweden,2020,0.0,Private non-profit sector
+Sweden,2021,0.0,Private non-profit sector
+Sweden,2022,0.01,Private non-profit sector
+Sweden,2023,0.01,Private non-profit sector
+Slovenia,2000,0.02,Private non-profit sector
+Slovenia,2001,0.02,Private non-profit sector
+Slovenia,2002,0.02,Private non-profit sector
+Slovenia,2003,0.0,Private non-profit sector
+Slovenia,2004,0.0,Private non-profit sector
+Slovenia,2005,0.0,Private non-profit sector
+Slovenia,2006,0.0,Private non-profit sector
+Slovenia,2007,0.0,Private non-profit sector
+Slovenia,2008,0.0,Private non-profit sector
+Slovenia,2009,0.0,Private non-profit sector
+Slovenia,2010,0.0,Private non-profit sector
+Slovenia,2011,0.0,Private non-profit sector
+Slovenia,2012,0.0,Private non-profit sector
+Slovenia,2013,0.0,Private non-profit sector
+Slovenia,2014,0.0,Private non-profit sector
+Slovenia,2015,0.0,Private non-profit sector
+Slovenia,2016,0.0,Private non-profit sector
+Slovenia,2017,0.0,Private non-profit sector
+Slovenia,2018,0.01,Private non-profit sector
+Slovenia,2019,0.01,Private non-profit sector
+Slovenia,2020,0.02,Private non-profit sector
+Slovenia,2021,0.02,Private non-profit sector
+Slovenia,2022,0.02,Private non-profit sector
+Slovenia,2023,0.02,Private non-profit sector
+Slovakia,2000,0.0,Private non-profit sector
+Slovakia,2001,0.0,Private non-profit sector
+Slovakia,2002,0.0,Private non-profit sector
+Slovakia,2003,0.0,Private non-profit sector
+Slovakia,2004,0.0,Private non-profit sector
+Slovakia,2005,0.0,Private non-profit sector
+Slovakia,2006,0.0,Private non-profit sector
+Slovakia,2007,0.0,Private non-profit sector
+Slovakia,2008,0.0,Private non-profit sector
+Slovakia,2009,0.0,Private non-profit sector
+Slovakia,2010,0.0,Private non-profit sector
+Slovakia,2011,0.0,Private non-profit sector
+Slovakia,2012,0.0,Private non-profit sector
+Slovakia,2013,0.0,Private non-profit sector
+Slovakia,2014,0.0,Private non-profit sector
+Slovakia,2015,0.0,Private non-profit sector
+Slovakia,2016,0.0,Private non-profit sector
+Slovakia,2017,0.0,Private non-profit sector
+Slovakia,2018,0.0,Private non-profit sector
+Slovakia,2019,0.0,Private non-profit sector
+Slovakia,2020,0.0,Private non-profit sector
+Slovakia,2021,0.0,Private non-profit sector
+Slovakia,2022,0.0,Private non-profit sector
+Slovakia,2023,0.0,Private non-profit sector
+Austria,2000,1.9,All sectors
+Austria,2001,2.0,All sectors
+Austria,2002,2.08,All sectors
+Austria,2003,2.19,All sectors
+Austria,2004,2.18,All sectors
+Austria,2005,2.39,All sectors
+Austria,2006,2.38,All sectors
+Austria,2007,2.43,All sectors
+Austria,2008,2.59,All sectors
+Austria,2009,2.61,All sectors
+Austria,2010,2.74,All sectors
+Austria,2011,2.69,All sectors
+Austria,2012,2.93,All sectors
+Austria,2013,2.98,All sectors
+Austria,2014,3.11,All sectors
+Austria,2015,3.07,All sectors
+Austria,2016,3.13,All sectors
+Austria,2017,3.07,All sectors
+Austria,2018,3.11,All sectors
+Austria,2019,3.14,All sectors
+Austria,2020,3.21,All sectors
+Austria,2021,3.26,All sectors
+Austria,2022,3.18,All sectors
+Austria,2023,3.29,All sectors
+Belgium,2000,1.94,All sectors
+Belgium,2001,2.03,All sectors
+Belgium,2002,1.9,All sectors
+Belgium,2003,1.84,All sectors
+Belgium,2004,1.82,All sectors
+Belgium,2005,1.79,All sectors
+Belgium,2006,1.82,All sectors
+Belgium,2007,1.85,All sectors
+Belgium,2008,1.94,All sectors
+Belgium,2009,1.99,All sectors
+Belgium,2010,2.06,All sectors
+Belgium,2011,2.16,All sectors
+Belgium,2012,2.27,All sectors
+Belgium,2013,2.32,All sectors
+Belgium,2014,2.36,All sectors
+Belgium,2015,2.43,All sectors
+Belgium,2016,2.53,All sectors
+Belgium,2017,2.68,All sectors
+Belgium,2018,2.86,All sectors
+Belgium,2019,3.15,All sectors
+Belgium,2020,3.37,All sectors
+Belgium,2021,3.41,All sectors
+Belgium,2022,3.29,All sectors
+Belgium,2023,3.32,All sectors
+Bulgaria,2000,0.5,All sectors
+Bulgaria,2001,0.45,All sectors
+Bulgaria,2002,0.46,All sectors
+Bulgaria,2003,0.47,All sectors
+Bulgaria,2004,0.47,All sectors
+Bulgaria,2005,0.44,All sectors
+Bulgaria,2006,0.44,All sectors
+Bulgaria,2007,0.43,All sectors
+Bulgaria,2008,0.45,All sectors
+Bulgaria,2009,0.49,All sectors
+Bulgaria,2010,0.56,All sectors
+Bulgaria,2011,0.53,All sectors
+Bulgaria,2012,0.6,All sectors
+Bulgaria,2013,0.63,All sectors
+Bulgaria,2014,0.79,All sectors
+Bulgaria,2015,0.95,All sectors
+Bulgaria,2016,0.77,All sectors
+Bulgaria,2017,0.74,All sectors
+Bulgaria,2018,0.76,All sectors
+Bulgaria,2019,0.84,All sectors
+Bulgaria,2020,0.85,All sectors
+Bulgaria,2021,0.77,All sectors
+Bulgaria,2022,0.75,All sectors
+Bulgaria,2023,0.79,All sectors
+Switzerland,2000,2.26,All sectors
+Switzerland,2004,2.61,All sectors
+Switzerland,2008,2.65,All sectors
+Switzerland,2012,2.87,All sectors
+Switzerland,2015,3.08,All sectors
+Switzerland,2017,3.08,All sectors
+Switzerland,2019,3.2,All sectors
+Switzerland,2021,3.3,All sectors
+Cyprus,2000,0.23,All sectors
+Cyprus,2001,0.24,All sectors
+Cyprus,2002,0.28,All sectors
+Cyprus,2003,0.32,All sectors
+Cyprus,2004,0.34,All sectors
+Cyprus,2005,0.37,All sectors
+Cyprus,2006,0.38,All sectors
+Cyprus,2007,0.4,All sectors
+Cyprus,2008,0.39,All sectors
+Cyprus,2009,0.44,All sectors
+Cyprus,2010,0.44,All sectors
+Cyprus,2011,0.45,All sectors
+Cyprus,2012,0.44,All sectors
+Cyprus,2013,0.48,All sectors
+Cyprus,2014,0.51,All sectors
+Cyprus,2015,0.48,All sectors
+Cyprus,2016,0.52,All sectors
+Cyprus,2017,0.54,All sectors
+Cyprus,2018,0.61,All sectors
+Cyprus,2019,0.7,All sectors
+Cyprus,2020,0.83,All sectors
+Cyprus,2021,0.78,All sectors
+Cyprus,2022,0.7,All sectors
+Cyprus,2023,0.68,All sectors
+Czechia,2000,1.1,All sectors
+Czechia,2001,1.09,All sectors
+Czechia,2002,1.09,All sectors
+Czechia,2003,1.14,All sectors
+Czechia,2004,1.14,All sectors
+Czechia,2005,1.16,All sectors
+Czechia,2006,1.23,All sectors
+Czechia,2007,1.3,All sectors
+Czechia,2008,1.24,All sectors
+Czechia,2009,1.29,All sectors
+Czechia,2010,1.31,All sectors
+Czechia,2011,1.53,All sectors
+Czechia,2012,1.76,All sectors
+Czechia,2013,1.87,All sectors
+Czechia,2014,1.94,All sectors
+Czechia,2015,1.91,All sectors
+Czechia,2016,1.65,All sectors
+Czechia,2017,1.75,All sectors
+Czechia,2018,1.88,All sectors
+Czechia,2019,1.9,All sectors
+Czechia,2020,1.95,All sectors
+Czechia,2021,1.93,All sectors
+Czechia,2022,1.89,All sectors
+Czechia,2023,1.83,All sectors
+Germany,2000,2.39,All sectors
+Germany,2001,2.38,All sectors
+Germany,2002,2.41,All sectors
+Germany,2003,2.44,All sectors
+Germany,2004,2.4,All sectors
+Germany,2005,2.4,All sectors
+Germany,2006,2.43,All sectors
+Germany,2007,2.42,All sectors
+Germany,2008,2.57,All sectors
+Germany,2009,2.69,All sectors
+Germany,2010,2.68,All sectors
+Germany,2011,2.75,All sectors
+Germany,2012,2.82,All sectors
+Germany,2013,2.78,All sectors
+Germany,2014,2.82,All sectors
+Germany,2015,2.88,All sectors
+Germany,2016,2.88,All sectors
+Germany,2017,2.99,All sectors
+Germany,2018,3.05,All sectors
+Germany,2019,3.11,All sectors
+Germany,2020,3.09,All sectors
+Germany,2021,3.08,All sectors
+Germany,2022,3.07,All sectors
+Germany,2023,3.11,All sectors
+Denmark,2000,2.19,All sectors
+Denmark,2001,2.32,All sectors
+Denmark,2002,2.44,All sectors
+Denmark,2003,2.51,All sectors
+Denmark,2004,2.41,All sectors
+Denmark,2005,2.39,All sectors
+Denmark,2006,2.4,All sectors
+Denmark,2007,2.51,All sectors
+Denmark,2008,2.76,All sectors
+Denmark,2009,3.04,All sectors
+Denmark,2010,2.91,All sectors
+Denmark,2011,2.94,All sectors
+Denmark,2012,2.98,All sectors
+Denmark,2013,2.96,All sectors
+Denmark,2014,2.92,All sectors
+Denmark,2015,3.06,All sectors
+Denmark,2016,3.1,All sectors
+Denmark,2017,2.94,All sectors
+Denmark,2018,2.98,All sectors
+Denmark,2019,2.95,All sectors
+Denmark,2020,2.97,All sectors
+Denmark,2021,2.74,All sectors
+Denmark,2022,2.87,All sectors
+Denmark,2023,2.99,All sectors
+Estonia,2000,0.6,All sectors
+Estonia,2001,0.7,All sectors
+Estonia,2002,0.71,All sectors
+Estonia,2003,0.76,All sectors
+Estonia,2004,0.85,All sectors
+Estonia,2005,0.92,All sectors
+Estonia,2006,1.11,All sectors
+Estonia,2007,1.06,All sectors
+Estonia,2008,1.25,All sectors
+Estonia,2009,1.4,All sectors
+Estonia,2010,1.58,All sectors
+Estonia,2011,2.3,All sectors
+Estonia,2012,2.1,All sectors
+Estonia,2013,1.7,All sectors
+Estonia,2014,1.41,All sectors
+Estonia,2015,1.44,All sectors
+Estonia,2016,1.22,All sectors
+Estonia,2017,1.25,All sectors
+Estonia,2018,1.38,All sectors
+Estonia,2019,1.59,All sectors
+Estonia,2020,1.73,All sectors
+Estonia,2021,1.75,All sectors
+Estonia,2022,1.76,All sectors
+Estonia,2023,1.84,All sectors
+Greece,2001,0.58,All sectors
+Greece,2003,0.56,All sectors
+Greece,2004,0.54,All sectors
+Greece,2005,0.59,All sectors
+Greece,2006,0.57,All sectors
+Greece,2007,0.59,All sectors
+Greece,2008,0.67,All sectors
+Greece,2009,0.63,All sectors
+Greece,2010,0.6,All sectors
+Greece,2011,0.68,All sectors
+Greece,2012,0.72,All sectors
+Greece,2013,0.82,All sectors
+Greece,2014,0.85,All sectors
+Greece,2015,0.97,All sectors
+Greece,2016,1.01,All sectors
+Greece,2017,1.15,All sectors
+Greece,2018,1.21,All sectors
+Greece,2019,1.26,All sectors
+Greece,2020,1.49,All sectors
+Greece,2021,1.43,All sectors
+Greece,2022,1.48,All sectors
+Greece,2023,1.49,All sectors
+Spain,2000,0.88,All sectors
+Spain,2001,0.89,All sectors
+Spain,2002,0.96,All sectors
+Spain,2003,1.02,All sectors
+Spain,2004,1.04,All sectors
+Spain,2005,1.1,All sectors
+Spain,2006,1.18,All sectors
+Spain,2007,1.24,All sectors
+Spain,2008,1.32,All sectors
+Spain,2009,1.36,All sectors
+Spain,2010,1.35,All sectors
+Spain,2011,1.33,All sectors
+Spain,2012,1.29,All sectors
+Spain,2013,1.27,All sectors
+Spain,2014,1.23,All sectors
+Spain,2015,1.21,All sectors
+Spain,2016,1.18,All sectors
+Spain,2017,1.2,All sectors
+Spain,2018,1.23,All sectors
+Spain,2019,1.24,All sectors
+Spain,2020,1.4,All sectors
+Spain,2021,1.4,All sectors
+Spain,2022,1.41,All sectors
+Spain,2023,1.49,All sectors
+Finland,2000,3.24,All sectors
+Finland,2001,3.19,All sectors
+Finland,2002,3.25,All sectors
+Finland,2003,3.3,All sectors
+Finland,2004,3.31,All sectors
+Finland,2005,3.32,All sectors
+Finland,2006,3.33,All sectors
+Finland,2007,3.34,All sectors
+Finland,2008,3.54,All sectors
+Finland,2009,3.73,All sectors
+Finland,2010,3.71,All sectors
+Finland,2011,3.62,All sectors
+Finland,2012,3.41,All sectors
+Finland,2013,3.28,All sectors
+Finland,2014,3.16,All sectors
+Finland,2015,2.89,All sectors
+Finland,2016,2.75,All sectors
+Finland,2017,2.75,All sectors
+Finland,2018,2.78,All sectors
+Finland,2019,2.82,All sectors
+Finland,2020,2.93,All sectors
+Finland,2021,3.01,All sectors
+Finland,2022,2.98,All sectors
+Finland,2023,3.09,All sectors
+France,2000,2.1,All sectors
+France,2001,2.15,All sectors
+France,2002,2.19,All sectors
+France,2003,2.13,All sectors
+France,2004,2.1,All sectors
+France,2005,2.06,All sectors
+France,2006,2.05,All sectors
+France,2007,2.03,All sectors
+France,2008,2.06,All sectors
+France,2009,2.21,All sectors
+France,2010,2.18,All sectors
+France,2011,2.19,All sectors
+France,2012,2.23,All sectors
+France,2013,2.23,All sectors
+France,2014,2.22,All sectors
+France,2015,2.22,All sectors
+France,2016,2.22,All sectors
+France,2017,2.2,All sectors
+France,2018,2.2,All sectors
+France,2019,2.2,All sectors
+France,2020,2.27,All sectors
+France,2021,2.21,All sectors
+France,2022,2.22,All sectors
+France,2023,2.19,All sectors
+Croatia,2002,0.94,All sectors
+Croatia,2003,0.94,All sectors
+Croatia,2004,1.02,All sectors
+Croatia,2005,0.85,All sectors
+Croatia,2006,0.73,All sectors
+Croatia,2007,0.78,All sectors
+Croatia,2008,0.88,All sectors
+Croatia,2009,0.83,All sectors
+Croatia,2010,0.73,All sectors
+Croatia,2011,0.73,All sectors
+Croatia,2012,0.74,All sectors
+Croatia,2013,0.79,All sectors
+Croatia,2014,0.77,All sectors
+Croatia,2015,0.82,All sectors
+Croatia,2016,0.85,All sectors
+Croatia,2017,0.84,All sectors
+Croatia,2018,0.95,All sectors
+Croatia,2019,1.08,All sectors
+Croatia,2020,1.24,All sectors
+Croatia,2021,1.24,All sectors
+Croatia,2022,1.42,All sectors
+Croatia,2023,1.39,All sectors
+Hungary,2000,0.79,All sectors
+Hungary,2001,0.91,All sectors
+Hungary,2002,0.98,All sectors
+Hungary,2003,0.92,All sectors
+Hungary,2004,0.86,All sectors
+Hungary,2005,0.92,All sectors
+Hungary,2006,0.98,All sectors
+Hungary,2007,0.95,All sectors
+Hungary,2008,0.98,All sectors
+Hungary,2009,1.13,All sectors
+Hungary,2010,1.13,All sectors
+Hungary,2011,1.18,All sectors
+Hungary,2012,1.26,All sectors
+Hungary,2013,1.38,All sectors
+Hungary,2014,1.34,All sectors
+Hungary,2015,1.34,All sectors
+Hungary,2016,1.18,All sectors
+Hungary,2017,1.31,All sectors
+Hungary,2018,1.5,All sectors
+Hungary,2019,1.46,All sectors
+Hungary,2020,1.58,All sectors
+Hungary,2021,1.63,All sectors
+Hungary,2022,1.39,All sectors
+Hungary,2023,1.39,All sectors
+Ireland,2000,1.08,All sectors
+Ireland,2001,1.05,All sectors
+Ireland,2002,1.06,All sectors
+Ireland,2003,1.12,All sectors
+Ireland,2004,1.18,All sectors
+Ireland,2005,1.19,All sectors
+Ireland,2006,1.2,All sectors
+Ireland,2007,1.23,All sectors
+Ireland,2008,1.39,All sectors
+Ireland,2009,1.61,All sectors
+Ireland,2010,1.59,All sectors
+Ireland,2011,1.54,All sectors
+Ireland,2012,1.55,All sectors
+Ireland,2013,1.54,All sectors
+Ireland,2014,1.48,All sectors
+Ireland,2015,1.14,All sectors
+Ireland,2016,1.15,All sectors
+Ireland,2017,1.21,All sectors
+Ireland,2018,1.08,All sectors
+Ireland,2019,1.14,All sectors
+Ireland,2020,1.12,All sectors
+Ireland,2021,1.07,All sectors
+Iceland,2000,2.57,All sectors
+Iceland,2001,2.84,All sectors
+Iceland,2002,2.82,All sectors
+Iceland,2003,2.71,All sectors
+Iceland,2005,2.68,All sectors
+Iceland,2006,2.85,All sectors
+Iceland,2007,2.53,All sectors
+Iceland,2008,2.46,All sectors
+Iceland,2009,2.6,All sectors
+Iceland,2011,2.4,All sectors
+Iceland,2013,1.69,All sectors
+Iceland,2014,1.94,All sectors
+Iceland,2015,2.18,All sectors
+Iceland,2016,2.11,All sectors
+Iceland,2017,2.08,All sectors
+Iceland,2018,2.0,All sectors
+Iceland,2019,2.34,All sectors
+Iceland,2020,2.49,All sectors
+Iceland,2021,2.78,All sectors
+Iceland,2022,2.59,All sectors
+Iceland,2023,2.53,All sectors
+Italy,2000,1.0,All sectors
+Italy,2001,1.04,All sectors
+Italy,2002,1.08,All sectors
+Italy,2003,1.06,All sectors
+Italy,2004,1.05,All sectors
+Italy,2005,1.04,All sectors
+Italy,2006,1.08,All sectors
+Italy,2007,1.12,All sectors
+Italy,2008,1.16,All sectors
+Italy,2009,1.21,All sectors
+Italy,2010,1.21,All sectors
+Italy,2011,1.2,All sectors
+Italy,2012,1.26,All sectors
+Italy,2013,1.29,All sectors
+Italy,2014,1.33,All sectors
+Italy,2015,1.33,All sectors
+Italy,2016,1.36,All sectors
+Italy,2017,1.36,All sectors
+Italy,2018,1.42,All sectors
+Italy,2019,1.46,All sectors
+Italy,2020,1.5,All sectors
+Italy,2021,1.41,All sectors
+Italy,2022,1.37,All sectors
+Italy,2023,1.31,All sectors
+Lithuania,2000,0.58,All sectors
+Lithuania,2001,0.67,All sectors
+Lithuania,2002,0.66,All sectors
+Lithuania,2003,0.66,All sectors
+Lithuania,2004,0.75,All sectors
+Lithuania,2005,0.75,All sectors
+Lithuania,2006,0.79,All sectors
+Lithuania,2007,0.8,All sectors
+Lithuania,2008,0.79,All sectors
+Lithuania,2009,0.83,All sectors
+Lithuania,2010,0.79,All sectors
+Lithuania,2011,0.91,All sectors
+Lithuania,2012,0.9,All sectors
+Lithuania,2013,0.95,All sectors
+Lithuania,2014,1.03,All sectors
+Lithuania,2015,1.04,All sectors
+Lithuania,2016,0.84,All sectors
+Lithuania,2017,0.9,All sectors
+Lithuania,2018,0.93,All sectors
+Lithuania,2019,0.99,All sectors
+Lithuania,2020,1.12,All sectors
+Lithuania,2021,1.1,All sectors
+Lithuania,2022,1.05,All sectors
+Lithuania,2023,1.05,All sectors
+Luxembourg,2000,1.58,All sectors
+Luxembourg,2003,1.62,All sectors
+Luxembourg,2004,1.59,All sectors
+Luxembourg,2005,1.56,All sectors
+Luxembourg,2006,1.65,All sectors
+Luxembourg,2007,1.57,All sectors
+Luxembourg,2008,1.55,All sectors
+Luxembourg,2009,1.59,All sectors
+Luxembourg,2010,1.42,All sectors
+Luxembourg,2011,1.42,All sectors
+Luxembourg,2012,1.21,All sectors
+Luxembourg,2013,1.23,All sectors
+Luxembourg,2014,1.22,All sectors
+Luxembourg,2015,1.25,All sectors
+Luxembourg,2016,1.27,All sectors
+Luxembourg,2017,1.24,All sectors
+Luxembourg,2018,1.17,All sectors
+Luxembourg,2019,1.18,All sectors
+Luxembourg,2020,1.1,All sectors
+Luxembourg,2021,1.04,All sectors
+Luxembourg,2022,1.05,All sectors
+Luxembourg,2023,1.03,All sectors
+Latvia,2000,0.45,All sectors
+Latvia,2001,0.41,All sectors
+Latvia,2002,0.42,All sectors
+Latvia,2003,0.38,All sectors
+Latvia,2004,0.42,All sectors
+Latvia,2005,0.55,All sectors
+Latvia,2006,0.68,All sectors
+Latvia,2007,0.58,All sectors
+Latvia,2008,0.61,All sectors
+Latvia,2009,0.46,All sectors
+Latvia,2010,0.62,All sectors
+Latvia,2011,0.74,All sectors
+Latvia,2012,0.69,All sectors
+Latvia,2013,0.64,All sectors
+Latvia,2014,0.71,All sectors
+Latvia,2015,0.64,All sectors
+Latvia,2016,0.45,All sectors
+Latvia,2017,0.53,All sectors
+Latvia,2018,0.66,All sectors
+Latvia,2019,0.66,All sectors
+Latvia,2020,0.76,All sectors
+Latvia,2021,0.77,All sectors
+Latvia,2022,0.81,All sectors
+Latvia,2023,0.83,All sectors
+Montenegro,2011,0.31,All sectors
+Montenegro,2013,0.37,All sectors
+Montenegro,2014,0.36,All sectors
+Montenegro,2015,0.37,All sectors
+Montenegro,2016,0.32,All sectors
+Montenegro,2017,0.35,All sectors
+Montenegro,2018,0.5,All sectors
+Montenegro,2019,0.36,All sectors
+North Macedonia,2015,0.44,All sectors
+North Macedonia,2016,0.44,All sectors
+North Macedonia,2017,0.35,All sectors
+North Macedonia,2018,0.36,All sectors
+North Macedonia,2019,0.37,All sectors
+North Macedonia,2020,0.37,All sectors
+North Macedonia,2022,0.37,All sectors
+Malta,2002,0.25,All sectors
+Malta,2003,0.24,All sectors
+Malta,2004,0.49,All sectors
+Malta,2005,0.53,All sectors
+Malta,2006,0.58,All sectors
+Malta,2007,0.55,All sectors
+Malta,2008,0.52,All sectors
+Malta,2009,0.51,All sectors
+Malta,2010,0.58,All sectors
+Malta,2011,0.65,All sectors
+Malta,2012,0.79,All sectors
+Malta,2013,0.73,All sectors
+Malta,2014,0.68,All sectors
+Malta,2015,0.7,All sectors
+Malta,2016,0.54,All sectors
+Malta,2017,0.53,All sectors
+Malta,2018,0.55,All sectors
+Malta,2019,0.55,All sectors
+Malta,2020,0.6,All sectors
+Malta,2021,0.6,All sectors
+Malta,2022,0.58,All sectors
+Malta,2023,0.61,All sectors
+Netherlands,2000,1.79,All sectors
+Netherlands,2001,1.79,All sectors
+Netherlands,2002,1.74,All sectors
+Netherlands,2003,1.78,All sectors
+Netherlands,2004,1.78,All sectors
+Netherlands,2005,1.77,All sectors
+Netherlands,2006,1.73,All sectors
+Netherlands,2007,1.66,All sectors
+Netherlands,2008,1.61,All sectors
+Netherlands,2009,1.65,All sectors
+Netherlands,2010,1.69,All sectors
+Netherlands,2011,1.87,All sectors
+Netherlands,2012,1.9,All sectors
+Netherlands,2013,2.14,All sectors
+Netherlands,2014,2.15,All sectors
+Netherlands,2015,2.12,All sectors
+Netherlands,2016,2.12,All sectors
+Netherlands,2017,2.14,All sectors
+Netherlands,2018,2.1,All sectors
+Netherlands,2019,2.14,All sectors
+Netherlands,2020,2.27,All sectors
+Netherlands,2021,2.22,All sectors
+Netherlands,2022,2.18,All sectors
+Netherlands,2023,2.08,All sectors
+Norway,2001,1.56,All sectors
+Norway,2002,1.63,All sectors
+Norway,2003,1.68,All sectors
+Norway,2004,1.54,All sectors
+Norway,2005,1.48,All sectors
+Norway,2006,1.45,All sectors
+Norway,2007,1.56,All sectors
+Norway,2008,1.55,All sectors
+Norway,2009,1.72,All sectors
+Norway,2010,1.64,All sectors
+Norway,2011,1.62,All sectors
+Norway,2012,1.61,All sectors
+Norway,2013,1.64,All sectors
+Norway,2014,1.7,All sectors
+Norway,2015,1.92,All sectors
+Norway,2016,2.03,All sectors
+Norway,2017,2.08,All sectors
+Norway,2018,2.03,All sectors
+Norway,2019,2.14,All sectors
+Norway,2020,2.24,All sectors
+Norway,2021,1.89,All sectors
+Norway,2022,1.56,All sectors
+Norway,2023,1.84,All sectors
+Poland,2000,0.64,All sectors
+Poland,2001,0.62,All sectors
+Poland,2002,0.56,All sectors
+Poland,2003,0.54,All sectors
+Poland,2004,0.55,All sectors
+Poland,2005,0.56,All sectors
+Poland,2006,0.55,All sectors
+Poland,2007,0.56,All sectors
+Poland,2008,0.6,All sectors
+Poland,2009,0.66,All sectors
+Poland,2010,0.72,All sectors
+Poland,2011,0.75,All sectors
+Poland,2012,0.88,All sectors
+Poland,2013,0.88,All sectors
+Poland,2014,0.95,All sectors
+Poland,2015,1.0,All sectors
+Poland,2016,0.96,All sectors
+Poland,2017,1.03,All sectors
+Poland,2018,1.19,All sectors
+Poland,2019,1.31,All sectors
+Poland,2020,1.37,All sectors
+Poland,2021,1.42,All sectors
+Poland,2022,1.44,All sectors
+Poland,2023,1.56,All sectors
+Portugal,2000,0.72,All sectors
+Portugal,2001,0.76,All sectors
+Portugal,2002,0.72,All sectors
+Portugal,2003,0.7,All sectors
+Portugal,2004,0.73,All sectors
+Portugal,2005,0.76,All sectors
+Portugal,2006,0.95,All sectors
+Portugal,2007,1.12,All sectors
+Portugal,2008,1.44,All sectors
+Portugal,2009,1.58,All sectors
+Portugal,2010,1.53,All sectors
+Portugal,2011,1.46,All sectors
+Portugal,2012,1.38,All sectors
+Portugal,2013,1.32,All sectors
+Portugal,2014,1.29,All sectors
+Portugal,2015,1.25,All sectors
+Portugal,2016,1.28,All sectors
+Portugal,2017,1.32,All sectors
+Portugal,2018,1.35,All sectors
+Portugal,2019,1.39,All sectors
+Portugal,2020,1.61,All sectors
+Portugal,2021,1.67,All sectors
+Portugal,2022,1.69,All sectors
+Portugal,2023,1.69,All sectors
+Romania,2000,0.37,All sectors
+Romania,2001,0.39,All sectors
+Romania,2002,0.38,All sectors
+Romania,2003,0.4,All sectors
+Romania,2004,0.39,All sectors
+Romania,2005,0.41,All sectors
+Romania,2006,0.46,All sectors
+Romania,2007,0.51,All sectors
+Romania,2008,0.55,All sectors
+Romania,2009,0.44,All sectors
+Romania,2010,0.45,All sectors
+Romania,2011,0.47,All sectors
+Romania,2012,0.46,All sectors
+Romania,2013,0.39,All sectors
+Romania,2014,0.38,All sectors
+Romania,2015,0.49,All sectors
+Romania,2016,0.49,All sectors
+Romania,2017,0.51,All sectors
+Romania,2018,0.5,All sectors
+Romania,2019,0.47,All sectors
+Romania,2020,0.46,All sectors
+Romania,2021,0.47,All sectors
+Romania,2022,0.46,All sectors
+Romania,2023,0.52,All sectors
+Serbia,2009,0.79,All sectors
+Serbia,2010,0.67,All sectors
+Serbia,2011,0.66,All sectors
+Serbia,2012,0.82,All sectors
+Serbia,2013,0.66,All sectors
+Serbia,2014,0.69,All sectors
+Serbia,2015,0.78,All sectors
+Serbia,2016,0.81,All sectors
+Serbia,2017,0.84,All sectors
+Serbia,2018,0.88,All sectors
+Serbia,2019,0.85,All sectors
+Serbia,2020,0.86,All sectors
+Serbia,2021,0.95,All sectors
+Serbia,2022,0.92,All sectors
+Serbia,2023,0.88,All sectors
+Sweden,2001,3.87,All sectors
+Sweden,2003,3.58,All sectors
+Sweden,2004,3.37,All sectors
+Sweden,2005,3.36,All sectors
+Sweden,2006,3.48,All sectors
+Sweden,2007,3.24,All sectors
+Sweden,2008,3.49,All sectors
+Sweden,2009,3.41,All sectors
+Sweden,2010,3.19,All sectors
+Sweden,2011,3.21,All sectors
+Sweden,2012,3.25,All sectors
+Sweden,2013,3.28,All sectors
+Sweden,2014,3.12,All sectors
+Sweden,2015,3.24,All sectors
+Sweden,2016,3.26,All sectors
+Sweden,2017,3.39,All sectors
+Sweden,2018,3.35,All sectors
+Sweden,2019,3.4,All sectors
+Sweden,2020,3.5,All sectors
+Sweden,2021,3.42,All sectors
+Sweden,2022,3.47,All sectors
+Sweden,2023,3.57,All sectors
+Slovenia,2000,1.37,All sectors
+Slovenia,2001,1.48,All sectors
+Slovenia,2002,1.46,All sectors
+Slovenia,2003,1.26,All sectors
+Slovenia,2004,1.38,All sectors
+Slovenia,2005,1.43,All sectors
+Slovenia,2006,1.55,All sectors
+Slovenia,2007,1.43,All sectors
+Slovenia,2008,1.63,All sectors
+Slovenia,2009,1.83,All sectors
+Slovenia,2010,2.07,All sectors
+Slovenia,2011,2.43,All sectors
+Slovenia,2012,2.58,All sectors
+Slovenia,2013,2.59,All sectors
+Slovenia,2014,2.39,All sectors
+Slovenia,2015,2.22,All sectors
+Slovenia,2016,2.03,All sectors
+Slovenia,2017,1.88,All sectors
+Slovenia,2018,1.96,All sectors
+Slovenia,2019,2.06,All sectors
+Slovenia,2020,2.16,All sectors
+Slovenia,2021,2.14,All sectors
+Slovenia,2022,2.1,All sectors
+Slovenia,2023,2.13,All sectors
+Slovakia,2000,0.64,All sectors
+Slovakia,2001,0.63,All sectors
+Slovakia,2002,0.56,All sectors
+Slovakia,2003,0.57,All sectors
+Slovakia,2004,0.5,All sectors
+Slovakia,2005,0.5,All sectors
+Slovakia,2006,0.47,All sectors
+Slovakia,2007,0.45,All sectors
+Slovakia,2008,0.46,All sectors
+Slovakia,2009,0.47,All sectors
+Slovakia,2010,0.61,All sectors
+Slovakia,2011,0.65,All sectors
+Slovakia,2012,0.79,All sectors
+Slovakia,2013,0.82,All sectors
+Slovakia,2014,0.87,All sectors
+Slovakia,2015,1.15,All sectors
+Slovakia,2016,0.79,All sectors
+Slovakia,2017,0.88,All sectors
+Slovakia,2018,0.83,All sectors
+Slovakia,2019,0.82,All sectors
+Slovakia,2020,0.89,All sectors
+Slovakia,2021,0.9,All sectors
+Slovakia,2022,0.98,All sectors
+Slovakia,2023,1.04,All sectors
