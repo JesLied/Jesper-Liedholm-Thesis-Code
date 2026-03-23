@@ -1,0 +1,11 @@
+python-dotenv
+forex-python
+yfinance
+yahooquery
+pandas
+numpy
+matplotlib
+seaborn
+scipy
+scikit-learn
+seaborn
