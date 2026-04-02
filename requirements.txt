@@ -8,4 +8,7 @@ matplotlib
 seaborn
 scipy
 scikit-learn
+statsmodels
 seaborn
+sdmx1
+pycountry

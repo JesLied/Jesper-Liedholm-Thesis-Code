@@ -7,3 +7,4 @@
 5. [CEPII Language](https://www.cepii.fr/CEPII/en/bdd_modele/bdd_modele_item.asp?id=19)
 6. [IMF CPIS](https://data360.worldbank.org/en/dataset/IMF_CPIS)
 7. [MCIS](https://app2.msci.com/products/index-data-search/s)
+8. [WVS](https://www.worldvaluessurvey.org/WVSEVStrend.jsp)
