@@ -12,3 +12,6 @@ statsmodels
 seaborn
 sdmx1
 pycountry
+beautifulsoup4
+fuzzywuzzy
+python-Levenshtein
