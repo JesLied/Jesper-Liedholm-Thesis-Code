@@ -42,11 +42,10 @@ warnings.filterwarnings("ignore")
 DATA_PATH  = "Data/Clean/Final-v4.csv"
 BASE_YEAR  = 2019
 ETA        = 1.0          # return elasticity (baseline)
-# φ: integration intensity applied to both scenarios
-PHI_SCENARIOS   = [0.00, 0.25, 0.50, 0.75, 1.00]
-# Two modes:
-#   "hard"     : ω=φ, γ=0  — only financial system barriers removed
-#   "combined" : ω=φ, γ=φ  — financial system + language barriers removed together
+# ω = financial (hard) integration intensity
+# γ = language  (soft) integration intensity
+# Both independently take values from PHI_SCENARIOS → 4×4 = 16 scenarios
+PHI_SCENARIOS   = [0.00, 0.25, 0.50, 1.00]
 THETA_SCENARIOS = [0.00, 0.05, 0.10]   # TFP spillover elasticity
 
 EU27 = [
@@ -80,15 +79,8 @@ print(f"  Unique destination countries: {df_full['iso3_j'].nunique()}")
 df_full["M_i"] = df_full["M_i"] / 1e6
 df_full["M_j"] = df_full["M_j"] / 1e6
 
-# Make all monetary columns in billions and round to 3 to save on overflow
-# Y_i, Y_j, a_ij, M_i, M_j
-scale_cols = ["Y_i", "Y_j", "a_ij", "M_i", "M_j"]
-for col in scale_cols:
-    df_full[col] = df_full[col] / 1e6
-    df_full[col] = df_full[col].round(3)
-# print the mean values of each to inspect that they are roughly similar
-print(f"  Mean values after scaling (in billions USD):")
-print(df_full[scale_cols].agg(["mean", "min", "max"]))
+print(f"  Mean values after scaling:")
+print(df_full[["Y_i", "Y_j", "a_ij", "M_i", "M_j"]].agg(["mean", "min", "max"]))
 
 # --- Keep full world data for PPML; also filter to COUNTRIES for simulation ---
 df = df_full[df_full["iso3_i"].isin(COUNTRIES) & df_full["iso3_j"].isin(COUNTRIES)].copy()
@@ -204,6 +196,19 @@ ppml_df['pair'] = ppml_df['iso3_i'] + '_' + ppml_df['iso3_j']
 # Keep all rows, fill NaNs with 0 (PPML can handle this)
 ppml_df = ppml_df.dropna(subset=cols).copy()
 
+# --- Scale monetary columns to prevent overflow in Y_i*Y_j interaction ------
+# a_ij: USD millions → USD trillions  |  Y_i, Y_j: same
+# Slope coefficients for friction regressors (d_ling, d_gci_fin) are
+# invariant to scaling of a_ij and Y — no rescaling needed for them.
+# Y-related coefficients are rescaled back below for interpretability.
+PPML_SCALE_A = 1e6   # a_ij divisor
+PPML_SCALE_Y = 1e6   # Y_i, Y_j divisor
+ppml_df = ppml_df.copy()
+ppml_df["a_ij"] = ppml_df["a_ij"] / PPML_SCALE_A
+ppml_df["Y_i"]  = ppml_df["Y_i"]  / PPML_SCALE_Y
+ppml_df["Y_j"]  = ppml_df["Y_j"]  / PPML_SCALE_Y
+print(f"  PPML scaling: a_ij ÷ {PPML_SCALE_A:.0e}  |  Y_i, Y_j ÷ {PPML_SCALE_Y:.0e}")
+
 print(ppml_df[cols].describe())
 
 # Fit PPML with gravity specification
@@ -222,14 +227,30 @@ ppml = smf.poisson(
 print()
 print(ppml.summary())
 
+# --- Rescale Y-related coefficients back to original units ------------------
+# β_Yi_orig   = β_Yi_scaled   × SCALE_Y
+# β_Yj_orig   = β_Yj_scaled   × SCALE_Y
+# β_YiYj_orig = β_YiYj_scaled × SCALE_Y²
+# Intercept shifts by log(SCALE_A) — not used downstream.
+# Friction coefficients (d_ling, d_gci_fin): UNCHANGED — scale-invariant. ✓
+_rescale = {"Y_i": PPML_SCALE_Y, "Y_j": PPML_SCALE_Y, "Y_i:Y_j": PPML_SCALE_Y ** 2}
+ppml_params_rescaled = ppml.params.copy()
+for _k, _s in _rescale.items():
+    if _k in ppml_params_rescaled:
+        ppml_params_rescaled[_k] *= _s
+print("\n  Y-related coefficients rescaled to original units:")
+for _k in _rescale:
+    if _k in ppml_params_rescaled:
+        print(f"    {_k}: scaled={ppml.params[_k]:+.6e}  →  original={ppml_params_rescaled[_k]:+.6e}")
+
 # Extract gravity coefficients
 beta_dict = {}
 
-beta_d_ling = ppml.params.get("d_ling", 0.0)
+beta_d_ling    = ppml.params.get("d_ling", 0.0)
 beta_d_gci_fin = ppml.params.get("d_gci_financial_composite", 0.0)
 
 print()
-print("  Gravity coefficients:")
+print("  Gravity coefficients (friction regressors — scale-invariant):")
 print(f"    β_d_ling                   : {beta_d_ling:+.4f}   p={ppml.pvalues.get('d_ling', np.nan):.3f}")
 print(f"    β_d_gci_financial_composite: {beta_d_gci_fin:+.4f}   p={ppml.pvalues.get('d_gci_financial_composite', np.nan):.3f}")
 print()
@@ -329,25 +350,23 @@ M_vec = ctry_base["M_i"].values.astype(float)
 # PWT physical capital stock (used as denominator in foreign-capital intensity)
 k_PWT = ctry_base["k_i"].values.astype(float)
 
-R_median = np.nanmedian(R_vec)
-M_median = np.nanmedian(M_vec[M_vec > 0])
-k_PWT_median = np.nanmedian(k_PWT[k_PWT > 0])
+missing_R    = [c for c, v in zip(COUNTRIES, R_vec)   if np.isnan(v)]
+missing_M    = [c for c, v in zip(COUNTRIES, M_vec)   if np.isnan(v) or v <= 0]
+missing_kPWT = [c for c, v in zip(COUNTRIES, k_PWT)   if np.isnan(v) or v <= 0]
 
-n_R_imputed = np.isnan(R_vec).sum()
-n_M_imputed = (np.isnan(M_vec) | (M_vec <= 0)).sum()
-n_k_imputed = (np.isnan(k_PWT) | (k_PWT <= 0)).sum()
+if missing_R:    print(f"  MISSING R    (alpha*Y/k): {missing_R}")
+if missing_M:    print(f"  MISSING M    (market cap): {missing_M}")
+if missing_kPWT: print(f"  MISSING k_PWT (PWT capital): {missing_kPWT}")
 
-R_vec  = np.where(np.isnan(R_vec), R_median, R_vec)
-M_vec  = np.where(np.isnan(M_vec) | (M_vec <= 0), M_median, M_vec)
-k_PWT  = np.where(np.isnan(k_PWT) | (k_PWT <= 0), k_PWT_median, k_PWT)
-
-print(f"  Imputed R for {n_R_imputed} countries  |  M for {n_M_imputed} countries  |  k_PWT for {n_k_imputed} countries")
+assert not missing_R,    f"Missing returns R for: {missing_R}"
+assert not missing_M,    f"Missing market cap M for: {missing_M}"
+assert not missing_kPWT, f"Missing PWT capital k for: {missing_kPWT}"
 
 R_vec = R_vec / R_vec.mean()
 
 print(f"  R range (normalised): [{R_vec.min():.3f}, {R_vec.max():.3f}]  mean={R_vec.mean():.3f}")
-print(f"  M range (USD mn):     [{M_vec.min():.1f}, {M_vec.max():.1f}]  median={M_median:.1f}")
-print(f"  k_PWT range:          [{k_PWT.min():.1f}, {k_PWT.max():.1f}]  median={k_PWT_median:.1f}")
+print(f"  M range (USD mn):     [{M_vec.min():.1f}, {M_vec.max():.1f}]  median={np.median(M_vec):.1f}")
+print(f"  k_PWT range:          [{k_PWT.min():.1f}, {k_PWT.max():.1f}]  median={np.median(k_PWT):.1f}")
 
 R_series = pd.Series(R_vec, index=COUNTRIES)
 print("\n  Top-5 returns (R_j, normalised):")
@@ -364,7 +383,16 @@ print("=" * 60)
 
 A_arr = base.pivot(index="iso3_i", columns="iso3_j", values="a_ij").reindex(
     index=COUNTRIES, columns=COUNTRIES
-).fillna(0)
+)
+
+_total  = A_arr.size
+_nan    = A_arr.isna().sum().sum()
+_zero   = (A_arr == 0).sum().sum()
+_pos    = (A_arr > 0).sum().sum()
+print(f"  A_arr sparsity: {_total} cells — "
+      f"{_pos} positive ({_pos/_total:.1%}), "
+      f"{_zero} zero ({_zero/_total:.1%}), "
+      f"{_nan} NaN ({_nan/_total:.1%})")
 
 s_vec = A_arr.sum(axis=1).values.astype(float)
 
@@ -491,44 +519,39 @@ if corr_off < 0.5:
 
 # ============================================================
 # 9.  CMU SHOCK  (Steps 5–6)
-#   "hard"     : ω=φ, γ=0  — financial system barriers only
-#   "combined" : ω=φ, γ=φ  — financial system + language barriers together
+#   ω ∈ PHI_SCENARIOS — financial (hard) integration intensity
+#   γ ∈ PHI_SCENARIOS — language  (soft) integration intensity
+#   All 4×4 = 16 (ω, γ) combinations computed independently
 # ============================================================
 print()
 print("=" * 60)
-print("STEPS 5-6 — CMU shock (hard vs combined) and counterfactual portfolios")
-print("=" * 60)
+print("STEPS 5-6 — CMU shock (all ω×γ combinations) and counterfactual portfolios")
+print("="  * 60)
 
 eu_flag  = np.array([1 if c in EU27 else 0 for c in COUNTRIES])
 eu_pair  = np.outer(eu_flag, eu_flag) * (1 - np.eye(n))
 eu_pair_bool = eu_pair.astype(bool)
 
 results = {}
-for phi in PHI_SCENARIOS:
-    for mode in ("hard", "combined"):
-        omega = phi
-        gamma = phi if mode == "combined" else 0.0
+for omega in PHI_SCENARIOS:
+    for gamma in PHI_SCENARIOS:
         hard_cmu = np.where(eu_pair_bool, Delta_hard ** (1 - omega), Delta_hard)
         soft_cmu = np.where(eu_pair_bool, Delta_soft ** (1 - gamma), Delta_soft)
         Delta_cmu = hard_cmu * soft_cmu
         np.fill_diagonal(Delta_cmu, np.diag(Delta_baseline))
         Pi_cmu = compute_portfolio(Delta_cmu, R_vec, M_vec, eta)
-        results[(mode, phi)] = {"Delta_cmu": Delta_cmu, "Pi_cmu": Pi_cmu}
+        results[(omega, gamma)] = {"Delta_cmu": Delta_cmu, "Pi_cmu": Pi_cmu}
 
-print(f"  φ scenarios: {PHI_SCENARIOS}")
-print(f"  Modes: hard (fin only, γ=0) and combined (fin+ling, γ=φ)  |  Total: {len(results)} scenarios")
+print(f"  ω (fin/hard) scenarios: {PHI_SCENARIOS}")
+print(f"  γ (ling/soft) scenarios: {PHI_SCENARIOS}")
+print(f"  Total: {len(results)} scenarios (all ω×γ combinations)")
 
 eu_idx_list = [idx[c] for c in EU27]
-print("\n  EU avg home-bias change — hard only (γ=0):")
-for phi in PHI_SCENARIOS:
-    pi_cmu = np.diag(results[("hard", phi)]["Pi_cmu"])
+print("\n  EU avg home-bias change — selected (ω, γ) pairs:")
+for omega, gamma in [(o, g) for o in PHI_SCENARIOS for g in [0.00, PHI_SCENARIOS[-1]]]:
+    pi_cmu = np.diag(results[(omega, gamma)]["Pi_cmu"])
     eu_hb  = np.nanmean(pi_cmu[eu_idx_list]) - np.nanmean(np.diag(Pi_baseline)[eu_idx_list])
-    print(f"    φ={phi:.2f}: Δπ_EU = {eu_hb:+.5f}")
-print("\n  EU avg home-bias change — combined (γ=φ):")
-for phi in PHI_SCENARIOS:
-    pi_cmu = np.diag(results[("combined", phi)]["Pi_cmu"])
-    eu_hb  = np.nanmean(pi_cmu[eu_idx_list]) - np.nanmean(np.diag(Pi_baseline)[eu_idx_list])
-    print(f"    φ={phi:.2f}: Δπ_EU = {eu_hb:+.5f}")
+    print(f"    ω={omega:.2f}, γ={gamma:.2f}: Δπ_EU = {eu_hb:+.5f}")
 
 
 # ============================================================
@@ -551,20 +574,15 @@ bad = [(k, results[k]["k_cmu"].sum()/k_baseline.sum()) for k in results
        if abs(results[k]["k_cmu"].sum()/k_baseline.sum()-1) >= 1e-6]
 if bad:
     for k, r in bad:
-        print(f"    {k}: {r:.8f}  WARNING")
+        print(f"    ω={k[0]:.2f}, γ={k[1]:.2f}: {r:.8f}  WARNING")
 else:
     print("  All OK ✓")
 
-print("\n  EU avg Δk/k (%) — hard only (γ=0):")
-for phi in PHI_SCENARIOS:
-    k_cmu = results[("hard", phi)]["k_cmu"]
+print("\n  EU avg Δk/k (%) — selected (ω, γ) pairs:")
+for omega, gamma in [(o, g) for o in PHI_SCENARIOS for g in [0.00, PHI_SCENARIOS[-1]]]:
+    k_cmu = results[(omega, gamma)]["k_cmu"]
     eu_dk = np.mean((k_cmu - k_baseline)[eu_idx_list] / k_baseline[eu_idx_list]) * 100
-    print(f"    φ={phi:.2f}: {eu_dk:+.4f}%")
-print("\n  EU avg Δk/k (%) — combined (γ=φ):")
-for phi in PHI_SCENARIOS:
-    k_cmu = results[("combined", phi)]["k_cmu"]
-    eu_dk = np.mean((k_cmu - k_baseline)[eu_idx_list] / k_baseline[eu_idx_list]) * 100
-    print(f"    φ={phi:.2f}: {eu_dk:+.4f}%")
+    print(f"    ω={omega:.2f}, γ={gamma:.2f}: {eu_dk:+.4f}%")
 
 
 # ============================================================
@@ -607,11 +625,11 @@ print(f_series.head(10).round(6).to_string())
 
 print(f"\n  f_baseline range: [{f_baseline.min():.6f}, {f_baseline.max():.6f}]")
 
-print("\n  Δf_i (f_CMU - f_baseline) — hard only (φ=1.0), EU27:")
-delta_f = results[("hard", 1.0)]["f_cmu"] - f_baseline
+print("\n  Δf_i (f_CMU - f_baseline) — ω=1.0, γ=0.0 (fin only), EU27:")
+delta_f = results[(1.0, 0.0)]["f_cmu"] - f_baseline
 print(pd.Series(delta_f, index=COUNTRIES)[EU27].round(6).to_string())
-print("\n  Δf_i (f_CMU - f_baseline) — combined (φ=1.0), EU27:")
-delta_f = results[("combined", 1.0)]["f_cmu"] - f_baseline
+print("\n  Δf_i (f_CMU - f_baseline) — ω=1.0, γ=1.0 (fin+ling), EU27:")
+delta_f = results[(1.0, 1.0)]["f_cmu"] - f_baseline
 print(pd.Series(delta_f, index=COUNTRIES)[EU27].round(6).to_string())
 
 
@@ -639,9 +657,17 @@ A_bar  = ctry_base["A_i"].values.astype(float)
 L_prod = ctry_base["L_i"].values.astype(float)
 alp    = ctry_base["alpha_i"].values.astype(float)
 
-A_bar  = np.where(np.isnan(A_bar),  np.nanmedian(A_bar),  A_bar)
-L_prod = np.where(np.isnan(L_prod), np.nanmedian(L_prod), L_prod)
-alp    = np.where(np.isnan(alp),    np.nanmedian(alp),    alp)
+missing_A   = [c for c, v in zip(COUNTRIES, A_bar)  if np.isnan(v)]
+missing_L   = [c for c, v in zip(COUNTRIES, L_prod) if np.isnan(v)]
+missing_alp = [c for c, v in zip(COUNTRIES, alp)    if np.isnan(v)]
+
+if missing_A:   print(f"  MISSING A_bar (TFP): {missing_A}")
+if missing_L:   print(f"  MISSING L    (labour): {missing_L}")
+if missing_alp: print(f"  MISSING alpha (capital share): {missing_alp}")
+
+assert not missing_A,   f"Missing TFP A for: {missing_A}"
+assert not missing_L,   f"Missing labour L for: {missing_L}"
+assert not missing_alp, f"Missing alpha for: {missing_alp}"
 
 
 # ============================================================
@@ -652,24 +678,25 @@ print("=" * 60)
 print("STEP 8 — Output and productivity effects (endogenous TFP)")
 print("=" * 60)
 print(f"  θ scenarios: {THETA_SCENARIOS}")
-print(f"  φ scenarios: {PHI_SCENARIOS}")
-print(f"  Modes: hard (financial system only) and combined (financial system + language)")
+print(f"  ω (fin) scenarios: {PHI_SCENARIOS}")
+print(f"  γ (ling) scenarios: {PHI_SCENARIOS}")
+print(f"  Total output scenarios: {len(THETA_SCENARIOS) * len(PHI_SCENARIOS)**2}")
 print()
 
 eu_idx = [idx[c] for c in EU27 if c in idx]
 
-# Store all (theta, mode, phi) results
-endo_results = {}   # key: (theta, mode, phi)
+# Store all (theta, omega, gamma) results
+endo_results = {}   # key: (theta, omega, gamma)
 
 for theta in THETA_SCENARIOS:
     A_baseline_theta = compute_tfp(A_bar, f_baseline, theta)
     y_baseline_theta = cobb_douglas(A_baseline_theta, k_baseline, L_prod, alp)
     Y_EU_base_theta  = y_baseline_theta[eu_idx].sum()
 
-    for mode in ("hard", "combined"):
-        for phi in PHI_SCENARIOS:
-            f_cmu        = results[(mode, phi)]["f_cmu"]
-            k_cmu        = results[(mode, phi)]["k_cmu"]
+    for omega in PHI_SCENARIOS:
+        for gamma in PHI_SCENARIOS:
+            f_cmu        = results[(omega, gamma)]["f_cmu"]
+            k_cmu        = results[(omega, gamma)]["k_cmu"]
             A_cmu_theta  = compute_tfp(A_bar, f_cmu, theta)
             y_cmu_theta  = cobb_douglas(A_cmu_theta, k_cmu, L_prod, alp)
             Y_EU_cmu_theta = y_cmu_theta[eu_idx].sum()
@@ -681,15 +708,15 @@ for theta in THETA_SCENARIOS:
             mpk_baseline = alp * y_baseline_theta / k_baseline
             mpk_cmu      = alp * y_cmu_theta / k_cmu
 
-            eu_hb_change = (np.nanmean(np.diag(results[(mode, phi)]["Pi_cmu"])[eu_idx])
+            eu_hb_change = (np.nanmean(np.diag(results[(omega, gamma)]["Pi_cmu"])[eu_idx])
                             - np.nanmean(np.diag(Pi_baseline)[eu_idx]))
 
             sigma_mpk_base = pd.Series(mpk_baseline, index=COUNTRIES).loc[EU27].std()
             sigma_mpk_cmu  = pd.Series(mpk_cmu, index=COUNTRIES).loc[EU27].std()
             sigma_reduction = (sigma_mpk_base - sigma_mpk_cmu) / sigma_mpk_base * 100
 
-            endo_results[(theta, mode, phi)] = {
-                "theta": theta, "mode": mode, "phi": phi,
+            endo_results[(theta, omega, gamma)] = {
+                "theta": theta, "omega": omega, "gamma": gamma,
                 "A_baseline":     A_baseline_theta,
                 "A_cmu":          A_cmu_theta,
                 "y_baseline":     y_baseline_theta,
@@ -719,44 +746,43 @@ print("ECONOMIC SENSE CHECKS — Endogenous TFP extension")
 print("=" * 60)
 
 # Check 1: Countries that gain more foreign capital should have larger TFP gains
-print("\nCheck 1 — Corr(Δk_foreign, ΔA) across EU27 at hard, φ=0.50, θ=0.10:")
-r = endo_results[(0.10, "hard", 0.50)]
-delta_k_foreign_eu = results[("hard", 0.50)]["k_foreign_cmu"][eu_idx] - k_foreign_baseline[eu_idx]
+print("\nCheck 1 — Corr(Δk_foreign, ΔA) across EU27 at ω=0.50, γ=0.00, θ=0.10:")
+r = endo_results[(0.10, 0.50, 0.00)]
+delta_k_foreign_eu = results[(0.50, 0.00)]["k_foreign_cmu"][eu_idx] - k_foreign_baseline[eu_idx]
 delta_A_eu         = r["A_cmu"][eu_idx] - r["A_baseline"][eu_idx]
 corr_check1 = np.corrcoef(delta_k_foreign_eu, delta_A_eu)[0, 1]
 print(f"  Correlation = {corr_check1:.6f}  {'OK ✓ (positive)' if corr_check1 > 0 else 'FAIL (should be positive)'}")
 
 # Check 2: θ=0 results have zero TFP effect
 print("\nCheck 2 — θ=0.00: max |ΔA/A| = 0 (no TFP spillover):")
-for mode in ("hard", "combined"):
-    for phi in [0.0, 0.50, 1.0]:
-        r0 = endo_results[(0.00, mode, phi)]
-        max_tfp_diff = np.max(np.abs(r0["tfp_effect"]))
-        print(f"  {mode}, φ={phi}: max |ΔA/A| = {max_tfp_diff:.2e}  {'OK ✓' if max_tfp_diff < 1e-10 else 'WARNING'}")
+for omega, gamma in [(0.0, 0.0), (0.50, 0.0), (1.0, 0.0), (0.50, 0.50), (1.0, 1.0)]:
+    r0 = endo_results[(0.00, omega, gamma)]
+    max_tfp_diff = np.max(np.abs(r0["tfp_effect"]))
+    print(f"  ω={omega:.2f}, γ={gamma:.2f}: max |ΔA/A| = {max_tfp_diff:.2e}  {'OK ✓' if max_tfp_diff < 1e-10 else 'WARNING'}")
 
 # Check 3: TFP contribution < capital deepening contribution for EU27
 print("\nCheck 3 — TFP contribution < capital deepening contribution (EU27 avg):")
-for mode, phi in [("hard", 0.50), ("hard", 1.00), ("combined", 1.00)]:
-    r10 = endo_results[(0.10, mode, phi)]
+for omega, gamma in [(0.50, 0.00), (1.00, 0.00), (1.00, 1.00)]:
+    r10 = endo_results[(0.10, omega, gamma)]
     cap_share = abs(r10["cap_contribution_EU"])
     tfp_share = abs(r10["tfp_contribution_EU"])
     ok = tfp_share < cap_share
-    print(f"  {mode}, φ={phi}: capital={cap_share:.4f}%  TFP={tfp_share:.4f}%  {'OK ✓' if ok else 'WARNING: TFP dominates'}")
+    print(f"  ω={omega:.2f}, γ={gamma:.2f}: capital={cap_share:.4f}%  TFP={tfp_share:.4f}%  {'OK ✓' if ok else 'WARNING: TFP dominates'}")
 
 # Check 4: Non-EU countries lose foreign capital under full combined CMU
-print("\nCheck 4 — Non-EU lose foreign capital under combined φ=1.0, θ=0.10:")
-r_full = endo_results[(0.10, "combined", 1.00)]
+print("\nCheck 4 — Non-EU lose foreign capital under ω=1.0, γ=1.0, θ=0.10:")
+r_full = endo_results[(0.10, 1.00, 1.00)]
 outside_idx = [idx[c] for c in OUTSIDE]
 for ci in outside_idx:
     c = COUNTRIES[ci]
-    dk_f = results[("combined", 1.00)]["k_foreign_cmu"][ci] - k_foreign_baseline[ci]
+    dk_f = results[(1.00, 1.00)]["k_foreign_cmu"][ci] - k_foreign_baseline[ci]
     dA   = r_full["A_cmu"][ci] - r_full["A_baseline"][ci]
     ok   = dk_f < 0 and dA < 0
     print(f"  {c}: Δk_foreign={dk_f:+.1f}  ΔA={dA:+.6f}  {'OK ✓' if ok else 'NOTE: unexpected sign'}")
 
 # Check 5: EU GDP gain increasing in θ (hard-only, φ=1.0)
-print("\nCheck 5 — EU GDP gain increasing in θ (hard, φ=1.0):")
-gains = [endo_results[(theta, "hard", 1.00)]["dY_EU_pct"] for theta in THETA_SCENARIOS]
+print("\nCheck 5 — EU GDP gain increasing in θ (ω=1.0, γ=0.0):")
+gains = [endo_results[(theta, 1.00, 0.00)]["dY_EU_pct"] for theta in THETA_SCENARIOS]
 mono  = all(gains[i] <= gains[i+1] for i in range(len(gains)-1))
 print(f"  gains = {[f'{g:.5f}%' for g in gains]}  {'OK ✓' if mono else 'WARNING: not monotone'}")
 
@@ -774,7 +800,7 @@ def run_model_variant_endo(D_hard, D_soft, R, M, s, k_pwt, A_bar_in,
                            EU27_list, eta_val, phi_list, theta_val, label):
     """
     Full model run for given (eta, theta).
-    Scenarios: hard (γ=0) and combined (γ=φ) for each φ.
+    Scenarios: all (ω, γ) combinations from phi_list × phi_list.
     Re-calibrates Δ_ii for the given eta.
     """
     n_ = len(countries)
@@ -819,10 +845,9 @@ def run_model_variant_endo(D_hard, D_soft, R, M, s, k_pwt, A_bar_in,
     Y_EU_base_ = y_base_[eu_idx_].sum()
 
     rows = []
-    for phi in phi_list:
-        for mode in ("hard", "combined"):
-            gamma = phi if mode == "combined" else 0.0
-            hard_cmu_ = np.where(eu_pair_bool_, D_hard ** (1 - phi), D_hard)
+    for omega in phi_list:
+        for gamma in phi_list:
+            hard_cmu_ = np.where(eu_pair_bool_, D_hard ** (1 - omega), D_hard)
             soft_cmu_ = np.where(eu_pair_bool_, D_soft ** (1 - gamma), D_soft)
             D_cmu_    = hard_cmu_ * soft_cmu_
             np.fill_diagonal(D_cmu_, np.diag(D))
@@ -838,7 +863,7 @@ def run_model_variant_endo(D_hard, D_soft, R, M, s, k_pwt, A_bar_in,
             dY_EU = (Y_EU_cmu_ - Y_EU_base_) / Y_EU_base_ * 100
             rows.append({
                 "label": label, "eta": eta_val, "theta": theta_val,
-                "mode": mode, "phi": phi,
+                "omega": omega, "gamma": gamma,
                 "ΔY_EU/Y_EU (%)": dY_EU,
                 "Avg ΔHomeBias (EU)": eu_hb_ch,
             })
@@ -861,7 +886,7 @@ for eta_val, eta_lbl in [(0.5, "η=0.5"), (1.0, "η=1.0 (baseline)"), (2.0, "η=
         rob_rows.append(r)
 
 rob_df = pd.concat(rob_rows, ignore_index=True)
-print("\n  Robustness Summary (η × θ × mode × φ):")
+print("\n  Robustness Summary (η × θ × ω × γ):")
 print(rob_df.round(5).to_string(index=False))
 
 if (rob_df["ΔY_EU/Y_EU (%)"] >= 0).all():
@@ -894,29 +919,29 @@ print(grav_summary.round(4).to_string())
 print(f"  Specification: d_geo + d_ling + same_legal_origin + ln_Y_i + ln_Y_j + C(year)")
 
 # -----------------------------------------------------------
-print("\nTable 2a — EU GDP gain (%) — hard only (γ=0), θ=0.10")
-print(f"  {'φ':>6}  {'Avg Δπ_EU':>12}  {'ΔY_EU/Y_EU':>12}  {'Capital':>12}  {'TFP':>10}  {'σ_MPK red.':>12}")
+print("\nTable 2a — EU GDP gain (%) — γ=0.00 (fin only), θ=0.10")
+print(f"  {'ω':>6}  {'Avg Δπ_EU':>12}  {'ΔY_EU/Y_EU':>12}  {'Capital':>12}  {'TFP':>10}  {'σ_MPK red.':>12}")
 print("-" * 72)
-for phi in PHI_SCENARIOS:
-    r = endo_results[(0.10, "hard", phi)]
-    print(f"  {phi:>6.2f}  {r['eu_hb_change']:>12.5f}  {r['dY_EU_pct']:>12.5f}%"
+for omega in PHI_SCENARIOS:
+    r = endo_results[(0.10, omega, 0.00)]
+    print(f"  {omega:>6.2f}  {r['eu_hb_change']:>12.5f}  {r['dY_EU_pct']:>12.5f}%"
           f"  {r['cap_contribution_EU']:>12.5f}%  {r['tfp_contribution_EU']:>10.5f}%"
           f"  {r['sigma_reduction']:>12.2f}%")
 
-print("\nTable 2b — EU GDP gain (%) — combined (γ=φ), θ=0.10")
-print(f"  {'φ':>6}  {'Avg Δπ_EU':>12}  {'ΔY_EU/Y_EU':>12}  {'Capital':>12}  {'TFP':>10}  {'σ_MPK red.':>12}")
+print("\nTable 2b — EU GDP gain (%) — γ=ω (fin+ling together), θ=0.10")
+print(f"  {'ω':>6}  {'Avg Δπ_EU':>12}  {'ΔY_EU/Y_EU':>12}  {'Capital':>12}  {'TFP':>10}  {'σ_MPK red.':>12}")
 print("-" * 72)
-for phi in PHI_SCENARIOS:
-    r = endo_results[(0.10, "combined", phi)]
-    print(f"  {phi:>6.2f}  {r['eu_hb_change']:>12.5f}  {r['dY_EU_pct']:>12.5f}%"
+for omega in PHI_SCENARIOS:
+    r = endo_results[(0.10, omega, omega)]
+    print(f"  {omega:>6.2f}  {r['eu_hb_change']:>12.5f}  {r['dY_EU_pct']:>12.5f}%"
           f"  {r['cap_contribution_EU']:>12.5f}%  {r['tfp_contribution_EU']:>10.5f}%"
           f"  {r['sigma_reduction']:>12.2f}%")
 
 # -----------------------------------------------------------
-print("\nTable 3 — Country-level results: hard only, φ=1.0, θ=0.10 (EU27):")
-r_main = endo_results[(0.10, "hard", 1.00)]
+print("\nTable 3 — Country-level results: ω=1.0, γ=0.0, θ=0.10 (EU27):")
+r_main = endo_results[(0.10, 1.00, 0.00)]
 ctry_table = pd.DataFrame({
-    "Δk_i/k_i (%)":  (results[("hard", 1.00)]["k_cmu"] - k_baseline) / k_baseline * 100,
+    "Δk_i/k_i (%)":  (results[(1.00, 0.00)]["k_cmu"] - k_baseline) / k_baseline * 100,
     "ΔA_i/A_i (%)":  (r_main["A_cmu"] - r_main["A_baseline"]) / r_main["A_baseline"] * 100,
     "Δy_i/y_i (%)":  r_main["total_effect"] * 100,
     "Capital share": (r_main["capital_effect"] / np.where(r_main["total_effect"] == 0, np.nan, r_main["total_effect"])),
@@ -925,8 +950,8 @@ ctry_table = pd.DataFrame({
 print(ctry_table.loc[EU27].round(4).to_string())
 
 # -----------------------------------------------------------
-print("\nTable 4 — Top 5 EU capital gainers: combined, φ=1.0, θ=0.10:")
-dk_full   = (results[("combined", 1.00)]["k_cmu"] - k_baseline) / k_baseline * 100
+print("\nTable 4 — Top 5 EU capital gainers: ω=1.0, γ=1.0, θ=0.10:")
+dk_full   = (results[(1.00, 1.00)]["k_cmu"] - k_baseline) / k_baseline * 100
 dk_series = pd.Series(dk_full, index=COUNTRIES)
 print(dk_series[EU27].sort_values(ascending=False).head(5).round(3).to_string())
 
@@ -934,11 +959,237 @@ print("\nTable 5 — Off-diagonal portfolio correlation (data vs model):")
 print(f"  {corr_off:.4f}")
 
 print("\nTable 6 — MPK dispersion reduction (EU27), θ=0.10:")
-print(f"  {'mode':>10}  {'φ':>6}  {'σ_baseline':>12}  {'σ_CMU':>10}  {'reduction (%)':>14}")
+print(f"  {'ω':>6}  {'γ':>6}  {'σ_baseline':>12}  {'σ_CMU':>10}  {'reduction (%)':>14}")
 print("-" * 58)
-for mode in ("hard", "combined"):
-    for phi in PHI_SCENARIOS:
-        r = endo_results[(0.10, mode, phi)]
-        print(f"  {mode:>10}  {phi:>6.2f}  {r['sigma_mpk_base']:>12.6f}  {r['sigma_mpk_cmu']:>10.6f}  {r['sigma_reduction']:>14.2f}%")
+for omega in PHI_SCENARIOS:
+    for gamma in PHI_SCENARIOS:
+        r = endo_results[(0.10, omega, gamma)]
+        print(f"  {omega:>6.2f}  {gamma:>6.2f}  {r['sigma_mpk_base']:>12.6f}  {r['sigma_mpk_cmu']:>10.6f}  {r['sigma_reduction']:>14.2f}%")
 
 print("\nDone.")
+
+# ============================================================
+# 18.  EXPORT TO EXCEL
+# ============================================================
+print()
+print("=" * 60)
+print("STEP 10 — Exporting results to v4-simulation.xlsx")
+print("=" * 60)
+
+EXCEL_PATH = "v4-simulation.xlsx"
+
+with pd.ExcelWriter(EXCEL_PATH, engine="openpyxl") as writer:
+
+    # ----------------------------------------------------------
+    # Sheet 1: Config
+    # ----------------------------------------------------------
+    config_df = pd.DataFrame([
+        {"parameter": "BASE_YEAR",      "value": BASE_YEAR},
+        {"parameter": "ETA (baseline)", "value": ETA},
+        {"parameter": "PHI_SCENARIOS",  "value": str(PHI_SCENARIOS)},
+        {"parameter": "THETA_SCENARIOS","value": str(THETA_SCENARIOS)},
+        {"parameter": "n_countries",    "value": n},
+        {"parameter": "EU27",           "value": ", ".join(EU27)},
+        {"parameter": "OUTSIDE",        "value": ", ".join(OUTSIDE)},
+        {"parameter": "FINANCIAL_CENTRES", "value": ", ".join(sorted(FINANCIAL_CENTRES))},
+        {"parameter": "DATA_PATH",      "value": DATA_PATH},
+    ])
+    config_df.to_excel(writer, sheet_name="Config", index=False)
+
+    # ----------------------------------------------------------
+    # Sheet 2: Gravity_Coefficients
+    # ----------------------------------------------------------
+    ci = ppml.conf_int()
+    ci.columns = ["CI_lower", "CI_upper"]
+    grav_df = pd.DataFrame({
+        "coeff_scaled":   ppml.params,
+        "coeff_original": ppml_params_rescaled,
+        "std_error":      ppml.bse,
+        "t_stat":         ppml.tvalues,
+        "p_value":        ppml.pvalues,
+    }).join(ci)
+    grav_df.index.name = "regressor"
+    grav_df.reset_index().to_excel(writer, sheet_name="Gravity_Coefficients", index=False)
+
+    # ----------------------------------------------------------
+    # Sheet 3: Macro_Variables
+    # ----------------------------------------------------------
+    macro_df = pd.DataFrame({
+        "country":             COUNTRIES,
+        "R_normalised":        R_vec,
+        "M_equity_USDmn":      M_vec,
+        "k_PWT_USDmn":         k_PWT,
+        "A_bar":               A_bar,
+        "L_labour":            L_prod,
+        "alpha":               alp,
+        "pi_home_data":        pi_home,
+        "pi_home_model":       np.diag(Pi_baseline),
+        "delta_ii_calibrated": np.diag(Delta_baseline),
+        "s_total_wealth":      s_vec,
+        "k_equity_baseline":   k_baseline,
+        "k_foreign_baseline":  k_foreign_baseline,
+        "f_foreign_intensity": f_baseline,
+        "in_EU27":             [1 if c in EU27 else 0 for c in COUNTRIES],
+    })
+    macro_df.to_excel(writer, sheet_name="Macro_Variables", index=False)
+
+    # ----------------------------------------------------------
+    # Sheet 4: Wedge_Hard  (financial system barriers)
+    # ----------------------------------------------------------
+    pd.DataFrame(Delta_hard, index=COUNTRIES, columns=COUNTRIES).to_excel(
+        writer, sheet_name="Wedge_Hard"
+    )
+
+    # ----------------------------------------------------------
+    # Sheet 5: Wedge_Soft  (linguistic barriers)
+    # ----------------------------------------------------------
+    pd.DataFrame(Delta_soft, index=COUNTRIES, columns=COUNTRIES).to_excel(
+        writer, sheet_name="Wedge_Soft"
+    )
+
+    # ----------------------------------------------------------
+    # Sheet 6: Wedge_Baseline  (combined + calibrated diagonal)
+    # ----------------------------------------------------------
+    pd.DataFrame(Delta_baseline, index=COUNTRIES, columns=COUNTRIES).to_excel(
+        writer, sheet_name="Wedge_Baseline"
+    )
+
+    # ----------------------------------------------------------
+    # Sheet 7: Portfolio_Data  (observed shares)
+    # ----------------------------------------------------------
+    Pi_data.to_excel(writer, sheet_name="Portfolio_Data")
+
+    # ----------------------------------------------------------
+    # Sheet 8: Portfolio_Baseline  (model-implied shares)
+    # ----------------------------------------------------------
+    pd.DataFrame(Pi_baseline, index=COUNTRIES, columns=COUNTRIES).to_excel(
+        writer, sheet_name="Portfolio_Baseline"
+    )
+
+    # ----------------------------------------------------------
+    # Sheet 9: Capital_Reallocation
+    # Columns: country, k_baseline, then k_cmu and Δk/k for each (omega, gamma)
+    # ----------------------------------------------------------
+    cap_df = pd.DataFrame({"country": COUNTRIES, "k_baseline": k_baseline})
+    for (omega, gamma) in [(o, g) for o in PHI_SCENARIOS for g in PHI_SCENARIOS]:
+        k_cmu = results[(omega, gamma)]["k_cmu"]
+        tag   = f"om{omega:.2f}_gm{gamma:.2f}"
+        cap_df[f"k_cmu_{tag}"]   = k_cmu
+        cap_df[f"dk_pct_{tag}"]  = (k_cmu - k_baseline) / k_baseline * 100
+    cap_df.to_excel(writer, sheet_name="Capital_Reallocation", index=False)
+
+    # ----------------------------------------------------------
+    # Sheet 10: Foreign_Capital
+    # ----------------------------------------------------------
+    fcap_df = pd.DataFrame({
+        "country":             COUNTRIES,
+        "k_foreign_baseline":  k_foreign_baseline,
+        "f_baseline":          f_baseline,
+        "in_EU27":             [1 if c in EU27 else 0 for c in COUNTRIES],
+    })
+    for (omega, gamma) in [(o, g) for o in PHI_SCENARIOS for g in PHI_SCENARIOS]:
+        tag = f"om{omega:.2f}_gm{gamma:.2f}"
+        fcap_df[f"k_foreign_{tag}"] = results[(omega, gamma)]["k_foreign_cmu"]
+        fcap_df[f"f_{tag}"]         = results[(omega, gamma)]["f_cmu"]
+    fcap_df.to_excel(writer, sheet_name="Foreign_Capital", index=False)
+
+    # ----------------------------------------------------------
+    # Sheet 11: EU_Summary
+    # One row per (theta, mode, phi) with all EU aggregate stats
+    # ----------------------------------------------------------
+    eu_summary_rows = []
+    for (theta, omega, gamma), r in endo_results.items():
+        eu_summary_rows.append({
+            "theta":                  theta,
+            "omega":                  omega,
+            "gamma":                  gamma,
+            "Y_EU_baseline":          r["Y_EU_base"],
+            "Y_EU_cmu":               r["Y_EU_cmu"],
+            "dY_EU_pct":              r["dY_EU_pct"],
+            "cap_contribution_EU_pct":r["cap_contribution_EU"],
+            "tfp_contribution_EU_pct":r["tfp_contribution_EU"],
+            "eu_hb_change":           r["eu_hb_change"],
+            "sigma_mpk_baseline":     r["sigma_mpk_base"],
+            "sigma_mpk_cmu":          r["sigma_mpk_cmu"],
+            "sigma_mpk_reduction_pct":r["sigma_reduction"],
+        })
+    pd.DataFrame(eu_summary_rows).sort_values(
+        ["theta", "omega", "gamma"]
+    ).to_excel(writer, sheet_name="EU_Summary", index=False)
+
+    # ----------------------------------------------------------
+    # Sheet 12: Output_Country
+    # Country-level output effects for every (theta, mode, phi)
+    # ----------------------------------------------------------
+    out_rows = []
+    for (theta, omega, gamma), r in endo_results.items():
+        for ci_idx, c in enumerate(COUNTRIES):
+            out_rows.append({
+                "theta":   theta,
+                "omega":   omega,
+                "gamma":   gamma,
+                "country":        c,
+                "in_EU27":        1 if c in EU27 else 0,
+                "y_baseline":     r["y_baseline"][ci_idx],
+                "y_cmu":          r["y_cmu"][ci_idx],
+                "A_baseline":     r["A_baseline"][ci_idx],
+                "A_cmu":          r["A_cmu"][ci_idx],
+                "total_effect_pct":   r["total_effect"][ci_idx]   * 100,
+                "capital_effect_pct": r["capital_effect"][ci_idx] * 100,
+                "tfp_effect_pct":     r["tfp_effect"][ci_idx]     * 100,
+                "mpk_baseline":   r["mpk_baseline"][ci_idx],
+                "mpk_cmu":        r["mpk_cmu"][ci_idx],
+            })
+    pd.DataFrame(out_rows).sort_values(
+        ["theta", "omega", "gamma", "country"]
+    ).to_excel(writer, sheet_name="Output_Country", index=False)
+
+    # ----------------------------------------------------------
+    # Sheet 13: Country_Detail_Main
+    # Main scenario: theta=0.10, hard, phi=1.0 — country table
+    # ----------------------------------------------------------
+    ctry_table.reset_index().rename(columns={"index": "country"}).to_excel(
+        writer, sheet_name="Country_Detail_Main", index=False
+    )
+
+    # ----------------------------------------------------------
+    # Sheet 14: MPK_Dispersion
+    # MPK vectors for baseline and all (mode, phi) under theta=0.10
+    # ----------------------------------------------------------
+    mpk_df = pd.DataFrame({"country": COUNTRIES})
+    mpk_df["mpk_baseline_theta010"] = endo_results[(0.10, 0.00, 0.00)]["mpk_baseline"]
+    for (omega, gamma) in [(o, g) for o in PHI_SCENARIOS for g in PHI_SCENARIOS]:
+        tag = f"om{omega:.2f}_gm{gamma:.2f}"
+        mpk_df[f"mpk_{tag}"] = endo_results[(0.10, omega, gamma)]["mpk_cmu"]
+    mpk_df.to_excel(writer, sheet_name="MPK_Dispersion", index=False)
+
+    # ----------------------------------------------------------
+    # Sheet 15: Robustness
+    # ----------------------------------------------------------
+    rob_df.to_excel(writer, sheet_name="Robustness", index=False)
+
+    # ----------------------------------------------------------
+    # Sheet 16: Portfolio_CMU_Snapshots
+    # Pi_cmu matrices for 4 corner scenarios: (ω=0.5,γ=0), (ω=1,γ=0), (ω=0.5,γ=0.5), (ω=1,γ=1)
+    # Stacked vertically with a scenario label column
+    # ----------------------------------------------------------
+    snap_frames = []
+    for (omega, gamma) in [(0.50, 0.00), (1.00, 0.00), (0.50, 0.50), (1.00, 1.00)]:
+        df_snap = pd.DataFrame(
+            results[(omega, gamma)]["Pi_cmu"],
+            index=COUNTRIES, columns=COUNTRIES
+        ).reset_index().rename(columns={"index": "origin\\dest"})
+        df_snap.insert(0, "scenario", f"om{omega:.2f}_gm{gamma:.2f}")
+        snap_frames.append(df_snap)
+        # blank separator row
+        sep = pd.DataFrame([[""] * df_snap.shape[1]], columns=df_snap.columns)
+        snap_frames.append(sep)
+    pd.concat(snap_frames, ignore_index=True).to_excel(
+        writer, sheet_name="Portfolio_CMU_Snapshots", index=False
+    )
+
+print(f"  Exported {len(writer.sheets)} sheets to {EXCEL_PATH}")
+print("  Sheets:")
+for name in writer.sheets:
+    print(f"    • {name}")
+print("\nAll done ✓")
