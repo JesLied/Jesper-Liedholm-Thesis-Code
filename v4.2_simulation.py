@@ -33,6 +33,7 @@ Data source: Data/Clean/Final-v4.csv
 import pandas as pd
 import numpy as np
 import statsmodels.formula.api as smf
+from tqdm import tqdm
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -42,11 +43,16 @@ warnings.filterwarnings("ignore")
 DATA_PATH  = "Data/Clean/Final-v4.csv"
 BASE_YEAR  = 2019
 ETA        = 1.0          # return elasticity (baseline)
-# ω = financial (hard) integration intensity
-# γ = language  (soft) integration intensity
-# Both independently take values from PHI_SCENARIOS → 4×4 = 16 scenarios
-PHI_SCENARIOS   = [0.00, 0.25, 0.50, 1.00]
+# ω (omega) = financial (hard) integration intensity  — policy lever on hard barriers
+# γ (gamma) = linguistic (soft) integration intensity — policy lever on soft barriers
+# Both independently take values from BARRIER_SCENARIOS → n×n combinations
+BARRIER_SCENARIOS = [0.00, 0.25, 0.50, 1.00]
 THETA_SCENARIOS = [0.00, 0.05, 0.10]   # TFP spillover elasticity
+
+# For visualisation purposes, expand the ranges to smaller granularity
+m = 20
+BARRIER_SCENARIOS = np.round(np.linspace(0.0, 1.0, m), 3).tolist()
+THETA_SCENARIOS = np.round(np.linspace(0.0, 0.10, m), 3).tolist()
 
 EU27 = [
     "AUT","BEL","BGR","HRV","CYP","CZE","DNK","EST","FIN","FRA","DEU","GRC",
@@ -60,7 +66,25 @@ idx       = {c: i for i, c in enumerate(COUNTRIES)}
 
 # Financial centres whose domestic holdings are distorted by
 # pass-through flows; excluded from diagonal (Δ_ii) calibration.
-FINANCIAL_CENTRES = {"IRL", "LUX", "NLD", "CHE"}
+FINANCIAL_CENTRES = {"IRL", "LUX", "CHE", "SVK", "CYP", "MLT"}
+
+
+def nearest(scenarios, target):
+    """Return the value in `scenarios` closest to `target`.
+    Used so that sense-checks, summary tables and exports work
+    regardless of the exact grid spacing of BARRIER_SCENARIOS /
+    THETA_SCENARIOS.
+    """
+    return min(scenarios, key=lambda x: abs(x - target))
+
+
+# Convenience: canonical scenario anchors resolved against actual grids
+_gamma0    = nearest(BARRIER_SCENARIOS, 0.00)   # ω or γ = 0  (no integration)
+_gamma_mid = nearest(BARRIER_SCENARIOS, 0.50)   # ω or γ ≈ 0.5
+_gamma1    = nearest(BARRIER_SCENARIOS, 1.00)   # ω or γ = 1  (full integration)
+_theta0  = nearest(THETA_SCENARIOS,   0.00)
+_theta_mid = nearest(THETA_SCENARIOS, 0.05)
+_theta1  = nearest(THETA_SCENARIOS,   0.10)
 
 
 # ============================================================
@@ -185,7 +209,7 @@ print(f"  After removing i=j: {len(ppml_df):,} rows")
 unique_iso_codes = set(ppml_df["iso3_i"]).union(set(ppml_df["iso3_j"]))
 assert not any(c not in COUNTRIES for c in unique_iso_codes), "PPML data contains countries not in COUNTRIES list"
 
-cols = ["a_ij", "d_ling", "d_gci_financial_composite", "year", "iso3_i", "iso3_j", "Y_i", "Y_j"]
+cols = ["a_ij", "d_ling", "d_gci_financial_composite", "NumArticles", "year", "iso3_i", "iso3_j", "Y_i", "Y_j"]
 
 # Filter to positive flows
 assert min(ppml_df["a_ij"]) >= 0, "PPML regression cannot handle non-positive a_ij values"
@@ -212,7 +236,7 @@ print(f"  PPML scaling: a_ij ÷ {PPML_SCALE_A:.0e}  |  Y_i, Y_j ÷ {PPML_SCALE_Y
 print(ppml_df[cols].describe())
 
 # Fit PPML with gravity specification
-formula = 'a_ij ~ d_ling + d_gci_financial_composite + Y_i*Y_j + C(year)'
+formula = 'a_ij ~ d_ling + NumArticles + d_gci_financial_composite + Y_i + Y_j + C(year)'
 
 ppml = smf.poisson(
     formula=formula,
@@ -248,11 +272,13 @@ beta_dict = {}
 
 beta_d_ling    = ppml.params.get("d_ling", 0.0)
 beta_d_gci_fin = ppml.params.get("d_gci_financial_composite", 0.0)
+beta_numart    = ppml.params.get("NumArticles", 0.0)
 
 print()
 print("  Gravity coefficients (friction regressors — scale-invariant):")
 print(f"    β_d_ling                   : {beta_d_ling:+.4f}   p={ppml.pvalues.get('d_ling', np.nan):.3f}")
 print(f"    β_d_gci_financial_composite: {beta_d_gci_fin:+.4f}   p={ppml.pvalues.get('d_gci_financial_composite', np.nan):.3f}")
+print(f"    β_NumArticles              : {beta_numart:+.4f}   p={ppml.pvalues.get('NumArticles', np.nan):.3f}")
 print()
 
 # Store friction coefficients (negative sign indicates friction)
@@ -267,6 +293,13 @@ if beta_d_gci_fin < 0:
     print("  OK: β_d_gci_financial_composite < 0 → financial system distance is friction.")
 else:
     print("  WARNING: β_d_gci_financial_composite ≥ 0 — unexpected sign.")
+
+# NumArticles is a facilitator: positive coefficient → more articles → lower effective friction
+if beta_numart > 0:
+    beta_dict["NumArticles"] = beta_numart
+    print("  OK: β_NumArticles > 0 → news intensity is a facilitator (soft).")
+else:
+    print("  WARNING: β_NumArticles ≤ 0 — unexpected sign for facilitator.")
 
 print(f"\n  Active friction regressors: {list(beta_dict.keys())}")
 
@@ -318,20 +351,23 @@ for _, row in base.iterrows():
         ln_hard -= beta_dict["d_gci_financial_composite"] * row["d_gci_financial_composite"]
     Delta_hard[ii, jj] = np.exp(ln_hard)
 
-    # Soft barrier: language distance
+    # Soft barrier: language distance + news intensity facilitator
     ln_soft = 0.0
     if "d_ling" in beta_dict and pd.notna(row.get("d_ling")):
         ln_soft -= beta_dict["d_ling"] * row["d_ling"]
+    # NumArticles is a facilitator (β > 0): higher news intensity → lower effective friction
+    if "NumArticles" in beta_dict and pd.notna(row.get("NumArticles")):
+        ln_soft -= beta_dict["NumArticles"] * row["NumArticles"]
     Delta_soft[ii, jj] = np.exp(ln_soft)
 
 # Combined baseline wedge (diagonal still = 1, calibrated in Step 2.2)
 Delta_arr = Delta_hard * Delta_soft
 
 _offdiag = ~np.eye(n, dtype=bool)
-print(f"  Hard (fin) Δ range (off-diag):  [{Delta_hard[_offdiag].min():.3f}, {Delta_hard[_offdiag].max():.3f}]")
-print(f"  Soft (ling) Δ range (off-diag): [{Delta_soft[_offdiag].min():.3f}, {Delta_soft[_offdiag].max():.3f}]")
-print(f"  Combined Δ range (off-diag):    [{Delta_arr[_offdiag].min():.3f}, {Delta_arr[_offdiag].max():.3f}]")
-print(f"  Mean combined off-diagonal Δ:   {Delta_arr[_offdiag].mean():.3f}")
+print(f"  Hard (fin) Δ range (off-diag):         [{Delta_hard[_offdiag].min():.3f}, {Delta_hard[_offdiag].max():.3f}]")
+print(f"  Soft (ling+articles) Δ range (off-diag): [{Delta_soft[_offdiag].min():.3f}, {Delta_soft[_offdiag].max():.3f}]")
+print(f"  Combined Δ range (off-diag):            [{Delta_arr[_offdiag].min():.3f}, {Delta_arr[_offdiag].max():.3f}]")
+print(f"  Mean combined off-diagonal Δ:           {Delta_arr[_offdiag].mean():.3f}")
 
 
 # ============================================================
@@ -519,9 +555,9 @@ if corr_off < 0.5:
 
 # ============================================================
 # 9.  CMU SHOCK  (Steps 5–6)
-#   ω ∈ PHI_SCENARIOS — financial (hard) integration intensity
-#   γ ∈ PHI_SCENARIOS — language  (soft) integration intensity
-#   All 4×4 = 16 (ω, γ) combinations computed independently
+#   ω ∈ BARRIER_SCENARIOS — financial (hard) integration intensity
+#   γ ∈ BARRIER_SCENARIOS — language  (soft) integration intensity
+#   All combinations computed independently
 # ============================================================
 print()
 print("=" * 60)
@@ -533,22 +569,22 @@ eu_pair  = np.outer(eu_flag, eu_flag) * (1 - np.eye(n))
 eu_pair_bool = eu_pair.astype(bool)
 
 results = {}
-for omega in PHI_SCENARIOS:
-    for gamma in PHI_SCENARIOS:
-        hard_cmu = np.where(eu_pair_bool, Delta_hard ** (1 - omega), Delta_hard)
-        soft_cmu = np.where(eu_pair_bool, Delta_soft ** (1 - gamma), Delta_soft)
-        Delta_cmu = hard_cmu * soft_cmu
-        np.fill_diagonal(Delta_cmu, np.diag(Delta_baseline))
-        Pi_cmu = compute_portfolio(Delta_cmu, R_vec, M_vec, eta)
-        results[(omega, gamma)] = {"Delta_cmu": Delta_cmu, "Pi_cmu": Pi_cmu}
+_barrier_pairs = [(o, g) for o in BARRIER_SCENARIOS for g in BARRIER_SCENARIOS]
+for omega, gamma in tqdm(_barrier_pairs, desc="CMU portfolios (ω×γ)", unit="scenario", position=0, leave=True):
+    hard_cmu = np.where(eu_pair_bool, Delta_hard ** (1 - omega), Delta_hard)
+    soft_cmu = np.where(eu_pair_bool, Delta_soft ** (1 - gamma), Delta_soft)
+    Delta_cmu = hard_cmu * soft_cmu
+    np.fill_diagonal(Delta_cmu, np.diag(Delta_baseline))
+    Pi_cmu = compute_portfolio(Delta_cmu, R_vec, M_vec, eta)
+    results[(omega, gamma)] = {"Delta_cmu": Delta_cmu, "Pi_cmu": Pi_cmu}
 
-print(f"  ω (fin/hard) scenarios: {PHI_SCENARIOS}")
-print(f"  γ (ling/soft) scenarios: {PHI_SCENARIOS}")
+print(f"  ω (fin) scenarios: {BARRIER_SCENARIOS}")
+print(f"  γ (ling) scenarios: {BARRIER_SCENARIOS}")
 print(f"  Total: {len(results)} scenarios (all ω×γ combinations)")
 
 eu_idx_list = [idx[c] for c in EU27]
 print("\n  EU avg home-bias change — selected (ω, γ) pairs:")
-for omega, gamma in [(o, g) for o in PHI_SCENARIOS for g in [0.00, PHI_SCENARIOS[-1]]]:
+for omega, gamma in [(o, g) for o in BARRIER_SCENARIOS for g in [_gamma0, BARRIER_SCENARIOS[-1]]]:
     pi_cmu = np.diag(results[(omega, gamma)]["Pi_cmu"])
     eu_hb  = np.nanmean(pi_cmu[eu_idx_list]) - np.nanmean(np.diag(Pi_baseline)[eu_idx_list])
     print(f"    ω={omega:.2f}, γ={gamma:.2f}: Δπ_EU = {eu_hb:+.5f}")
@@ -579,7 +615,7 @@ else:
     print("  All OK ✓")
 
 print("\n  EU avg Δk/k (%) — selected (ω, γ) pairs:")
-for omega, gamma in [(o, g) for o in PHI_SCENARIOS for g in [0.00, PHI_SCENARIOS[-1]]]:
+for omega, gamma in [(o, g) for o in BARRIER_SCENARIOS for g in [_gamma0, BARRIER_SCENARIOS[-1]]]:
     k_cmu = results[(omega, gamma)]["k_cmu"]
     eu_dk = np.mean((k_cmu - k_baseline)[eu_idx_list] / k_baseline[eu_idx_list]) * 100
     print(f"    ω={omega:.2f}, γ={gamma:.2f}: {eu_dk:+.4f}%")
@@ -625,11 +661,11 @@ print(f_series.head(10).round(6).to_string())
 
 print(f"\n  f_baseline range: [{f_baseline.min():.6f}, {f_baseline.max():.6f}]")
 
-print("\n  Δf_i (f_CMU - f_baseline) — ω=1.0, γ=0.0 (fin only), EU27:")
-delta_f = results[(1.0, 0.0)]["f_cmu"] - f_baseline
+print(f"\n  Δf_i (f_CMU - f_baseline) — ω={_gamma1}, γ={_gamma0} (fin only), EU27:")
+delta_f = results[(_gamma1, _gamma0)]["f_cmu"] - f_baseline
 print(pd.Series(delta_f, index=COUNTRIES)[EU27].round(6).to_string())
-print("\n  Δf_i (f_CMU - f_baseline) — ω=1.0, γ=1.0 (fin+ling), EU27:")
-delta_f = results[(1.0, 1.0)]["f_cmu"] - f_baseline
+print(f"\n  Δf_i (f_CMU - f_baseline) — ω={_gamma1}, γ={_gamma1} (fin+ling), EU27:")
+delta_f = results[(_gamma1, _gamma1)]["f_cmu"] - f_baseline
 print(pd.Series(delta_f, index=COUNTRIES)[EU27].round(6).to_string())
 
 
@@ -678,9 +714,9 @@ print("=" * 60)
 print("STEP 8 — Output and productivity effects (endogenous TFP)")
 print("=" * 60)
 print(f"  θ scenarios: {THETA_SCENARIOS}")
-print(f"  ω (fin) scenarios: {PHI_SCENARIOS}")
-print(f"  γ (ling) scenarios: {PHI_SCENARIOS}")
-print(f"  Total output scenarios: {len(THETA_SCENARIOS) * len(PHI_SCENARIOS)**2}")
+print(f"  ω (fin) scenarios: {BARRIER_SCENARIOS}")
+print(f"  γ (ling) scenarios: {BARRIER_SCENARIOS}")
+print(f"  Total output scenarios: {len(THETA_SCENARIOS) * len(BARRIER_SCENARIOS)**2}")
 print()
 
 eu_idx = [idx[c] for c in EU27 if c in idx]
@@ -688,13 +724,13 @@ eu_idx = [idx[c] for c in EU27 if c in idx]
 # Store all (theta, omega, gamma) results
 endo_results = {}   # key: (theta, omega, gamma)
 
-for theta in THETA_SCENARIOS:
+for theta in tqdm(THETA_SCENARIOS, desc="Step 8: output scenarios (θ)", unit="θ", position=0, leave=True):
     A_baseline_theta = compute_tfp(A_bar, f_baseline, theta)
     y_baseline_theta = cobb_douglas(A_baseline_theta, k_baseline, L_prod, alp)
     Y_EU_base_theta  = y_baseline_theta[eu_idx].sum()
 
-    for omega in PHI_SCENARIOS:
-        for gamma in PHI_SCENARIOS:
+    for omega in BARRIER_SCENARIOS:
+        for gamma in BARRIER_SCENARIOS:
             f_cmu        = results[(omega, gamma)]["f_cmu"]
             k_cmu        = results[(omega, gamma)]["k_cmu"]
             A_cmu_theta  = compute_tfp(A_bar, f_cmu, theta)
@@ -746,43 +782,43 @@ print("ECONOMIC SENSE CHECKS — Endogenous TFP extension")
 print("=" * 60)
 
 # Check 1: Countries that gain more foreign capital should have larger TFP gains
-print("\nCheck 1 — Corr(Δk_foreign, ΔA) across EU27 at ω=0.50, γ=0.00, θ=0.10:")
-r = endo_results[(0.10, 0.50, 0.00)]
-delta_k_foreign_eu = results[(0.50, 0.00)]["k_foreign_cmu"][eu_idx] - k_foreign_baseline[eu_idx]
+print(f"\nCheck 1 — Corr(Δk_foreign, ΔA) across EU27 at ω={_gamma_mid}, γ={_gamma0}, θ={_theta1}:")
+r = endo_results[(_theta1, _gamma_mid, _gamma0)]
+delta_k_foreign_eu = results[(_gamma_mid, _gamma0)]["k_foreign_cmu"][eu_idx] - k_foreign_baseline[eu_idx]
 delta_A_eu         = r["A_cmu"][eu_idx] - r["A_baseline"][eu_idx]
 corr_check1 = np.corrcoef(delta_k_foreign_eu, delta_A_eu)[0, 1]
 print(f"  Correlation = {corr_check1:.6f}  {'OK ✓ (positive)' if corr_check1 > 0 else 'FAIL (should be positive)'}")
 
 # Check 2: θ=0 results have zero TFP effect
-print("\nCheck 2 — θ=0.00: max |ΔA/A| = 0 (no TFP spillover):")
-for omega, gamma in [(0.0, 0.0), (0.50, 0.0), (1.0, 0.0), (0.50, 0.50), (1.0, 1.0)]:
-    r0 = endo_results[(0.00, omega, gamma)]
+print(f"\nCheck 2 — θ={_theta0}: max |ΔA/A| = 0 (no TFP spillover):")
+for omega, gamma in [(_gamma0, _gamma0), (_gamma_mid, _gamma0), (_gamma1, _gamma0), (_gamma_mid, _gamma_mid), (_gamma1, _gamma1)]:
+    r0 = endo_results[(_theta0, omega, gamma)]
     max_tfp_diff = np.max(np.abs(r0["tfp_effect"]))
     print(f"  ω={omega:.2f}, γ={gamma:.2f}: max |ΔA/A| = {max_tfp_diff:.2e}  {'OK ✓' if max_tfp_diff < 1e-10 else 'WARNING'}")
 
 # Check 3: TFP contribution < capital deepening contribution for EU27
 print("\nCheck 3 — TFP contribution < capital deepening contribution (EU27 avg):")
-for omega, gamma in [(0.50, 0.00), (1.00, 0.00), (1.00, 1.00)]:
-    r10 = endo_results[(0.10, omega, gamma)]
+for omega, gamma in [(_gamma_mid, _gamma0), (_gamma1, _gamma0), (_gamma1, _gamma1)]:
+    r10 = endo_results[(_theta1, omega, gamma)]
     cap_share = abs(r10["cap_contribution_EU"])
     tfp_share = abs(r10["tfp_contribution_EU"])
     ok = tfp_share < cap_share
     print(f"  ω={omega:.2f}, γ={gamma:.2f}: capital={cap_share:.4f}%  TFP={tfp_share:.4f}%  {'OK ✓' if ok else 'WARNING: TFP dominates'}")
 
 # Check 4: Non-EU countries lose foreign capital under full combined CMU
-print("\nCheck 4 — Non-EU lose foreign capital under ω=1.0, γ=1.0, θ=0.10:")
-r_full = endo_results[(0.10, 1.00, 1.00)]
+print(f"\nCheck 4 — Non-EU lose foreign capital under ω={_gamma1}, γ={_gamma1}, θ={_theta1}:")
+r_full = endo_results[(_theta1, _gamma1, _gamma1)]
 outside_idx = [idx[c] for c in OUTSIDE]
 for ci in outside_idx:
     c = COUNTRIES[ci]
-    dk_f = results[(1.00, 1.00)]["k_foreign_cmu"][ci] - k_foreign_baseline[ci]
+    dk_f = results[(_gamma1, _gamma1)]["k_foreign_cmu"][ci] - k_foreign_baseline[ci]
     dA   = r_full["A_cmu"][ci] - r_full["A_baseline"][ci]
     ok   = dk_f < 0 and dA < 0
     print(f"  {c}: Δk_foreign={dk_f:+.1f}  ΔA={dA:+.6f}  {'OK ✓' if ok else 'NOTE: unexpected sign'}")
 
 # Check 5: EU GDP gain increasing in θ (hard-only, φ=1.0)
-print("\nCheck 5 — EU GDP gain increasing in θ (ω=1.0, γ=0.0):")
-gains = [endo_results[(theta, 1.00, 0.00)]["dY_EU_pct"] for theta in THETA_SCENARIOS]
+print(f"\nCheck 5 — EU GDP gain increasing in θ (ω={_gamma1}, γ={_gamma0}):")
+gains = [endo_results[(theta, _gamma1, _gamma0)]["dY_EU_pct"] for theta in THETA_SCENARIOS]
 mono  = all(gains[i] <= gains[i+1] for i in range(len(gains)-1))
 print(f"  gains = {[f'{g:.5f}%' for g in gains]}  {'OK ✓' if mono else 'WARNING: not monotone'}")
 
@@ -797,10 +833,10 @@ print("=" * 60)
 
 def run_model_variant_endo(D_hard, D_soft, R, M, s, k_pwt, A_bar_in,
                            L_in, alp_in, Pi_data_in, countries,
-                           EU27_list, eta_val, phi_list, theta_val, label):
+                           EU27_list, eta_val, barrier_list, theta_val, label):
     """
     Full model run for given (eta, theta).
-    Scenarios: all (ω, γ) combinations from phi_list × phi_list.
+    Scenarios: all (ω, γ) combinations from barrier_list × barrier_list.
     Re-calibrates Δ_ii for the given eta.
     """
     n_ = len(countries)
@@ -845,28 +881,28 @@ def run_model_variant_endo(D_hard, D_soft, R, M, s, k_pwt, A_bar_in,
     Y_EU_base_ = y_base_[eu_idx_].sum()
 
     rows = []
-    for omega in phi_list:
-        for gamma in phi_list:
-            hard_cmu_ = np.where(eu_pair_bool_, D_hard ** (1 - omega), D_hard)
-            soft_cmu_ = np.where(eu_pair_bool_, D_soft ** (1 - gamma), D_soft)
-            D_cmu_    = hard_cmu_ * soft_cmu_
-            np.fill_diagonal(D_cmu_, np.diag(D))
-            Pi_cmu_   = compute_portfolio(D_cmu_, R, M, eta_val)
-            k_cmu_    = Pi_cmu_.T @ s
-            k_f_cmu_  = np.maximum(k_cmu_ - np.diag(Pi_cmu_) * s, 0.0)
-            f_cmu_    = k_f_cmu_ / k_pwt
-            A_cmu_    = compute_tfp(A_bar_in, f_cmu_, theta_val)
-            y_cmu_    = cobb_douglas(A_cmu_, k_cmu_, L_in, alp_in)
-            Y_EU_cmu_ = y_cmu_[eu_idx_].sum()
-            eu_hb_ch  = (np.nanmean(np.diag(Pi_cmu_)[eu_idx_])
-                         - np.nanmean(np.diag(Pi_base_)[eu_idx_]))
-            dY_EU = (Y_EU_cmu_ - Y_EU_base_) / Y_EU_base_ * 100
-            rows.append({
-                "label": label, "eta": eta_val, "theta": theta_val,
-                "omega": omega, "gamma": gamma,
-                "ΔY_EU/Y_EU (%)": dY_EU,
-                "Avg ΔHomeBias (EU)": eu_hb_ch,
-            })
+    _pairs = [(o, g) for o in barrier_list for g in barrier_list]
+    for omega, gamma in tqdm(_pairs, desc=f"  {label} (ω×γ)", unit="scenario", position=1, leave=False):
+        hard_cmu_ = np.where(eu_pair_bool_, D_hard ** (1 - omega), D_hard)
+        soft_cmu_ = np.where(eu_pair_bool_, D_soft ** (1 - gamma), D_soft)
+        D_cmu_    = hard_cmu_ * soft_cmu_
+        np.fill_diagonal(D_cmu_, np.diag(D))
+        Pi_cmu_   = compute_portfolio(D_cmu_, R, M, eta_val)
+        k_cmu_    = Pi_cmu_.T @ s
+        k_f_cmu_  = np.maximum(k_cmu_ - np.diag(Pi_cmu_) * s, 0.0)
+        f_cmu_    = k_f_cmu_ / k_pwt
+        A_cmu_    = compute_tfp(A_bar_in, f_cmu_, theta_val)
+        y_cmu_    = cobb_douglas(A_cmu_, k_cmu_, L_in, alp_in)
+        Y_EU_cmu_ = y_cmu_[eu_idx_].sum()
+        eu_hb_ch  = (np.nanmean(np.diag(Pi_cmu_)[eu_idx_])
+                     - np.nanmean(np.diag(Pi_base_)[eu_idx_]))
+        dY_EU = (Y_EU_cmu_ - Y_EU_base_) / Y_EU_base_ * 100
+        rows.append({
+            "label": label, "eta": eta_val, "theta": theta_val,
+            "omega": omega, "gamma": gamma,
+            "ΔY_EU/Y_EU (%)": dY_EU,
+            "Avg ΔHomeBias (EU)": eu_hb_ch,
+        })
     return pd.DataFrame(rows)
 
 
@@ -874,16 +910,16 @@ D_hard_offdiag = Delta_hard.copy(); np.fill_diagonal(D_hard_offdiag, 1.0)
 D_soft_offdiag = Delta_soft.copy(); np.fill_diagonal(D_soft_offdiag, 1.0)
 
 rob_rows = []
-for eta_val, eta_lbl in [(0.5, "η=0.5"), (1.0, "η=1.0 (baseline)"), (2.0, "η=2.0")]:
-    for theta_val in THETA_SCENARIOS:
-        lbl = f"{eta_lbl}, θ={theta_val}"
-        r   = run_model_variant_endo(
-            D_hard_offdiag, D_soft_offdiag,
-            R_vec, M_vec, s_vec, k_PWT, A_bar,
-            L_prod, alp, Pi_data.values, COUNTRIES, EU27,
-            eta_val, PHI_SCENARIOS, theta_val, lbl,
-        )
-        rob_rows.append(r)
+_rob_combos = [(e, el, t) for e, el in [(0.5, "η=0.5"), (1.0, "η=1.0 (baseline)"), (2.0, "η=2.0")] for t in THETA_SCENARIOS]
+for eta_val, eta_lbl, theta_val in tqdm(_rob_combos, desc="Robustness (η×θ)", unit="variant", position=0, leave=True):
+    lbl = f"{eta_lbl}, θ={theta_val}"
+    r   = run_model_variant_endo(
+        D_hard_offdiag, D_soft_offdiag,
+        R_vec, M_vec, s_vec, k_PWT, A_bar,
+        L_prod, alp, Pi_data.values, COUNTRIES, EU27,
+        eta_val, BARRIER_SCENARIOS, theta_val, lbl,
+    )
+    rob_rows.append(r)
 
 rob_df = pd.concat(rob_rows, ignore_index=True)
 print("\n  Robustness Summary (η × θ × ω × γ):")
@@ -919,29 +955,29 @@ print(grav_summary.round(4).to_string())
 print(f"  Specification: d_geo + d_ling + same_legal_origin + ln_Y_i + ln_Y_j + C(year)")
 
 # -----------------------------------------------------------
-print("\nTable 2a — EU GDP gain (%) — γ=0.00 (fin only), θ=0.10")
+print(f"\nTable 2a — EU GDP gain (%) — γ={_gamma0} (fin only), θ={_theta1}")
 print(f"  {'ω':>6}  {'Avg Δπ_EU':>12}  {'ΔY_EU/Y_EU':>12}  {'Capital':>12}  {'TFP':>10}  {'σ_MPK red.':>12}")
 print("-" * 72)
-for omega in PHI_SCENARIOS:
-    r = endo_results[(0.10, omega, 0.00)]
+for omega in BARRIER_SCENARIOS:
+    r = endo_results[(_theta1, omega, _gamma0)]
     print(f"  {omega:>6.2f}  {r['eu_hb_change']:>12.5f}  {r['dY_EU_pct']:>12.5f}%"
           f"  {r['cap_contribution_EU']:>12.5f}%  {r['tfp_contribution_EU']:>10.5f}%"
           f"  {r['sigma_reduction']:>12.2f}%")
 
-print("\nTable 2b — EU GDP gain (%) — γ=ω (fin+ling together), θ=0.10")
+print(f"\nTable 2b — EU GDP gain (%) — γ=ω (fin+ling together), θ={_theta1}")
 print(f"  {'ω':>6}  {'Avg Δπ_EU':>12}  {'ΔY_EU/Y_EU':>12}  {'Capital':>12}  {'TFP':>10}  {'σ_MPK red.':>12}")
 print("-" * 72)
-for omega in PHI_SCENARIOS:
-    r = endo_results[(0.10, omega, omega)]
+for omega in BARRIER_SCENARIOS:
+    r = endo_results[(_theta1, omega, omega)]
     print(f"  {omega:>6.2f}  {r['eu_hb_change']:>12.5f}  {r['dY_EU_pct']:>12.5f}%"
           f"  {r['cap_contribution_EU']:>12.5f}%  {r['tfp_contribution_EU']:>10.5f}%"
           f"  {r['sigma_reduction']:>12.2f}%")
 
 # -----------------------------------------------------------
-print("\nTable 3 — Country-level results: ω=1.0, γ=0.0, θ=0.10 (EU27):")
-r_main = endo_results[(0.10, 1.00, 0.00)]
+print(f"\nTable 3 — Country-level results: ω={_gamma1}, γ={_gamma0}, θ={_theta1} (EU27):")
+r_main = endo_results[(_theta1, _gamma1, _gamma0)]
 ctry_table = pd.DataFrame({
-    "Δk_i/k_i (%)":  (results[(1.00, 0.00)]["k_cmu"] - k_baseline) / k_baseline * 100,
+    "Δk_i/k_i (%)":  (results[(_gamma1, _gamma0)]["k_cmu"] - k_baseline) / k_baseline * 100,
     "ΔA_i/A_i (%)":  (r_main["A_cmu"] - r_main["A_baseline"]) / r_main["A_baseline"] * 100,
     "Δy_i/y_i (%)":  r_main["total_effect"] * 100,
     "Capital share": (r_main["capital_effect"] / np.where(r_main["total_effect"] == 0, np.nan, r_main["total_effect"])),
@@ -950,20 +986,20 @@ ctry_table = pd.DataFrame({
 print(ctry_table.loc[EU27].round(4).to_string())
 
 # -----------------------------------------------------------
-print("\nTable 4 — Top 5 EU capital gainers: ω=1.0, γ=1.0, θ=0.10:")
-dk_full   = (results[(1.00, 1.00)]["k_cmu"] - k_baseline) / k_baseline * 100
+print(f"\nTable 4 — Top 5 EU capital gainers: ω={_gamma1}, γ={_gamma1}, θ={_theta1}:")
+dk_full   = (results[(_gamma1, _gamma1)]["k_cmu"] - k_baseline) / k_baseline * 100
 dk_series = pd.Series(dk_full, index=COUNTRIES)
 print(dk_series[EU27].sort_values(ascending=False).head(5).round(3).to_string())
 
 print("\nTable 5 — Off-diagonal portfolio correlation (data vs model):")
 print(f"  {corr_off:.4f}")
 
-print("\nTable 6 — MPK dispersion reduction (EU27), θ=0.10:")
+print(f"\nTable 6 — MPK dispersion reduction (EU27), θ={_theta1}:")
 print(f"  {'ω':>6}  {'γ':>6}  {'σ_baseline':>12}  {'σ_CMU':>10}  {'reduction (%)':>14}")
 print("-" * 58)
-for omega in PHI_SCENARIOS:
-    for gamma in PHI_SCENARIOS:
-        r = endo_results[(0.10, omega, gamma)]
+for omega in BARRIER_SCENARIOS:
+    for gamma in BARRIER_SCENARIOS:
+        r = endo_results[(_theta1, omega, gamma)]
         print(f"  {omega:>6.2f}  {gamma:>6.2f}  {r['sigma_mpk_base']:>12.6f}  {r['sigma_mpk_cmu']:>10.6f}  {r['sigma_reduction']:>14.2f}%")
 
 print("\nDone.")
@@ -986,7 +1022,7 @@ with pd.ExcelWriter(EXCEL_PATH, engine="openpyxl") as writer:
     config_df = pd.DataFrame([
         {"parameter": "BASE_YEAR",      "value": BASE_YEAR},
         {"parameter": "ETA (baseline)", "value": ETA},
-        {"parameter": "PHI_SCENARIOS",  "value": str(PHI_SCENARIOS)},
+        {"parameter": "BARRIER_SCENARIOS", "value": str(BARRIER_SCENARIOS)},
         {"parameter": "THETA_SCENARIOS","value": str(THETA_SCENARIOS)},
         {"parameter": "n_countries",    "value": n},
         {"parameter": "EU27",           "value": ", ".join(EU27)},
@@ -1071,9 +1107,9 @@ with pd.ExcelWriter(EXCEL_PATH, engine="openpyxl") as writer:
     # Columns: country, k_baseline, then k_cmu and Δk/k for each (omega, gamma)
     # ----------------------------------------------------------
     cap_df = pd.DataFrame({"country": COUNTRIES, "k_baseline": k_baseline})
-    for (omega, gamma) in [(o, g) for o in PHI_SCENARIOS for g in PHI_SCENARIOS]:
+    for (omega, gamma) in [(o, g) for o in BARRIER_SCENARIOS for g in BARRIER_SCENARIOS]:
         k_cmu = results[(omega, gamma)]["k_cmu"]
-        tag   = f"om{omega:.2f}_gm{gamma:.2f}"
+        tag   = f"om{omega:.3f}_gm{gamma:.3f}"
         cap_df[f"k_cmu_{tag}"]   = k_cmu
         cap_df[f"dk_pct_{tag}"]  = (k_cmu - k_baseline) / k_baseline * 100
     cap_df.to_excel(writer, sheet_name="Capital_Reallocation", index=False)
@@ -1087,8 +1123,8 @@ with pd.ExcelWriter(EXCEL_PATH, engine="openpyxl") as writer:
         "f_baseline":          f_baseline,
         "in_EU27":             [1 if c in EU27 else 0 for c in COUNTRIES],
     })
-    for (omega, gamma) in [(o, g) for o in PHI_SCENARIOS for g in PHI_SCENARIOS]:
-        tag = f"om{omega:.2f}_gm{gamma:.2f}"
+    for (omega, gamma) in [(o, g) for o in BARRIER_SCENARIOS for g in BARRIER_SCENARIOS]:
+        tag = f"om{omega:.3f}_gm{gamma:.3f}"
         fcap_df[f"k_foreign_{tag}"] = results[(omega, gamma)]["k_foreign_cmu"]
         fcap_df[f"f_{tag}"]         = results[(omega, gamma)]["f_cmu"]
     fcap_df.to_excel(writer, sheet_name="Foreign_Capital", index=False)
@@ -1103,8 +1139,7 @@ with pd.ExcelWriter(EXCEL_PATH, engine="openpyxl") as writer:
             "theta":                  theta,
             "omega":                  omega,
             "gamma":                  gamma,
-            "Y_EU_baseline":          r["Y_EU_base"],
-            "Y_EU_cmu":               r["Y_EU_cmu"],
+            "Y_EU":                   r["Y_EU_cmu"] - r["Y_EU_base"],
             "dY_EU_pct":              r["dY_EU_pct"],
             "cap_contribution_EU_pct":r["cap_contribution_EU"],
             "tfp_contribution_EU_pct":r["tfp_contribution_EU"],
@@ -1130,8 +1165,15 @@ with pd.ExcelWriter(EXCEL_PATH, engine="openpyxl") as writer:
                 "gamma":   gamma,
                 "country":        c,
                 "in_EU27":        1 if c in EU27 else 0,
+                "L":              L_prod[ci_idx],
+                "k_baseline":     k_baseline[ci_idx],
+                "k_cmu":          results[(omega, gamma)]["k_cmu"][ci_idx],
+                "k_baseline_pc":  k_baseline[ci_idx] / L_prod[ci_idx],
+                "k_cmu_pc":       results[(omega, gamma)]["k_cmu"][ci_idx] / L_prod[ci_idx],
                 "y_baseline":     r["y_baseline"][ci_idx],
                 "y_cmu":          r["y_cmu"][ci_idx],
+                "y_baseline_pc":  r["y_baseline"][ci_idx] / L_prod[ci_idx],
+                "y_cmu_pc":       r["y_cmu"][ci_idx] / L_prod[ci_idx],
                 "A_baseline":     r["A_baseline"][ci_idx],
                 "A_cmu":          r["A_cmu"][ci_idx],
                 "total_effect_pct":   r["total_effect"][ci_idx]   * 100,
@@ -1157,10 +1199,10 @@ with pd.ExcelWriter(EXCEL_PATH, engine="openpyxl") as writer:
     # MPK vectors for baseline and all (mode, phi) under theta=0.10
     # ----------------------------------------------------------
     mpk_df = pd.DataFrame({"country": COUNTRIES})
-    mpk_df["mpk_baseline_theta010"] = endo_results[(0.10, 0.00, 0.00)]["mpk_baseline"]
-    for (omega, gamma) in [(o, g) for o in PHI_SCENARIOS for g in PHI_SCENARIOS]:
-        tag = f"om{omega:.2f}_gm{gamma:.2f}"
-        mpk_df[f"mpk_{tag}"] = endo_results[(0.10, omega, gamma)]["mpk_cmu"]
+    mpk_df[f"mpk_baseline_theta{_theta1:.3f}"] = endo_results[(_theta1, _gamma0, _gamma0)]["mpk_baseline"]
+    for (omega, gamma) in [(o, g) for o in BARRIER_SCENARIOS for g in BARRIER_SCENARIOS]:
+        tag = f"om{omega:.3f}_gm{gamma:.3f}"
+        mpk_df[f"mpk_{tag}"] = endo_results[(_theta1, omega, gamma)]["mpk_cmu"]
     mpk_df.to_excel(writer, sheet_name="MPK_Dispersion", index=False)
 
     # ----------------------------------------------------------
@@ -1174,7 +1216,7 @@ with pd.ExcelWriter(EXCEL_PATH, engine="openpyxl") as writer:
     # Stacked vertically with a scenario label column
     # ----------------------------------------------------------
     snap_frames = []
-    for (omega, gamma) in [(0.50, 0.00), (1.00, 0.00), (0.50, 0.50), (1.00, 1.00)]:
+    for (omega, gamma) in [(_gamma_mid, _gamma0), (_gamma1, _gamma0), (_gamma_mid, _gamma_mid), (_gamma1, _gamma1)]:
         df_snap = pd.DataFrame(
             results[(omega, gamma)]["Pi_cmu"],
             index=COUNTRIES, columns=COUNTRIES

@@ -1,4 +1,20 @@
-# CMU Simulation Model: Step-by-Step Execution Guide
+# CMU Simulation Model with Endogenous TFP: Step-by-Step Execution Guide
+
+This guide documents `v4_simulation_endo_tfp.py`, which extends the baseline CMU simulation by adding a **productivity spillover channel**: when a country receives more foreign equity capital, knowledge and technology transfer raise its TFP.
+
+The extension slots in between Step 7 (capital reallocation) and Step 8 (output effects):
+
+- **Step 7b** — decompose capital into domestic / foreign components
+- **Step 8** — output with endogenous TFP $A_i(\theta) = \bar{A}_i \cdot (1 + \theta \cdot f_i)$
+
+where $f_i$ is foreign equity capital relative to the PWT physical capital stock, and $\theta$ is the TFP-spillover elasticity.
+
+**References for θ:**
+- Baltabaev (2014, *Empirical Economics*) — θ ≈ 0.10 (panel cointegration)
+- Borensztein, De Gregorio & Lee (1998, *JIE*) — conservative θ ≈ 0.05
+- Bau & Matray (2023, *Econometrica*) — capital liberalisation ↑ TFP 3–16%
+- Javorcik (2004, *AER*) — micro evidence on FDI spillovers
+- Findlay (1978, *JIE*) — technology-contagion theory
 
 ---
 
@@ -8,47 +24,75 @@
 |---|---|
 | $i$ | Origin country (where the investor lives) |
 | $j$ | Destination country (where capital goes) |
-| $n$ | Total number of countries in the model |
+| $n$ | Total number of countries in the model (= 31) |
 | $a_{ij}$ | USD value of equity held by country $i$'s investors in country $j$'s assets |
 | $\pi_{ij}$ | Share of country $i$'s total equity portfolio allocated to country $j$ |
 | $s_i$ | Country $i$'s total outward portfolio equity holdings (sum across all destinations) |
 | $k_j$ | Total equity capital that country $j$ receives from all investors |
+| $k_j^{\text{foreign}}$ | Foreign equity capital received by country $j$ (from all $i \neq j$) |
+| $k_j^{\text{PWT}}$ | Country $j$'s physical capital stock from Penn World Tables |
+| $f_j$ | Foreign-capital intensity: $k_j^{\text{foreign}} / k_j^{\text{PWT}}$ |
 | $M_j$ | Stock market capitalisation of country $j$ |
-| $R_j$ | Expected return on equity in country $j$ |
-| $\Delta_{ij}$ | Portfolio wedge (friction) between origin $i$ and destination $j$ |
+| $R_j$ | Expected return on equity in country $j$ (normalised MPK) |
+| $\eta$ | Return elasticity (baseline = 1.0) |
+| $\Delta_{ij}^{\text{hard}}$ | Financial system distance barrier between $i$ and $j$ (hard / policy-reducible) |
+| $\Delta_{ij}^{\text{soft}}$ | Linguistic distance barrier between $i$ and $j$ (soft / cultural) |
+| $\Delta_{ij}$ | Combined portfolio wedge: $\Delta_{ij}^{\text{hard}} \cdot \Delta_{ij}^{\text{soft}}$ |
+| $\omega$ | Financial (hard) integration intensity: $\omega \in \{0.00, 0.25, 0.50, 1.00\}$ |
+| $\gamma$ | Language (soft) integration intensity: $\gamma \in \{0.00, 0.25, 0.50, 1.00\}$ |
+| $\bar{A}_j$ | Baseline TFP of country $j$ (backed out from PWT data) |
+| $A_j(\theta)$ | Endogenous TFP: $\bar{A}_j \cdot (1 + \theta \cdot f_j)$ |
+| $\theta$ | TFP-spillover elasticity: $\theta \in \{0.00, 0.05, 0.10\}$ |
+| $L_j$ | Employment in country $j$ (from PWT) |
+| $\alpha_j$ | Capital share of income in country $j$ (= 1 − labour share) |
+
+---
+
+## Configuration
+
+| Parameter | Value |
+|---|---|
+| `DATA_PATH` | `Data/Clean/Final-v4.csv` |
+| `BASE_YEAR` | 2019 |
+| `ETA` | 1.0 (baseline) |
+| `PHI_SCENARIOS` (ω and γ) | [0.00, 0.25, 0.50, 1.00] |
+| `THETA_SCENARIOS` | [0.00, 0.05, 0.10] |
+| EU27 | AUT, BEL, BGR, HRV, CYP, CZE, DNK, EST, FIN, FRA, DEU, GRC, HUN, IRL, ITA, LVA, LTU, LUX, MLT, NLD, POL, PRT, ROU, SVK, SVN, ESP, SWE |
+| OUTSIDE | USA, GBR, CHE, NOR |
+| `FINANCIAL_CENTRES` | IRL, LUX, NLD, CHE — excluded from diagonal Δ_ii calibration |
 
 ---
 
 ## Step 0: Assemble the Data
 
-You need five datasets. Organise everything into matrices and vectors indexed by your $n$ countries.****
-
 ### 0.1 — Choose your country set
 
-Pick $n$ countries. A practical choice:
+The model uses $n = 31$ countries:
 
-- All 27 EU member states
+- All 27 EU member states (EU27)
 - Plus 4 outside options: United States, United Kingdom, Switzerland, Norway
-
-This gives $n = 31$. Label them $1, 2, \ldots, 31$.
 
 ### 0.2 — Download bilateral equity holdings
 
-Source: IMF Coordinated Portfolio Investment Survey (CPIS), available at `data.imf.org`.
+Source: IMF **Portfolio Investment Positions (PIP)**, series `IMF.STA:PIP`, available at `data.imf.org`.
 
-Download the bilateral table for **Equity and Investment Fund Shares**, most recent year (e.g. end-2023). This gives you an $n \times n$ matrix where row $i$, column $j$ = equity issued by country $j$ held by investors in country $i$.
+Download the bilateral table for **Equity and Investment Fund Shares** for the base year (2019). This gives an $n \times n$ matrix where row $i$, column $j$ = equity issued by country $j$ held by investors in country $i$.
 
 Store this as matrix $\mathbf{A}$ where entry $A_{ij} = a_{ij}$ (in millions of USD).
 
-**Set diagonal entries:** The CPIS does not report domestic holdings. You need domestic equity holdings $a_{ii}$ for each country. Compute them as:
+**Set diagonal entries — home holdings:** The PIP does not report domestic holdings. Compute them as:
 
 $$
-a_{ii} = M_i - \sum_{j \neq i} a_{ji}^{\text{liabilities}}
+a_{ii} = M_i - \sum_{j \neq i} a_{ji}^{\text{foreign liabilities}}
 $$
 
-where $M_i$ is country $i$'s stock market capitalisation and $\sum_{j \neq i} a_{ji}^{\text{liabilities}}$ is total foreign equity investment *into* $i$ (sum of column $i$ excluding the diagonal). This says: domestic investors hold whatever part of the market that foreigners do not.
+where the sum is all foreign equity investment *into* country $i$. If this gives a value less than $0.01 \cdot M_i$ (e.g. for very open financial centres), apply a floor:
 
-If this gives a negative number (unlikely but possible for very open financial centres), set $a_{ii} = 0.01 \cdot M_i$ as a floor and flag it.
+$$
+a_{ii} = \max\!\left(M_i - \sum_{j \neq i} a_{ji}, \; 0.01 \cdot M_i\right)
+$$
+
+> **Note:** Countries in `FINANCIAL_CENTRES` (IRL, LUX, NLD, CHE) have domestic holdings distorted by pass-through flows. Their diagonal entries are set but their home bias is *not* used to calibrate $\Delta_{ii}$.
 
 ### 0.3 — Compute observed portfolio shares
 
@@ -64,35 +108,35 @@ $$
 \pi_{ij}^{\text{data}} = \frac{a_{ij}}{s_i}
 $$
 
-You now have an $n \times n$ matrix $\boldsymbol{\Pi}^{\text{data}}$ where each row $i$ sums to 1. The diagonal entry $\pi_{ii}^{\text{data}}$ is the **home bias** of country $i$.
+This gives an $n \times n$ matrix $\boldsymbol{\Pi}^{\text{data}}$ where each row $i$ sums to 1. The diagonal entry $\pi_{ii}^{\text{data}}$ is the **home bias** of country $i$.
 
 ### 0.4 — Download bilateral distances
 
-Source: `geopoliticaldistance.org` (the Pellegrino, Spolaore & Wacziarg dataset).
-
 For every pair $(i,j)$ where $i \neq j$, download:
 
-- $d_{ij}^{\text{geo}}$ — geographic distance (km between capital cities)
-- $d_{ij}^{\text{cul}}$ — cultural distance (continuous, based on World Values Survey)
 - $d_{ij}^{\text{ling}}$ — linguistic distance (continuous, between 0 and 1)
 
-Set $d_{ii}^{\text{geo}} = d_{ii}^{\text{cul}} = d_{ii}^{\text{ling}} = 0$ for all $i$.
+Construct:
 
-Also construct:
+- $d_{ij}^{\text{gci\_fin}}$ — absolute difference in GCI Financial Composite score between $i$ and $j$:
 
-- $\text{Euro}_{ij} = 1$ if both $i$ and $j$ are Eurozone members, 0 otherwise
-- $\text{EU}_{ij} = 1$ if both $i$ and $j$ are EU members, 0 otherwise
+$$
+d_{ij}^{\text{gci\_fin}} = \left| \text{GCI\_fin}_i - \text{GCI\_fin}_j \right|
+$$
+
+> **Note on GCI data:** GCI data is only available up to ~2019. The last observed value per country is carried forward to fill any gaps in the base-year cross-section.
 
 ### 0.5 — Download country-level variables
 
-From the Penn World Table (version 10.01 or later, `rug.nl/ggdc/productivity/pwt`):
+From the Penn World Table (version 10.01 or later):
 
 | Variable | PWT code | What it is |
 |---|---|---|
 | Real GDP | `rgdpna` | Output $y_j$ in constant national prices |
-| Capital stock | `rkna` | Capital $k_j$ in constant national prices |
+| Capital stock | `rkna` | Physical capital stock $k_j^{\text{PWT}}$ |
 | Labour share | `labsh` | Labour's share of income |
 | Employment | `emp` | Number of persons employed $L_j$ |
+| TFP | `rtfpna` | Total factor productivity $\bar{A}_j$ |
 
 Compute:
 
@@ -101,142 +145,126 @@ $$
 $$
 
 $$
-\text{MPK}_j^{\text{data}} = \alpha_j \cdot \frac{y_j}{k_j} \qquad \text{(marginal product of capital)}
-$$
-
-$$
-A_j = \frac{y_j}{k_j^{\alpha_j} \cdot L_j^{1-\alpha_j}} \qquad \text{(total factor productivity, backed out)}
+R_j = \alpha_j \cdot \frac{y_j}{k_j} \qquad \text{(marginal product of capital — used as return proxy)}
 $$
 
 From the World Federation of Exchanges or World Bank:
 
-- $M_j$ — stock market capitalisation (USD) for each country
+- $M_j$ — stock market capitalisation (USD, in millions) for each country
 
 ---
 
-## Step 1: Estimate the Gravity Equation
+## Step 1: Estimate the Gravity Equation (PPML)
 
 ### 1.1 — Prepare the regression dataset
 
-Create a dataset with one row per bilateral pair $(i,j)$ where $i \neq j$. Each row has:
+Create a panel dataset with one row per bilateral pair $(i,j)$ and year, where $i \neq j$. Each row contains:
 
 | Column | Value |
 |---|---|
-| `ln_a_ij` | $\ln(a_{ij})$ — log bilateral equity holdings |
-| `ln_dist_geo` | $\ln(d_{ij}^{\text{geo}})$ — log geographic distance |
-| `dist_cul` | $d_{ij}^{\text{cul}}$ — cultural distance (in levels) |
-| `dist_ling` | $d_{ij}^{\text{ling}}$ — linguistic distance (in levels) |
-| `euro` | $\text{Euro}_{ij}$ |
-| `orig_fe` | Origin country fixed effect (factor variable for $i$) |
-| `dest_fe` | Destination country fixed effect (factor variable for $j$) |
+| `a_ij` | Bilateral equity holdings (USD millions) |
+| `d_ling` | Linguistic distance (levels) — **soft barrier** |
+| `d_gci_financial_composite` | GCI financial composite distance (levels) — **hard barrier** |
+| `Y_i`, `Y_j` | GDP of origin and destination |
+| `year` | Year (for time fixed effects) |
 
-Drop rows where $a_{ij} = 0$ or is missing (or use PPML, see below).
-
-### 1.2 — Run the regression
-
-**OLS specification:**
+Scale monetary variables before estimation to prevent numerical overflow in the $Y_i \times Y_j$ interaction:
 
 $$
-\ln a_{ij} = \alpha_i + \alpha_j + \beta_1 \ln d_{ij}^{\text{geo}} + \beta_2 \, d_{ij}^{\text{cul}} + \beta_3 \, d_{ij}^{\text{ling}} + \beta_4 \, \text{Euro}_{ij} + \varepsilon_{ij}
+\tilde{a}_{ij} = a_{ij} / 10^6, \qquad \tilde{Y}_i = Y_i / 10^6, \qquad \tilde{Y}_j = Y_j / 10^6
 $$
 
-In Stata:
-```
-reghdfe ln_a_ij ln_dist_geo dist_cul dist_ling euro, absorb(orig_fe dest_fe) cluster(pair_id)
-```
+The slope coefficients on the friction regressors (`d_ling`, `d_gci_financial_composite`) are invariant to this scaling.
 
-In R:
-```r
-library(fixest)
-feols(ln_a_ij ~ ln_dist_geo + dist_cul + dist_ling + euro | orig_fe + dest_fe, 
-      data = df, cluster = ~pair_id)
-```
+### 1.2 — Run the PPML regression
 
-In Python:
+The PPML specification is:
+
+$$
+a_{ij} = \exp\!\Big(\beta_{\text{ling}} \cdot d_{ij}^{\text{ling}} + \beta_{\text{fin}} \cdot d_{ij}^{\text{gci\_fin}} + \beta_Y \cdot Y_i + \beta_Y \cdot Y_j + \beta_{YY} \cdot Y_i Y_j + \text{Year FE}\Big) \cdot \eta_{ij}
+$$
+
+In Python using `statsmodels`:
+
 ```python
-import statsmodels.formula.api as smf
-model = smf.ols('ln_a_ij ~ ln_dist_geo + dist_cul + dist_ling + euro + C(orig_fe) + C(dest_fe)', 
-                data=df).fit(cov_type='cluster', cov_kwds={'groups': df['pair_id']})
+formula = 'a_ij ~ d_ling + d_gci_financial_composite + Y_i*Y_j + C(year)'
+ppml = smf.poisson(formula=formula, data=ppml_df).fit(
+    method="newton", maxiter=300,
+    cov_type="cluster",
+    cov_kwds={"groups": ppml_df['pair']},   # cluster by bilateral pair
+)
 ```
 
-**Alternative (preferred): PPML specification** to handle zeros:
-
-$$
-a_{ij} = \exp\!\Big(\alpha_i + \alpha_j + \beta_1 \ln d_{ij}^{\text{geo}} + \beta_2 \, d_{ij}^{\text{cul}} + \beta_3 \, d_{ij}^{\text{ling}} + \beta_4 \, \text{Euro}_{ij}\Big) \cdot \eta_{ij}
-$$
-
-In Stata:
-```
-ppmlhdfe a_ij ln_dist_geo dist_cul dist_ling euro, absorb(orig_fe dest_fe) cluster(pair_id)
-```
+Standard errors are clustered at the bilateral pair level.
 
 ### 1.3 — Store the estimated coefficients
 
 Record:
 
 $$
-\hat{\beta}_1, \quad \hat{\beta}_2, \quad \hat{\beta}_3, \quad \hat{\beta}_4
+\hat{\beta}_{\text{ling}}, \quad \hat{\beta}_{\text{fin}}
 $$
 
-All four should be reported with standard errors and significance levels.
+**Expected signs (both must be negative to enter the wedge):**
+- $\hat{\beta}_{\text{ling}} < 0$ — more linguistic distance → less investment
+- $\hat{\beta}_{\text{fin}} < 0$ — more financial system distance → less investment
 
-**Expected signs:**
-- $\hat{\beta}_1 < 0$ (more geographic distance → less investment)
-- $\hat{\beta}_2 < 0$ (more cultural distance → less investment)
-- $\hat{\beta}_3 < 0$ (more linguistic distance → less investment)
-- $\hat{\beta}_4 > 0$ (sharing the euro → more investment)
-
-**These coefficients are the inputs to Step 2.** They measure how strongly each soft barrier reduces bilateral investment.
+If either coefficient is non-negative, it is **excluded** from the wedge construction (a warning is printed). Only coefficients that pass the sign check are stored in `beta_dict` and used downstream.
 
 ---
 
-## Step 2: Construct the Baseline Wedge Matrix
+## Step 2: Construct the Bilateral Wedge Matrices
 
-### 2.1 — Compute bilateral wedges for all $i \neq j$
+The model separates barriers into two independent components:
 
-For every pair $(i,j)$ where $i \neq j$, compute:
+- **Hard barriers** — financial system distance, reducible by capital market integration policy (lever: $\omega$)
+- **Soft barriers** — linguistic distance, reducible by language/cultural integration (lever: $\gamma$)
+
+### 2.1 — Compute off-diagonal wedges for all $i \neq j$
+
+**Hard (financial) wedge:**
 
 $$
-\ln \Delta_{ij}^{\text{baseline}} = \underbrace{(-\hat{\beta}_1)}_{\text{positive}} \cdot \ln d_{ij}^{\text{geo}} + \underbrace{(-\hat{\beta}_2)}_{\text{positive}} \cdot d_{ij}^{\text{cul}} + \underbrace{(-\hat{\beta}_3)}_{\text{positive}} \cdot d_{ij}^{\text{ling}} + \underbrace{(-\hat{\beta}_4)}_{\text{negative}} \cdot \text{Euro}_{ij}
+\Delta_{ij}^{\text{hard}} = \exp\!\left(-\hat{\beta}_{\text{fin}} \cdot d_{ij}^{\text{gci\_fin}}\right)
 $$
 
-Then exponentiate:
+**Soft (linguistic) wedge:**
 
 $$
-\Delta_{ij}^{\text{baseline}} = \exp\!\Big(\ln \Delta_{ij}^{\text{baseline}}\Big)
+\Delta_{ij}^{\text{soft}} = \exp\!\left(-\hat{\beta}_{\text{ling}} \cdot d_{ij}^{\text{ling}}\right)
 $$
 
-**Interpretation:** $\Delta_{ij} > 1$ means there is a friction. Larger $\Delta_{ij}$ = larger barrier. For two countries that are geographically close, culturally similar, speak the same language, and share the euro, $\Delta_{ij}$ will be small (close to 1). For distant, dissimilar pairs, $\Delta_{ij}$ will be large.
+**Combined baseline wedge:**
+
+$$
+\Delta_{ij}^{\text{baseline}} = \Delta_{ij}^{\text{hard}} \cdot \Delta_{ij}^{\text{soft}}
+$$
+
+Since both $\hat{\beta}_{\text{fin}} < 0$ and $\hat{\beta}_{\text{ling}} < 0$, both factors are $\geq 1$: more distance = larger friction.
+
+The diagonal is set to 1 at this stage and calibrated in Step 2.2.
 
 ### 2.2 — Calibrate the domestic wedge $\Delta_{ii}$
 
-The domestic wedge is not estimated from the gravity regression (which excluded $i=j$ observations). Instead, calibrate it to match the observed home bias.
-
-The model says:
+The domestic wedge is calibrated to match the observed home bias, using the portfolio-share equation:
 
 $$
 \pi_{ii} = \frac{R_i^{\eta} \cdot M_i \,/\, \Delta_{ii}}{\displaystyle \sum_{\iota=1}^{n} R_\iota^{\eta} \cdot M_\iota \,/\, \Delta_{i\iota}}
 $$
 
-You know $\pi_{ii}^{\text{data}}$ from Step 0.3. Rearrange to solve for $\Delta_{ii}$:
+**Excluded countries:** Financial centres (IRL, LUX, NLD, CHE) and any country with missing or extreme home bias ($\pi_{ii} \leq 0$ or $\pi_{ii} \geq 0.9999$) are excluded; their $\Delta_{ii}$ is set to 1.
 
-$$
-\Delta_{ii} = \frac{R_i^{\eta} \cdot M_i}{\pi_{ii}^{\text{data}} \cdot \displaystyle\sum_{\iota=1}^{n} R_\iota^{\eta} \cdot M_\iota \,/\, \Delta_{i\iota}}
-$$
+**Iterative calibration algorithm:**
 
-This is circular (the sum in the denominator includes $\Delta_{ii}$ itself). Solve it iteratively:
+> 1. Initialise: $\Delta_{ii}^{(0)} = 0.01$ for calibratable countries; $\Delta_{ii}^{(0)} = 1$ for excluded countries.
+> 2. For each calibratable country $i$:
+>    - Compute $w_{i\iota} = R_\iota^{\eta} \cdot M_\iota \,/\, \Delta_{i\iota}$ for all $\iota$
+>    - Compute $Z_i = \sum_\iota w_{i\iota}$
+>    - Compute $\hat{\pi}_{ii} = w_{ii} / Z_i$
+>    - Update: $\Delta_{ii}^{(\text{new})} = \Delta_{ii}^{(\text{old})} \cdot \hat{\pi}_{ii} / \pi_{ii}^{\text{data}}$
+> 3. Repeat until $\max_i |\hat{\pi}_{ii} - \pi_{ii}^{\text{data}}| < 10^{-5}$ (up to 20,000 iterations).
 
-> **Algorithm to calibrate $\Delta_{ii}$:**
->
-> 1. Set initial guess: $\Delta_{ii}^{(0)} = 0.01$ for all $i$ (domestic friction is small).
-> 2. For each $i$, compute the denominator $Z_i = \sum_{\iota} R_\iota^{\eta} \cdot M_\iota / \Delta_{i\iota}$, using current $\Delta_{ii}$.
-> 3. Compute the model-implied home share: $\hat{\pi}_{ii} = (R_i^{\eta} \cdot M_i / \Delta_{ii}) \,/\, Z_i$.
-> 4. Update: $\Delta_{ii}^{(\text{new})} = \Delta_{ii}^{(\text{old})} \cdot \hat{\pi}_{ii} \,/\, \pi_{ii}^{\text{data}}$.
-> 5. Repeat steps 2–4 until $|\hat{\pi}_{ii} - \pi_{ii}^{\text{data}}| < 0.001$ for all $i$.
->
-> This typically converges in 10–20 iterations.
-
-After convergence, you have the full $n \times n$ wedge matrix $\boldsymbol{\Delta}^{\text{baseline}}$.
+After convergence, the full $n \times n$ matrix $\boldsymbol{\Delta}^{\text{baseline}}$ (with calibrated diagonal) is stored as `Delta_baseline`.
 
 ---
 
@@ -248,17 +276,17 @@ $$
 \eta = 1 \qquad \text{(baseline)}
 $$
 
-You will redo Steps 4–7 with $\eta = 0.5$ and $\eta = 2$ as robustness checks.
+Robustness checks use $\eta \in \{0.5, 1.0, 2.0\}$.
 
 ### 3.2 — Compute expected returns
 
 Use the marginal product of capital from PWT:
 
 $$
-R_j = \text{MPK}_j^{\text{data}} = \alpha_j \cdot \frac{y_j}{k_j}
+R_j = \alpha_j \cdot \frac{y_j}{k_j}
 $$
 
-Normalise so that the average $R_j$ across countries equals 1 (this is just a scaling convenience — it doesn't affect portfolio shares because they are ratios):
+Normalise so that the cross-country average equals 1:
 
 $$
 R_j \leftarrow \frac{R_j}{\bar{R}} \qquad \text{where} \quad \bar{R} = \frac{1}{n}\sum_{j=1}^{n} R_j
@@ -274,209 +302,217 @@ $$
 \pi_{ij}^{\text{baseline}} = \frac{R_j^{\eta} \cdot M_j \,/\, \Delta_{ij}^{\text{baseline}}}{\displaystyle\sum_{\iota=1}^{n} R_\iota^{\eta} \cdot M_\iota \,/\, \Delta_{i\iota}^{\text{baseline}}}
 $$
 
-**Concrete computation for a single origin country $i$:**
-
-1. Compute the "attractiveness" of each destination $\iota$ for investor $i$:
-
-$$
-w_{i\iota} = \frac{R_\iota^{\eta} \cdot M_\iota}{\Delta_{i\iota}^{\text{baseline}}}
-$$
-
-2. Sum them up:
-
-$$
-Z_i = \sum_{\iota=1}^{n} w_{i\iota}
-$$
-
-3. The portfolio share is:
-
-$$
-\pi_{i\iota}^{\text{baseline}} = \frac{w_{i\iota}}{Z_i}
-$$
-
-Do this for every $i = 1, \ldots, n$. This gives you the $n \times n$ matrix $\boldsymbol{\Pi}^{\text{baseline}}$.
-
-**Validation:** Compare $\boldsymbol{\Pi}^{\text{baseline}}$ to $\boldsymbol{\Pi}^{\text{data}}$. The diagonal entries should match exactly (by construction, since you calibrated $\Delta_{ii}$). The off-diagonal entries should be approximately correct. Compute the correlation between $\pi_{ij}^{\text{baseline}}$ and $\pi_{ij}^{\text{data}}$ across all $i \neq j$ pairs. Report this correlation — it measures model fit.
+**Validation:** Compare $\boldsymbol{\Pi}^{\text{baseline}}$ to $\boldsymbol{\Pi}^{\text{data}}$. Diagonal entries match by construction. Compute the correlation between $\pi_{ij}^{\text{baseline}}$ and $\pi_{ij}^{\text{data}}$ across all $i \neq j$ pairs — this measures model fit.
 
 ---
 
 ## Step 5: Define the CMU Shock
 
-### 5.1 — Choose the integration parameter $\phi$
+The CMU shock operates on hard and soft barriers **independently** via two separate parameters.
 
-Run the model for $\phi \in \{0.25,\; 0.50,\; 0.75,\; 1.00\}$.
+### 5.1 — Choose the integration parameters
+
+| Parameter | Lever | Scenarios |
+|---|---|---|
+| $\omega$ | Financial (hard) integration | $\{0.00, 0.25, 0.50, 1.00\}$ |
+| $\gamma$ | Language (soft) integration | $\{0.00, 0.25, 0.50, 1.00\}$ |
+
+All $4 \times 4 = 16$ combinations of $(\omega, \gamma)$ are computed independently.
 
 ### 5.2 — Construct the counterfactual wedge matrix
 
 For every pair $(i,j)$:
 
 $$
-\Delta_{ij}^{\text{CMU}} = \begin{cases}
-\left(\Delta_{ij}^{\text{baseline}}\right)^{1-\phi} & \text{if } i \neq j \text{ and both } i,j \in \text{EU} \\[6pt]
-\Delta_{ij}^{\text{baseline}} & \text{otherwise (including } i = j\text{)}
+\Delta_{ij,\text{hard}}^{\text{CMU}} = \begin{cases}
+\left(\Delta_{ij}^{\text{hard}}\right)^{1-\omega} & \text{if } i \neq j \text{ and both } i,j \in \text{EU27} \\[4pt]
+\Delta_{ij}^{\text{hard}} & \text{otherwise}
 \end{cases}
 $$
 
-**What this does:** Raising a wedge to the power $(1-\phi)$ shrinks it toward 1. When $\phi = 1$, the exponent is 0, so $\Delta_{ij}^{\text{CMU}} = 1$ (no friction). When $\phi = 0.5$, the wedge is square-rooted (halved in log terms).
+$$
+\Delta_{ij,\text{soft}}^{\text{CMU}} = \begin{cases}
+\left(\Delta_{ij}^{\text{soft}}\right)^{1-\gamma} & \text{if } i \neq j \text{ and both } i,j \in \text{EU27} \\[4pt]
+\Delta_{ij}^{\text{soft}} & \text{otherwise}
+\end{cases}
+$$
 
-**Example:** Suppose $\Delta_{\text{Germany,Poland}}^{\text{baseline}} = 4.0$ (Germany–Poland friction is 4 times the frictionless level).
+$$
+\Delta_{ij}^{\text{CMU}} = \Delta_{ij,\text{hard}}^{\text{CMU}} \cdot \Delta_{ij,\text{soft}}^{\text{CMU}}
+$$
 
-| $\phi$ | $\Delta_{\text{Germany,Poland}}^{\text{CMU}}$ | Interpretation |
-|---|---|---|
-| 0.00 | $4.0^{1.0} = 4.00$ | No change |
-| 0.25 | $4.0^{0.75} = 2.83$ | CMU removes 25% of barriers |
-| 0.50 | $4.0^{0.50} = 2.00$ | CMU removes 50% of barriers |
-| 1.00 | $4.0^{0.00} = 1.00$ | Full integration |
+**Domestic wedges $\Delta_{ii}$ stay unchanged** — copied from `Delta_baseline`.
 
-**Domestic wedges $\Delta_{ii}$ stay unchanged.** The CMU does not make people like their own market less — it makes foreign EU markets more accessible.
+**What the parameters do:** Raising a wedge to the power $(1 - \phi)$ shrinks it toward 1 in log space. Setting $\omega = 1$ fully eliminates all EU financial system distance barriers; $\omega = 0$ leaves them unchanged. $\gamma$ does the same for linguistic barriers independently.
 
-**Non-EU pairs stay unchanged.** The barrier between, say, France and the US is not affected by the CMU.
+**Example** — Germany–Poland pair with $\Delta^{\text{hard}} = 3.0$, $\Delta^{\text{soft}} = 2.0$:
+
+| $\omega$ | $\gamma$ | $\Delta^{\text{CMU}}$ | Interpretation |
+|---|---|---|---|
+| 0.00 | 0.00 | $3.0 \times 2.0 = 6.00$ | No change |
+| 1.00 | 0.00 | $1.0 \times 2.0 = 2.00$ | Only financial barriers removed |
+| 0.00 | 1.00 | $3.0 \times 1.0 = 3.00$ | Only linguistic barriers removed |
+| 1.00 | 1.00 | $1.0 \times 1.0 = 1.00$ | Full integration |
 
 ---
 
 ## Step 6: Compute Counterfactual Portfolios
 
-Repeat the exact same calculation as Step 4, but using $\boldsymbol{\Delta}^{\text{CMU}}$ instead of $\boldsymbol{\Delta}^{\text{baseline}}$.
-
-For every $(i,j)$:
+Repeat the same calculation as Step 4 using $\boldsymbol{\Delta}^{\text{CMU}}$:
 
 $$
-w_{i\iota}^{\text{CMU}} = \frac{R_\iota^{\eta} \cdot M_\iota}{\Delta_{i\iota}^{\text{CMU}}}
+\pi_{ij}^{\text{CMU}} = \frac{R_j^{\eta} \cdot M_j \,/\, \Delta_{ij}^{\text{CMU}}}{\displaystyle\sum_{\iota=1}^{n} R_\iota^{\eta} \cdot M_\iota \,/\, \Delta_{i\iota}^{\text{CMU}}}
 $$
 
-$$
-Z_i^{\text{CMU}} = \sum_{\iota=1}^{n} w_{i\iota}^{\text{CMU}}
-$$
+**Home bias change:**
 
 $$
-\pi_{i\iota}^{\text{CMU}} = \frac{w_{i\iota}^{\text{CMU}}}{Z_i^{\text{CMU}}}
+\Delta\pi_{ii} = \pi_{ii}^{\text{CMU}} - \pi_{ii}^{\text{baseline}}
 $$
 
-### 6.1 — Compute portfolio changes
-
-For every pair:
-
-$$
-\Delta\pi_{ij} = \pi_{ij}^{\text{CMU}} - \pi_{ij}^{\text{baseline}}
-$$
-
-For home bias specifically:
-
-$$
-\Delta\text{HomeBias}_i = \pi_{ii}^{\text{CMU}} - \pi_{ii}^{\text{baseline}}
-$$
-
-This should be **negative** for all EU countries (home bias falls).
+This should be **negative** for EU countries (home bias falls as EU markets become more accessible).
 
 ---
 
 ## Step 7: Compute Capital Reallocation
 
-### 7.1 — Compute capital received by each country under both scenarios
-
 $$
-k_j^{\text{baseline}} = \sum_{i=1}^{n} \pi_{ij}^{\text{baseline}} \cdot s_i
+k_j^{\text{baseline}} = \sum_{i=1}^{n} \pi_{ij}^{\text{baseline}} \cdot s_i = \left(\boldsymbol{\Pi}^{\text{baseline}\top} \mathbf{s}\right)_j
 $$
 
 $$
-k_j^{\text{CMU}} = \sum_{i=1}^{n} \pi_{ij}^{\text{CMU}} \cdot s_i
+k_j^{\text{CMU}} = \sum_{i=1}^{n} \pi_{ij}^{\text{CMU}} \cdot s_i = \left(\boldsymbol{\Pi}^{\text{CMU}\top} \mathbf{s}\right)_j
 $$
 
-where $s_i = \sum_{j} a_{ij}$ is the total equity portfolio of country $i$ (computed in Step 0.3). This is held fixed — total savings do not change, only their allocation across destinations changes.
-
-In matrix form:
-
-$$
-\mathbf{k}^{\text{baseline}} = \boldsymbol{\Pi}^{\text{baseline}\top} \cdot \mathbf{s}
-\qquad \text{and} \qquad
-\mathbf{k}^{\text{CMU}} = \boldsymbol{\Pi}^{\text{CMU}\top} \cdot \mathbf{s}
-$$
-
-### 7.2 — Compute percentage change in capital for each country
-
-$$
-\frac{\Delta k_j}{k_j} = \frac{k_j^{\text{CMU}} - k_j^{\text{baseline}}}{k_j^{\text{baseline}}}
-$$
+Total capital is conserved: $\sum_j k_j^{\text{CMU}} = \sum_j k_j^{\text{baseline}} = \sum_i s_i$.
 
 **Expected pattern:**
-
-- Small, peripheral EU countries (e.g. Baltic states, Croatia, Bulgaria): $\Delta k_j / k_j > 0$ (capital inflows).
-- Large EU countries with high existing home bias (e.g. Germany, France, Italy): $\Delta k_j / k_j$ could be slightly negative (some domestic capital now goes abroad) or slightly positive (they also receive more from other EU countries).
-- Non-EU countries (US, UK): $\Delta k_j / k_j \leq 0$ (EU investors reallocate toward EU, away from outside).
-
-**Check:** Total capital must be conserved. Verify that $\sum_j k_j^{\text{CMU}} = \sum_j k_j^{\text{baseline}} = \sum_i s_i$.
+- Small/peripheral EU countries (e.g. Baltic states, Bulgaria, Croatia): $\Delta k_j / k_j > 0$
+- Outside countries (USA, GBR): $\Delta k_j / k_j \leq 0$
 
 ---
 
-## Step 8: Compute Output and Productivity Effects
+## Step 7b: Foreign Capital Decomposition (New)
 
-### 8.1 — Compute output under both scenarios
+This step decomposes total capital received into domestic and foreign components, which feeds the endogenous TFP channel in Step 8.
 
-$$
-y_j^{\text{baseline}} = A_j \cdot \left(k_j^{\text{baseline}}\right)^{\alpha_j} \cdot L_j^{1 - \alpha_j}
-$$
+### 7b.1 — Compute foreign capital
 
-$$
-y_j^{\text{CMU}} = A_j \cdot \left(k_j^{\text{CMU}}\right)^{\alpha_j} \cdot L_j^{1 - \alpha_j}
-$$
-
-$A_j$ and $L_j$ do not change. Only $k_j$ changes.
-
-### 8.2 — Compute percentage change in GDP for each country
+For each country $j$, foreign equity capital is total received capital minus the part contributed by domestic investors:
 
 $$
-\frac{\Delta y_j}{y_j} = \frac{y_j^{\text{CMU}} - y_j^{\text{baseline}}}{y_j^{\text{baseline}}}
+k_j^{\text{foreign}} = k_j^{\text{total}} - \pi_{jj} \cdot s_j
 $$
 
-Or equivalently, using the approximation:
+Floor at zero (financial centres can have near-zero domestic holdings):
 
 $$
-\frac{\Delta y_j}{y_j} \approx \alpha_j \cdot \frac{\Delta k_j}{k_j}
+k_j^{\text{foreign}} \leftarrow \max\!\left(k_j^{\text{foreign}},\; 0\right)
 $$
 
-Both methods should give nearly identical results for small changes. Use the exact formula and report the approximation as a check.
+### 7b.2 — Compute foreign-capital intensity
 
-### 8.3 — Compute aggregate EU GDP effect
+$$
+f_j = \frac{k_j^{\text{foreign}}}{k_j^{\text{PWT}}}
+$$
+
+where $k_j^{\text{PWT}}$ is the physical capital stock from PWT. This is the correct denominator because TFP spillovers operate on the physical production process, not just the equity portfolio.
+
+Compute under both scenarios:
+- **Baseline:** $f_j^{\text{baseline}} = k_j^{\text{foreign, baseline}} / k_j^{\text{PWT}}$
+- **CMU:** $f_j^{\text{CMU}}(\omega,\gamma) = k_j^{\text{foreign, CMU}} / k_j^{\text{PWT}}$
+
+---
+
+## Step 8: Output with Endogenous TFP
+
+### 8.1 — Endogenous TFP
+
+TFP is no longer fixed. Foreign equity inflows transmit knowledge and technology:
+
+$$
+A_j(\theta) = \bar{A}_j \cdot \left(1 + \theta \cdot f_j\right)
+$$
+
+where $\bar{A}_j$ is the baseline TFP backed out from PWT data. When $\theta = 0$, this reduces to fixed TFP exactly.
+
+**Scenarios:** $\theta \in \{0.00, 0.05, 0.10\}$.
+
+### 8.2 — Production function
+
+$$
+y_j = A_j(\theta) \cdot \left(k_j\right)^{\alpha_j} \cdot L_j^{1-\alpha_j}
+$$
+
+Under each $(\theta, \omega, \gamma)$ triplet, compute:
+- **Baseline:** $A_j^{\text{baseline}} = \bar{A}_j (1 + \theta f_j^{\text{baseline}})$, then $y_j^{\text{baseline}}$
+- **CMU:** $A_j^{\text{CMU}} = \bar{A}_j (1 + \theta f_j^{\text{CMU}})$, then $y_j^{\text{CMU}}$
+
+Total number of output scenarios: $3 \times 4 \times 4 = 48$.
+
+### 8.3 — Decompose the output change
+
+The percentage change in output is approximated as:
+
+$$
+\frac{\Delta y_j}{y_j} \approx \underbrace{\alpha_j \cdot \frac{\Delta k_j}{k_j}}_{\text{capital deepening}} + \underbrace{\frac{\Delta A_j}{A_j}}_{\text{TFP spillover}}
+$$
+
+where:
+- **Capital effect:** $\alpha_j \cdot (k_j^{\text{CMU}} - k_j^{\text{baseline}}) / k_j^{\text{baseline}}$
+- **TFP effect:** $(A_j^{\text{CMU}} - A_j^{\text{baseline}}) / A_j^{\text{baseline}}$
+- **Total effect (exact):** $(y_j^{\text{CMU}} - y_j^{\text{baseline}}) / y_j^{\text{baseline}}$
+
+### 8.4 — Aggregate EU GDP effect
 
 $$
 \frac{\Delta Y^{\text{EU}}}{Y^{\text{EU}}} = \frac{\displaystyle\sum_{j \in \text{EU}} y_j^{\text{CMU}} - \sum_{j \in \text{EU}} y_j^{\text{baseline}}}{\displaystyle\sum_{j \in \text{EU}} y_j^{\text{baseline}}}
 $$
 
-### 8.4 — Compute MPK convergence
+### 8.5 — MPK convergence
 
 $$
-\text{MPK}_j^{\text{CMU}} = \alpha_j \cdot \frac{y_j^{\text{CMU}}}{k_j^{\text{CMU}}}
-$$
-
-Then compute the cross-country dispersion:
-
-$$
-\sigma_{\text{MPK}}^{\text{baseline}} = \text{Std.Dev}\!\left(\text{MPK}_j^{\text{baseline}}\right)_{j \in \text{EU}}
+\sigma_{\text{MPK}}^{\text{baseline}} = \text{Std}\!\left(\alpha_j \cdot \frac{y_j^{\text{baseline}}}{k_j^{\text{baseline}}}\right)_{j \in \text{EU}}
 $$
 
 $$
-\sigma_{\text{MPK}}^{\text{CMU}} = \text{Std.Dev}\!\left(\text{MPK}_j^{\text{CMU}}\right)_{j \in \text{EU}}
+\sigma_{\text{MPK}}^{\text{CMU}} = \text{Std}\!\left(\alpha_j \cdot \frac{y_j^{\text{CMU}}}{k_j^{\text{CMU}}}\right)_{j \in \text{EU}}
 $$
 
 $$
-\text{Convergence} = \frac{\sigma_{\text{MPK}}^{\text{baseline}} - \sigma_{\text{MPK}}^{\text{CMU}}}{\sigma_{\text{MPK}}^{\text{baseline}}} \times 100\%
+\text{Reduction} = \frac{\sigma_{\text{MPK}}^{\text{baseline}} - \sigma_{\text{MPK}}^{\text{CMU}}}{\sigma_{\text{MPK}}^{\text{baseline}}} \times 100\%
 $$
 
-A positive number means the CMU reduced the dispersion of returns — capital is more efficiently allocated.
+---
+
+## Economic Sense Checks
+
+After running Step 8, five automatic checks are performed:
+
+| Check | What is verified |
+|---|---|
+| 1 | $\text{Corr}(\Delta k_j^{\text{foreign}}, \Delta A_j) > 0$ across EU27 — countries that gain more foreign capital should have larger TFP gains |
+| 2 | $\theta = 0$: $\max_j |\Delta A_j / A_j| < 10^{-10}$ — no TFP effect when spillover is off |
+| 3 | TFP contribution $<$ capital deepening contribution (EU27 avg) — capital channel dominates |
+| 4 | Non-EU countries lose foreign capital and TFP under $(\omega=1, \gamma=1)$ |
+| 5 | EU GDP gain is monotone increasing in $\theta$ at $(\omega=1, \gamma=0)$ |
 
 ---
 
 ## Step 9: Robustness Checks
 
-Redo Steps 3–8 with the following variations:
+The function `run_model_variant_endo` re-runs the full model (Steps 2.2 through 8) for any given $(\eta, \theta)$ pair. The robustness grid is:
 
-| Check | What changes | Why |
-|---|---|---|
-| $\eta = 0.5$ | Return elasticity halved | Tests sensitivity to how much investors chase returns |
-| $\eta = 2.0$ | Return elasticity doubled | Same |
-| Exclude LU, IE, NL | Remove Luxembourg, Ireland, Netherlands from sample | These are financial centres that distort the data (Beck et al. 2024) |
-| PPML gravity | Use PPML instead of OLS in Step 1 | Handles zeros; different $\hat{\beta}$ values flow through the entire model |
-| Only soft barriers | Set $\phi$ to reduce only cultural + linguistic distance, not geographic | Tests whether the CMU effect comes from information barriers specifically |
+| Dimension | Values |
+|---|---|
+| $\eta$ (return elasticity) | 0.5, **1.0 (baseline)**, 2.0 |
+| $\theta$ (TFP elasticity) | 0.00, 0.05, 0.10 |
+| $\omega$ (financial integration) | 0.00, 0.25, 0.50, 1.00 |
+| $\gamma$ (linguistic integration) | 0.00, 0.25, 0.50, 1.00 |
+
+Total: $3 \times 3 \times 4 \times 4 = 144$ robustness scenarios.
+
+For each variant, $\Delta_{ii}$ is **re-calibrated** to the specified $\eta$ before computing portfolios and output. The robustness table reports $\Delta Y^{\text{EU}} / Y^{\text{EU}}$ (%) and the average EU home-bias change for each combination.
 
 ---
 
@@ -485,67 +521,74 @@ Redo Steps 3–8 with the following variations:
 ```
 STEP 0: Data assembly
   │
-  ├── Bilateral holdings matrix A (CPIS)
-  ├── Distance matrices (geopoliticaldistance.org)
-  ├── Country-level data (PWT, market cap)
+  ├── Bilateral holdings matrix A (IMF PIP) → a_ij, π_ij^data, s_i
+  ├── GCI Financial Composite distance → d_gci_fin_ij
+  ├── Linguistic distance → d_ling_ij
+  ├── Country-level data (PWT) → y_j, k_j^PWT, α_j, L_j, Ā_j
+  └── Market cap → M_j
   │
   ▼
-STEP 1: Gravity regression
+STEP 1: Gravity regression (PPML)
   │
-  │   Input:  A, distances
-  │   Output: β̂₁, β̂₂, β̂₃, β̂₄
+  │   Spec: a_ij ~ d_ling + d_gci_financial_composite + Y_i*Y_j + C(year)
+  │   Output: β_ling, β_fin  (friction coefficients, both negative)
   │
   ▼
-STEP 2: Build baseline wedge matrix
+STEP 2: Build bilateral wedge matrices
   │
-  │   Input:  β̂ coefficients, distances, observed home shares
-  │   Output: Δ_baseline (n × n matrix)
+  │   Output: Δ_hard (n×n), Δ_soft (n×n), Δ_baseline = Δ_hard × Δ_soft
+  │   Step 2.2: Calibrate Δ_ii to match observed home bias
+  │   (IRL, LUX, NLD, CHE excluded from calibration)
   │
   ▼
 STEP 3: Set returns R_j and elasticity η
   │
-  │   Input:  PWT data
-  │   Output: R vector, η scalar
+  │   R_j = α_j × y_j / k_j, normalised; η = 1.0 (baseline)
   │
   ▼
 STEP 4: Compute baseline portfolios
   │
-  │   Input:  R, M, Δ_baseline, η
-  │   Output: Π_baseline (n × n matrix)
-  │   Check:  Compare to Π_data
+  │   Output: Π_baseline (n×n)
+  │   Check: off-diagonal correlation with Π_data
   │
   ▼
-STEP 5: Define CMU shock
+STEPS 5–6: CMU shock → counterfactual portfolios
   │
-  │   Input:  Δ_baseline, φ, EU membership
-  │   Output: Δ_CMU (n × n matrix)
-  │
-  ▼
-STEP 6: Compute counterfactual portfolios
-  │
-  │   Input:  R, M, Δ_CMU, η
-  │   Output: Π_CMU (n × n matrix)
-  │   Result: Change in home bias, change in cross-border shares
+  │   ω ∈ {0,0.25,0.5,1}, γ ∈ {0,0.25,0.5,1}  → 16 (ω,γ) scenarios
+  │   Δ_CMU = Δ_hard^(1-ω) × Δ_soft^(1-γ)  [EU off-diagonal pairs only]
+  │   Output: Π_CMU for each (ω, γ)
   │
   ▼
 STEP 7: Capital reallocation
   │
-  │   Input:  Π_baseline, Π_CMU, s (savings vector)
-  │   Output: k_baseline, k_CMU for each country
-  │   Result: Which countries gain/lose capital
+  │   k_baseline = Π_baseline^T × s
+  │   k_CMU(ω,γ) = Π_CMU^T × s
+  │   Check: capital conservation
   │
   ▼
-STEP 8: Output and productivity effects
+STEP 7b: Foreign capital decomposition  ← NEW
   │
-  │   Input:  k_baseline, k_CMU, A, L, α (from PWT)
-  │   Output: Δy_i/y_i for each country, aggregate EU GDP effect,
-  │           MPK convergence measure
+  │   k_foreign_j = k_j - π_jj × s_j
+  │   f_j = k_foreign_j / k_j^PWT
+  │   Computed under baseline and all 16 (ω, γ) scenarios
+  │
+  ▼
+STEP 8: Output with endogenous TFP  ← MODIFIED
+  │
+  │   A_j(θ) = Ā_j × (1 + θ × f_j)
+  │   y_j = A_j(θ) × k_j^α_j × L_j^(1-α_j)
+  │   θ ∈ {0.00, 0.05, 0.10}  →  48 total (θ, ω, γ) scenarios
+  │   Decompose: total = capital deepening + TFP spillover
   │
   ▼
 STEP 9: Robustness
   │
-  │   Vary η, vary sample, vary gravity estimator
-  │   Redo Steps 3–8 for each variation
+  │   Vary η ∈ {0.5, 1.0, 2.0} × θ ∈ {0,0.05,0.10} × all (ω, γ)
+  │   Re-calibrate Δ_ii for each η
+  │   144 robustness scenarios total
+  │
+  ▼
+STEP 10: Export to Excel (16 sheets)
 ```
 
 ---
@@ -554,16 +597,61 @@ STEP 9: Robustness
 
 ### Tables
 
-1. **Gravity results** (Step 1): Coefficient table with $\hat{\beta}_1$ through $\hat{\beta}_4$, standard errors, $R^2$.
-2. **Baseline home bias** (Step 4): Column 1 = country, Column 2 = observed home share $\pi_{ii}^{\text{data}}$, Column 3 = model home share $\pi_{ii}^{\text{baseline}}$.
-3. **CMU portfolio effects** (Step 6): For each country $i$: home share under baseline, home share under CMU ($\phi = 0.25, 0.50, 1.0$), change in home bias.
-4. **Capital and GDP effects** (Steps 7–8): For each country $j$: $\Delta k_j / k_j$ and $\Delta y_j / y_j$ under each $\phi$ scenario.
-5. **MPK convergence** (Step 8.4): $\sigma_{\text{MPK}}$ baseline vs. CMU, percentage reduction.
+1. **Gravity results** (Step 1): Coefficient table with $\hat{\beta}_{\text{ling}}$ and $\hat{\beta}_{\text{fin}}$, standard errors, p-values. Specification: `d_ling + d_gci_financial_composite + Y_i*Y_j + C(year)`, PPML, clustered by pair.
+
+2. **Baseline home bias** (Step 4): Country | $\pi_{ii}^{\text{data}}$ | $\pi_{ii}^{\text{baseline}}$ | off-diagonal correlation.
+
+3. **CMU portfolio effects** (Step 6): For each EU country: home share under baseline and CMU, change in home bias, across selected $(\omega, \gamma)$ pairs.
+
+4. **Table 2a — EU GDP gain, $\gamma=0$ (financial only), $\theta=0.10$:**
+
+   | $\omega$ | Avg $\Delta\pi_{\text{EU}}$ | $\Delta Y^{\text{EU}}/Y^{\text{EU}}$ (%) | Capital contribution (%) | TFP contribution (%) | $\sigma_{\text{MPK}}$ reduction (%) |
+   |---|---|---|---|---|---|
+   | 0.00 | … | … | … | … | … |
+   | 0.25 | … | … | … | … | … |
+   | 0.50 | … | … | … | … | … |
+   | 1.00 | … | … | … | … | … |
+
+5. **Table 2b — EU GDP gain, $\gamma=\omega$ (financial + linguistic), $\theta=0.10$**: same structure as 2a.
+
+6. **Table 3 — Country-level results** ($\omega=1.0$, $\gamma=0.0$, $\theta=0.10$, EU27): $\Delta k_i/k_i$ (%), $\Delta A_i/A_i$ (%), $\Delta y_i/y_i$ (%), capital share and TFP share of total output change.
+
+7. **Table 4 — Top 5 EU capital gainers** ($\omega=1.0$, $\gamma=1.0$, $\theta=0.10$).
+
+8. **Table 5 — Off-diagonal portfolio correlation** (data vs. model).
+
+9. **Table 6 — MPK dispersion** ($\theta=0.10$): $\sigma_{\text{MPK}}^{\text{baseline}}$, $\sigma_{\text{MPK}}^{\text{CMU}}$, reduction (%) for all $(\omega, \gamma)$.
+
+10. **Robustness table** ($\eta \times \theta \times \omega \times \gamma$): $\Delta Y^{\text{EU}}/Y^{\text{EU}}$ (%) and avg $\Delta$HomeBias for all 144 scenarios.
 
 ### Figures
 
 1. **Map of home bias change**: Colour EU countries by $\Delta\pi_{ii}$ (how much home bias falls).
 2. **Map of GDP gains**: Colour EU countries by $\Delta y_j / y_j$.
-3. **Scatter: baseline MPK vs. capital gain**: Show that high-MPK (capital-scarce) countries gain the most capital. This is the convergence result.
-4. **Bar chart**: Aggregate EU GDP gain as a function of $\phi$.
-5. **Heatmap**: The $\Delta\pi_{ij}$ matrix for a selected $\phi$, showing which bilateral flows increase most.
+3. **Scatter: baseline MPK vs. capital gain**: High-MPK countries gain the most capital (convergence).
+4. **Bar chart: EU GDP gain vs. $\omega$** for $\gamma=0$ and $\gamma=\omega$, by $\theta$.
+5. **Heatmap: $\Delta\pi_{ij}$** for a selected $(\omega, \gamma)$ — which bilateral flows increase most.
+6. **Decomposition bars**: Capital vs. TFP contribution to $\Delta y_j/y_j$ by country, for $\theta=0.10$.
+
+### Excel Export (`v4-simulation.xlsx`)
+
+The script exports 16 sheets:
+
+| Sheet | Contents |
+|---|---|
+| Config | All model parameters |
+| Gravity_Coefficients | PPML coefficients, std errors, CI |
+| Macro_Variables | R, M, k_PWT, Ā, L, α, home bias, f_baseline per country |
+| Wedge_Hard | $\boldsymbol{\Delta}^{\text{hard}}$ matrix |
+| Wedge_Soft | $\boldsymbol{\Delta}^{\text{soft}}$ matrix |
+| Wedge_Baseline | $\boldsymbol{\Delta}^{\text{baseline}}$ matrix (combined + calibrated diagonal) |
+| Portfolio_Data | Observed shares $\boldsymbol{\Pi}^{\text{data}}$ |
+| Portfolio_Baseline | Model-implied shares $\boldsymbol{\Pi}^{\text{baseline}}$ |
+| Capital_Reallocation | $k_j$ baseline and CMU for all 16 $(\omega,\gamma)$ scenarios |
+| Foreign_Capital | $k_j^{\text{foreign}}$ and $f_j$ for all 16 scenarios |
+| EU_Summary | EU aggregate stats for all 48 $(\theta,\omega,\gamma)$ scenarios |
+| Output_Country | Country-level output, TFP, MPK for all 48 scenarios |
+| Country_Detail_Main | Country table for main scenario ($\theta=0.10$, $\omega=1.0$, $\gamma=0.0$) |
+| MPK_Dispersion | MPK vectors for all scenarios |
+| Robustness | Full robustness grid (144 rows) |
+| Portfolio_CMU_Snapshots | $\boldsymbol{\Pi}^{\text{CMU}}$ for 4 corner scenarios |
