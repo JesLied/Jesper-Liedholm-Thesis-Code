@@ -61,7 +61,8 @@ EU27 = [
     # "HRV", # missing data
 ]
 
-EU27 += ["CYP","MLT","IRL","LUX"]
+EU27 += ["CYP","IRL","LUX"]
+EU27 += ["MLT"]
 
 OUTSIDE   = ["USA","GBR","CHE","NOR"]
 COUNTRIES = EU27 + OUTSIDE          # n = 31
@@ -71,7 +72,6 @@ idx       = {c: i for i, c in enumerate(COUNTRIES)}
 # Financial centres whose domestic holdings are distorted by
 # pass-through flows; excluded from diagonal (Δ_ii) calibration.
 FINANCIAL_CENTRES = {"IRL", "LUX", "CHE", "SVK", "CYP", "MLT"}
-FINANCIAL_CENTRES = {}
 
 
 def nearest(scenarios, target):
@@ -104,12 +104,8 @@ print(f"  Raw rows (world, all pairs): {len(df_full):,}  |  columns: {df_full.sh
 print(f"  Unique source countries: {df_full['iso3_i'].nunique()}")
 print(f"  Unique destination countries: {df_full['iso3_j'].nunique()}")
 
-# Scale market cap to millions USD (same as a_ij)
-df_full["M_i"] = df_full["M_i"] / 1e6
-df_full["M_j"] = df_full["M_j"] / 1e6
-
 print(f"  Mean values after scaling:")
-print(df_full[["Y_i", "Y_j", "a_ij", "M_i", "M_j"]].agg(["mean", "min", "max"]))
+print(df_full[["Y_i", "Y_j", "a_ij"]].agg(["mean", "min", "max"]))
 
 # --- Keep full world data for PPML; also filter to COUNTRIES for simulation ---
 df = df_full[df_full["iso3_i"].isin(COUNTRIES) & df_full["iso3_j"].isin(COUNTRIES)].copy()
@@ -121,17 +117,6 @@ neg_mask = df["a_ij"] < 0
 if neg_mask.sum() > 0:
     print(f"  WARNING: {neg_mask.sum()} negative a_ij values → set to 0")
     df.loc[neg_mask, "a_ij"] = 0.0
-
-# --- Impute M_i / M_j from Y where missing ----------------
-# TODO: We have solved this earlier in Final-v4.ipynb. Maybe we should not include this but use 'assert'
-avg_M_Y = np.nanmean(df.loc[df["M_i"] > 0, "M_i"] / df.loc[df["M_i"] > 0, "Y_i"])
-print(f"  Average M/Y ratio for imputation: {avg_M_Y:.4f}")
-
-m_i_missing = df["M_i"].isna() | (df["M_i"] <= 0)
-df.loc[m_i_missing, "M_i"] = df.loc[m_i_missing, "Y_i"] * avg_M_Y
-m_j_missing = df["M_j"].isna() | (df["M_j"] <= 0)
-df.loc[m_j_missing, "M_j"] = df.loc[m_j_missing, "Y_j"] * avg_M_Y
-print(f"  Imputed M_i for {m_i_missing.sum()} rows  |  M_j for {m_j_missing.sum()} rows")
 
 # --- Build derived columns ---------------------------------
 df["ln_d_geo"]    = np.log(df["d_geo"].replace(0, np.nan))
@@ -154,32 +139,28 @@ print("=" * 60)
 
 base = df[(df["year"] == BASE_YEAR)].copy()
 
-# Calculate foreign liabilities: sum of a_ij for all source countries (including non-COUNTRIES)
-foreign_liab = (
-    base[base["iso3_i"] != base["iso3_j"]]
-    .groupby("iso3_j")["a_ij"]
-    .sum()
-    .reset_index()
-    .rename(columns={"iso3_j": "iso3", "a_ij": "foreign_liab"})
-)
-
-M_map = (
+# Calculate home holdings: domestic portfolio = total_portfolio - total_pip
+# Both are aggregate (non-bilateral) totals per country.
+# domestic_share_i = 1 - (total_pip_million_usd_i / total_portfolio_million_usd_i)
+country_totals = (
     base.drop_duplicates("iso3_i")
-    .set_index("iso3_i")["M_i"]
+    .set_index("iso3_i")[["total_portfolio_million_usd_i", "total_pip_million_usd_i"]]
 )
 
-# Calculate home holdings: M_i - sum(a_ij for all countries in world)
 home_hold = {}
 for c in COUNTRIES:
-    M_c  = M_map.get(c, np.nan)
-    flib = foreign_liab.set_index("iso3").get("foreign_liab", pd.Series(dtype=float)).get(c, 0.0)
-    if np.isnan(M_c) or M_c <= 0:
+    if c not in country_totals.index:
+        home_hold[c] = np.nan
+        continue
+    tot_port = country_totals.at[c, "total_portfolio_million_usd_i"]
+    tot_pip  = country_totals.at[c, "total_pip_million_usd_i"]
+    if pd.isna(tot_port) or pd.isna(tot_pip) or tot_port <= 0:
         home_hold[c] = np.nan
     else:
-        h = M_c - flib
-        if h < 0.01 * M_c:
-            print(f"  NOTE: {c} home holdings floor applied (M={M_c:.1f}, liab={flib:.1f})")
-            h = 0.01 * M_c
+        h = tot_port - tot_pip
+        if h < 0.01 * tot_port:
+            print(f"  NOTE: {c} home holdings floor applied (port={tot_port:.1f}, pip={tot_pip:.1f})")
+            h = 0.01 * tot_port
         home_hold[c] = h
 
 # Set diagonal of a_ij to home holdings
@@ -192,9 +173,9 @@ for c in COUNTRIES:
 base = df[(df["year"] == BASE_YEAR)].copy()
 base = base[base["iso3_i"].isin(COUNTRIES) & base["iso3_j"].isin(COUNTRIES)].copy()
 
-diag_check = base[base["iso3_i"] == base["iso3_j"]][["iso3_i","a_ij","M_i"]].set_index("iso3_i")
+diag_check = base[base["iso3_i"] == base["iso3_j"]][["iso3_i","a_ij","total_portfolio_million_usd_i","total_pip_million_usd_i"]].set_index("iso3_i")
 print(f"  Base year rows (after COUNTRIES filter): {len(base)}")
-print("  Diagonal a_ii (home holdings) vs M_i (first 10):")
+print("  Diagonal a_ii (domestic holdings = total_portfolio - total_pip) — first 10:")
 print(diag_check.head(10).round(1).to_string())
 print(f"  Diagonal NaN count: {diag_check['a_ij'].isna().sum()}")
 
@@ -399,33 +380,35 @@ print(f"  Mean combined off-diagonal Δ:             {Delta_arr[_offdiag].mean()
 # ============================================================
 print()
 print("=" * 60)
-print("STEP 3 — Country-level returns R_j and market caps M_j")
+print("STEP 3 — Country-level returns R_j and GDP weights Y_j")
 print("=" * 60)
 
 ctry_base = base.drop_duplicates("iso3_i").set_index("iso3_i").reindex(COUNTRIES)
 
 R_vec = (ctry_base["alpha_i"] * ctry_base["Y_i"] / ctry_base["k_i"]).values.astype(float)
-M_vec = ctry_base["M_i"].values.astype(float)
+# Use GDP (Y_i) as the portfolio-size weight — available for all countries
+# without requiring market-cap predictions.
+Y_vec = ctry_base["Y_i"].values.astype(float)
 
 # PWT physical capital stock (used as denominator in foreign-capital intensity)
 k_PWT = ctry_base["k_i"].values.astype(float)
 
 missing_R    = [c for c, v in zip(COUNTRIES, R_vec)   if np.isnan(v)]
-missing_M    = [c for c, v in zip(COUNTRIES, M_vec)   if np.isnan(v) or v <= 0]
+missing_M    = [c for c, v in zip(COUNTRIES, Y_vec)   if np.isnan(v) or v <= 0]
 missing_kPWT = [c for c, v in zip(COUNTRIES, k_PWT)   if np.isnan(v) or v <= 0]
 
 if missing_R:    print(f"  MISSING R    (alpha*Y/k): {missing_R}")
-if missing_M:    print(f"  MISSING M    (market cap): {missing_M}")
+if missing_M:    print(f"  MISSING GDP  (Y_i): {missing_M}")
 if missing_kPWT: print(f"  MISSING k_PWT (PWT capital): {missing_kPWT}")
 
 assert not missing_R,    f"Missing returns R for: {missing_R}"
-assert not missing_M,    f"Missing market cap M for: {missing_M}"
+assert not missing_M,    f"Missing GDP Y for: {missing_M}"
 assert not missing_kPWT, f"Missing PWT capital k for: {missing_kPWT}"
 
 R_vec = R_vec / R_vec.mean()
 
 print(f"  R range (normalised): [{R_vec.min():.3f}, {R_vec.max():.3f}]  mean={R_vec.mean():.3f}")
-print(f"  M range (USD mn):     [{M_vec.min():.1f}, {M_vec.max():.1f}]  median={np.median(M_vec):.1f}")
+print(f"  GDP (Y_vec) range:    [{Y_vec.min():.1f}, {Y_vec.max():.1f}]  median={np.median(Y_vec):.1f}")
 print(f"  k_PWT range:          [{k_PWT.min():.1f}, {k_PWT.max():.1f}]  median={np.median(k_PWT):.1f}")
 
 R_series = pd.Series(R_vec, index=COUNTRIES)
@@ -502,7 +485,7 @@ for i, c in enumerate(COUNTRIES):
     else:
         Delta_arr[i, i] = 1.0
 
-RM = (R_vec ** eta) * M_vec
+RM = (R_vec ** eta) * Y_vec
 
 MAX_ITER = 20_000
 TOL      = 1e-5
@@ -556,7 +539,7 @@ print("=" * 60)
 print("STEP 4 — Baseline portfolio shares")
 print("=" * 60)
 
-Pi_baseline = compute_portfolio(Delta_baseline, R_vec, M_vec, eta)
+Pi_baseline = compute_portfolio(Delta_baseline, R_vec, Y_vec, eta)
 
 pi_base_home = np.diag(Pi_baseline)
 comparison = pd.DataFrame({
@@ -600,7 +583,7 @@ for omega, gamma in tqdm(_barrier_pairs, desc="CMU portfolios (ω×γ)", unit="s
     # Linguistic barrier is fixed — not reduced by γ
     Delta_cmu = hard_cmu * Delta_ling * numart_cmu
     np.fill_diagonal(Delta_cmu, np.diag(Delta_baseline))
-    Pi_cmu = compute_portfolio(Delta_cmu, R_vec, M_vec, eta)
+    Pi_cmu = compute_portfolio(Delta_cmu, R_vec, Y_vec, eta)
     results[(omega, gamma)] = {"Delta_cmu": Delta_cmu, "Pi_cmu": Pi_cmu}
 
 print(f"  ω (fin / hard) scenarios: {BARRIER_SCENARIOS}")
@@ -943,7 +926,7 @@ for eta_val, eta_lbl, theta_val in tqdm(_rob_combos, desc="Robustness (η×θ)",
     lbl = f"{eta_lbl}, θ={theta_val}"
     r   = run_model_variant_endo(
         D_hard_offdiag, D_ling_offdiag, D_numart_offdiag,
-        R_vec, M_vec, s_vec, k_PWT, A_bar,
+        R_vec, Y_vec, s_vec, k_PWT, A_bar,
         L_prod, alp, Pi_data.values, COUNTRIES, EU27,
         eta_val, BARRIER_SCENARIOS, theta_val, lbl,
     )
@@ -1081,7 +1064,7 @@ with pd.ExcelWriter(EXCEL_PATH, engine="openpyxl") as writer:
     macro_df = pd.DataFrame({
         "country":             COUNTRIES,
         "R_normalised":        R_vec,
-        "M_equity_USDmn":      M_vec,
+        "GDP_USDmn":           Y_vec,  # GDP used as portfolio-size weight (replaces market cap)
         "k_PWT_USDmn":         k_PWT,
         "A_bar":               A_bar,
         "L_labour":            L_prod,
@@ -1236,7 +1219,7 @@ with pd.ExcelWriter(EXCEL_PATH, engine="openpyxl") as writer:
                 "A_bar":            A_bar[ci_idx],      # exogenous TFP (Ā)
                 "L":                _L,                 # labour force
                 "R_normalised":     R_vec[ci_idx],      # normalised return
-                "M_equity_USDmn":   M_vec[ci_idx],      # market cap
+                "GDP_USDmn":        Y_vec[ci_idx],      # GDP (portfolio-size weight)
                 "k_PWT":            k_PWT[ci_idx],      # PWT physical capital
                 "s_total_wealth":   s_vec[ci_idx],      # total equity wealth
 
