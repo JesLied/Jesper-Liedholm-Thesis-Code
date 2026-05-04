@@ -41,7 +41,7 @@ warnings.filterwarnings("ignore")
 # 0.  CONFIGURATION
 # ============================================================
 DATA_PATH  = "Data/Clean/Final-v4.csv"
-BASE_YEAR  = 2019
+BASE_YEAR  = 2023
 ETA        = 1.0          # return elasticity (baseline)
 # ω (omega) = financial (hard) integration intensity  — policy lever on hard barriers
 # γ (gamma) = linguistic (soft) integration intensity — policy lever on soft barriers
@@ -71,7 +71,7 @@ idx       = {c: i for i, c in enumerate(COUNTRIES)}
 
 # Financial centres whose domestic holdings are distorted by
 # pass-through flows; excluded from diagonal (Δ_ii) calibration.
-FINANCIAL_CENTRES = {"IRL", "LUX", "CHE", "SVK", "CYP", "MLT"}
+FINANCIAL_CENTRES = {"IRL", "LUX", "CYP", "MLT"}
 
 
 def nearest(scenarios, target):
@@ -127,6 +127,9 @@ df["d_gci_overall"] = np.abs(df["gci_overall_i"] - df["gci_overall_j"])
 df["d_gci_corruption"] = np.abs(df["gci_corruption_i"] - df["gci_corruption_j"])
 df["d_gci_trade_openness"] = np.abs(df["gci_trade_openness_i"] - df["gci_trade_openness_j"])
 df["d_gci_financial_composite"] = np.abs(df["gci_financial_composite_i"] - df["gci_financial_composite_j"])
+df["d_gci_financial_depth"]     = np.abs(df["gci_financial_depth_i"]     - df["gci_financial_depth_j"])
+df["d_gci_financial_stability"] = np.abs(df["gci_financial_stability_i"] - df["gci_financial_stability_j"])
+df["d_ka_open"] = np.abs(df["ka_open_i"] - df["ka_open_j"])
 
 
 # ============================================================
@@ -195,7 +198,7 @@ print(f"  After removing i=j: {len(ppml_df):,} rows")
 unique_iso_codes = set(ppml_df["iso3_i"]).union(set(ppml_df["iso3_j"]))
 assert not any(c not in COUNTRIES for c in unique_iso_codes), "PPML data contains countries not in COUNTRIES list"
 
-cols = ["a_ij", "d_ling", "d_gci_financial_composite", "d_num_articles", "year", "iso3_i", "iso3_j", "Y_i", "Y_j"]
+cols = ["a_ij", "d_ling", "d_ka_open", "d_num_articles", "d_geo", "year", "iso3_i", "iso3_j", "Y_i", "Y_j"]
 
 # PPML (Poisson MLE) requires non-negative a_ij — zeros are valid and must be KEPT.
 # Dropping zero-flow pairs would truncate the sample and cause systematic overprediction
@@ -231,7 +234,7 @@ print(f"  PPML scaling: a_ij ÷ {PPML_SCALE_A:.0e}  |  Y_i, Y_j ÷ {PPML_SCALE_Y
 print(ppml_df[cols].describe())
 
 # Fit PPML with gravity specification
-formula = 'a_ij ~ d_ling + d_num_articles + d_gci_financial_composite + Y_i + Y_j + C(year)'
+formula = 'a_ij ~ d_ling + d_num_articles + d_ka_open + d_geo + Y_i + Y_j + C(year)'
 
 ppml = smf.poisson(
     formula=formula,
@@ -266,14 +269,14 @@ for _k in _rescale:
 beta_dict = {}
 
 beta_d_ling    = ppml.params.get("d_ling", 0.0)
-beta_d_gci_fin = ppml.params.get("d_gci_financial_composite", 0.0)
+beta_d_ka_open = ppml.params.get("d_ka_open", 0.0)
 beta_numart    = ppml.params.get("d_num_articles", 0.0)
 
 print()
 print("  Gravity coefficients (friction regressors — scale-invariant):")
-print(f"    β_d_ling                   : {beta_d_ling:+.4f}   p={ppml.pvalues.get('d_ling', np.nan):.3f}")
-print(f"    β_d_gci_financial_composite: {beta_d_gci_fin:+.4f}   p={ppml.pvalues.get('d_gci_financial_composite', np.nan):.3f}")
-print(f"    β_d_num_articles           : {beta_numart:+.4f}   p={ppml.pvalues.get('d_num_articles', np.nan):.3f}")
+print(f"    β_d_ling        : {beta_d_ling:+.4f}   p={ppml.pvalues.get('d_ling', np.nan):.3f}")
+print(f"    β_d_ka_open     : {beta_d_ka_open:+.4f}   p={ppml.pvalues.get('d_ka_open', np.nan):.3f}")
+print(f"    β_d_num_articles: {beta_numart:+.4f}   p={ppml.pvalues.get('d_num_articles', np.nan):.3f}")
 print()
 
 # Store friction coefficients (negative sign indicates friction)
@@ -283,11 +286,11 @@ if beta_d_ling < 0:
 else:
     print("  WARNING: β_d_ling ≥ 0 — unexpected sign.")
 
-if beta_d_gci_fin < 0:
-    beta_dict["d_gci_financial_composite"] = beta_d_gci_fin
-    print("  OK: β_d_gci_financial_composite < 0 → financial system distance is friction.")
+if beta_d_ka_open < 0:
+    beta_dict["d_ka_open"] = beta_d_ka_open
+    print("  OK: β_d_ka_open < 0 → capital account openness distance is friction.")
 else:
-    print("  WARNING: β_d_gci_financial_composite ≥ 0 — unexpected sign.")
+    print("  WARNING: β_d_ka_open ≥ 0 — unexpected sign.")
 
 # d_num_articles is a friction (β < 0): higher distance in news coverage → less investment
 if beta_numart < 0:
@@ -311,26 +314,20 @@ print("=" * 60)
 
 base = df[(df["year"] == BASE_YEAR) & df["iso3_i"].isin(COUNTRIES) & df["iso3_j"].isin(COUNTRIES)].copy()
 
-# GCI data only covers up to ~2019; carry forward the last observed value per country
-# so that the base-year (2023) cross-section has non-NaN GCI distances.
-gci_last = (
-    df[df["gci_financial_composite_i"].notna()]
+# ka_open is available through 2023; carry forward last observed value per country
+ka_open_last = (
+    df[df["ka_open_i"].notna()]
     .sort_values("year")
     .drop_duplicates("iso3_i", keep="last")
-    .set_index("iso3_i")["gci_financial_composite_i"]
+    .set_index("iso3_i")["ka_open_i"]
 )
-print(f"  Last observed GCI financial composite (n={len(gci_last)} countries):")
-print(f"    range: [{gci_last.min():.2f}, {gci_last.max():.2f}]  mean={gci_last.mean():.2f}")
 
-base["gci_financial_composite_i"] = base["iso3_i"].map(gci_last)
-base["gci_financial_composite_j"] = base["iso3_j"].map(gci_last)
+base["ka_open_i"] = base["iso3_i"].map(ka_open_last)
+base["ka_open_j"] = base["iso3_j"].map(ka_open_last)
+base["d_ka_open"] = np.abs(base["ka_open_i"] - base["ka_open_j"])
 
-# Compute financial composite distance on base cross-section
-base["d_gci_financial_composite"] = np.abs(
-    base["gci_financial_composite_i"] - base["gci_financial_composite_j"]
-)
-nan_fin = base["d_gci_financial_composite"].isna().sum()
-print(f"  d_gci_financial_composite NaN count after carry-forward: {nan_fin}")
+nan_ka = base["d_ka_open"].isna().sum()
+print(f"  d_ka_open NaN count after carry-forward: {nan_ka}")
 
 Delta_hard   = np.ones((n, n))   # financial system distance (hard / policy lever: ω)
 Delta_ling   = np.ones((n, n))   # linguistic distance       (fixed — no policy lever)
@@ -342,10 +339,10 @@ for _, row in base.iterrows():
         continue
     ii, jj = idx[i_iso], idx[j_iso]
 
-    # Hard barrier: financial system distance (reduced by ω)
+    # Hard barrier: capital account openness distance (reduced by ω)
     ln_hard = 0.0
-    if "d_gci_financial_composite" in beta_dict and pd.notna(row.get("d_gci_financial_composite")):
-        ln_hard -= beta_dict["d_gci_financial_composite"] * row["d_gci_financial_composite"]
+    if "d_ka_open" in beta_dict and pd.notna(row.get("d_ka_open")):
+        ln_hard -= beta_dict["d_ka_open"] * row["d_ka_open"]
     Delta_hard[ii, jj] = np.exp(ln_hard)
 
     # Fixed soft barrier: linguistic distance (NOT reduced by γ)
@@ -577,14 +574,35 @@ eu_pair_bool = eu_pair.astype(bool)
 
 results = {}
 _barrier_pairs = [(o, g) for o in BARRIER_SCENARIOS for g in BARRIER_SCENARIOS]
+
+_GE_MAX_ITER = 200
+_GE_TOL      = 1e-7
+
 for omega, gamma in tqdm(_barrier_pairs, desc="CMU portfolios (ω×γ)", unit="scenario", position=0, leave=True):
     hard_cmu   = np.where(eu_pair_bool, Delta_hard   ** (1 - omega), Delta_hard)
     numart_cmu = np.where(eu_pair_bool, Delta_numart ** (1 - gamma), Delta_numart)
-    # Linguistic barrier is fixed — not reduced by γ
-    Delta_cmu = hard_cmu * Delta_ling * numart_cmu
+    Delta_cmu  = hard_cmu * Delta_ling * numart_cmu
     np.fill_diagonal(Delta_cmu, np.diag(Delta_baseline))
-    Pi_cmu = compute_portfolio(Delta_cmu, R_vec, Y_vec, eta)
-    results[(omega, gamma)] = {"Delta_cmu": Delta_cmu, "Pi_cmu": Pi_cmu}
+
+    # GE iteration: update returns after capital reallocation, re-optimise for ALL countries
+    # R_j = alpha_j * Y_j / k_j — MPK. alpha*Y is fixed; only k changes.
+    # alpha_j * Y_j = R_vec_j * k_baseline_j  (from baseline calibration)
+    _alpY = R_vec * (Pi_baseline.T @ s_vec)   # alpha_j * Y_j, fixed
+    R_ge = R_vec.copy()
+    for _ge_it in range(_GE_MAX_ITER):
+        Pi_ge  = compute_portfolio(Delta_cmu, R_ge, Y_vec, eta)
+        k_new  = Pi_ge.T @ s_vec
+        # Update returns: R_j = alpha_j * Y_j / k_j, renormalised
+        R_new  = _alpY / np.where(k_new > 0, k_new, np.nan)
+        R_new  = R_new / np.nanmean(R_new)
+        R_new  = np.where(np.isfinite(R_new), R_new, R_ge)
+        if np.max(np.abs(R_new - R_ge)) < _GE_TOL:
+            R_ge = R_new
+            break
+        R_ge = R_new
+
+    Pi_cmu = compute_portfolio(Delta_cmu, R_ge, Y_vec, eta)
+    results[(omega, gamma)] = {"Delta_cmu": Delta_cmu, "Pi_cmu": Pi_cmu, "R_ge": R_ge}
 
 print(f"  ω (fin / hard) scenarios: {BARRIER_SCENARIOS}")
 print(f"  γ (numart / soft) scenarios: {BARRIER_SCENARIOS}")
@@ -897,7 +915,22 @@ def run_model_variant_endo(D_hard, D_ling, D_numart, R, M, s, k_pwt, A_bar_in,
         # Linguistic barrier fixed — not reduced by γ
         D_cmu_      = hard_cmu_ * D_ling * numart_cmu_
         np.fill_diagonal(D_cmu_, np.diag(D))
-        Pi_cmu_   = compute_portfolio(D_cmu_, R, M, eta_val)
+
+        # GE iteration: returns update after capital reallocation
+        R_ge_ = R.copy()
+        for _ge_it in range(200):
+            Pi_ge_  = compute_portfolio(D_cmu_, R_ge_, M, eta_val)
+            k_ge_   = Pi_ge_.T @ s
+            y_ge_   = cobb_douglas(A_bar_in, k_ge_, L_in, alp_in)
+            R_new_  = alp_in * y_ge_ / k_ge_
+            R_new_  = R_new_ / R_new_.mean()
+            R_new_  = np.where(np.isfinite(R_new_), R_new_, R_ge_)
+            if np.max(np.abs(R_new_ - R_ge_)) < 1e-7:
+                R_ge_ = R_new_
+                break
+            R_ge_ = R_new_
+
+        Pi_cmu_   = compute_portfolio(D_cmu_, R_ge_, M, eta_val)
         k_cmu_    = Pi_cmu_.T @ s
         k_f_cmu_  = np.maximum(k_cmu_ - np.diag(Pi_cmu_) * s, 0.0)
         f_cmu_    = k_f_cmu_ / k_pwt
@@ -933,15 +966,6 @@ for eta_val, eta_lbl, theta_val in tqdm(_rob_combos, desc="Robustness (η×θ)",
     rob_rows.append(r)
 
 rob_df = pd.concat(rob_rows, ignore_index=True)
-print("\n  Robustness Summary (η × θ × ω × γ):")
-print(rob_df.round(5).to_string(index=False))
-
-if (rob_df["ΔY_EU/Y_EU (%)"] >= 0).all():
-    print("\n  OK ✓ — EU GDP gain is non-negative for all scenarios.")
-else:
-    negative_cases = rob_df[rob_df["ΔY_EU/Y_EU (%)"] < 0]
-    print(f"\n  WARNING: {len(negative_cases)} cases with negative EU GDP gain:")
-    print(negative_cases.to_string(index=False))
 
 
 # ============================================================
@@ -1005,13 +1029,7 @@ print(dk_series[EU27].sort_values(ascending=False).head(5).round(3).to_string())
 print("\nTable 5 — Off-diagonal portfolio correlation (data vs model):")
 print(f"  {corr_off:.4f}")
 
-print(f"\nTable 6 — MPK dispersion reduction (EU27), θ={_theta1}:")
-print(f"  {'ω':>6}  {'γ':>6}  {'σ_baseline':>12}  {'σ_CMU':>10}  {'reduction (%)':>14}")
-print("-" * 58)
-for omega in BARRIER_SCENARIOS:
-    for gamma in BARRIER_SCENARIOS:
-        r = endo_results[(_theta1, omega, gamma)]
-        print(f"  {omega:>6.2f}  {gamma:>6.2f}  {r['sigma_mpk_base']:>12.6f}  {r['sigma_mpk_cmu']:>10.6f}  {r['sigma_reduction']:>14.2f}%")
+
 
 print("\nDone.")
 
