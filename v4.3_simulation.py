@@ -41,10 +41,10 @@ warnings.filterwarnings("ignore")
 # 0.  CONFIGURATION
 # ============================================================
 DATA_PATH  = "Data/Clean/Final-v4.csv"
-BASE_YEAR  = 2023
+BASE_YEAR  = 2019
 ETA        = 1.0          # return elasticity (baseline)
 # ω (omega) = financial (hard) integration intensity  — policy lever on hard barriers
-# γ (gamma) = linguistic (soft) integration intensity — policy lever on soft barriers
+# γ (gamma) = information / soft integration intensity — policy lever on soft barriers
 # Both independently take values from BARRIER_SCENARIOS → n×n combinations
 BARRIER_SCENARIOS = [0.00, 0.25, 0.50, 1.00]
 THETA_SCENARIOS = [0.00, 0.05, 0.10]   # TFP spillover elasticity
@@ -64,10 +64,12 @@ EU27 = [
 EU27 += ["CYP","IRL","LUX"]
 EU27 += ["MLT"]
 
-OUTSIDE   = ["USA","GBR","CHE","NOR"]
-COUNTRIES = EU27 + OUTSIDE          # n = 31
+OUTSIDE   = ["GBR","CHE","NOR"]
+COUNTRIES = EU27 + OUTSIDE          # USA excluded; n = 31
 n         = len(COUNTRIES)
 idx       = {c: i for i, c in enumerate(COUNTRIES)}
+
+assert "USA" not in COUNTRIES, "USA must be excluded from COUNTRIES"
 
 # Financial centres whose domestic holdings are distorted by
 # pass-through flows; excluded from diagonal (Δ_ii) calibration.
@@ -107,10 +109,10 @@ print(f"  Unique destination countries: {df_full['iso3_j'].nunique()}")
 print(f"  Mean values after scaling:")
 print(df_full[["Y_i", "Y_j", "a_ij"]].agg(["mean", "min", "max"]))
 
-# --- Keep full world data for PPML; also filter to COUNTRIES for simulation ---
+# --- Filter to the simulation country set used in the gravity notebook ---
 df = df_full[df_full["iso3_i"].isin(COUNTRIES) & df_full["iso3_j"].isin(COUNTRIES)].copy()
 print(f"  After country filter (simulation): {len(df):,} rows")
-print(f"  Full world data for PPML: {len(df_full):,} rows total")
+print(f"  Gravity sample after country filter: {len(df):,} rows total")
 
 # --- Floor negative a_ij to 0 (data artefact) --------------
 neg_mask = df["a_ij"] < 0
@@ -129,7 +131,9 @@ df["d_gci_trade_openness"] = np.abs(df["gci_trade_openness_i"] - df["gci_trade_o
 df["d_gci_financial_composite"] = np.abs(df["gci_financial_composite_i"] - df["gci_financial_composite_j"])
 df["d_gci_financial_depth"]     = np.abs(df["gci_financial_depth_i"]     - df["gci_financial_depth_j"])
 df["d_gci_financial_stability"] = np.abs(df["gci_financial_stability_i"] - df["gci_financial_stability_j"])
-df["d_ka_open"] = np.abs(df["ka_open_i"] - df["ka_open_j"])
+df["d_financial_development_index"] = np.abs(
+    df["financial_development_index_i"] - df["financial_development_index_j"]
+)
 
 
 # ============================================================
@@ -183,14 +187,14 @@ print(diag_check.head(10).round(1).to_string())
 print(f"  Diagonal NaN count: {diag_check['a_ij'].isna().sum()}")
 
 # ============================================================
-# 3.  GRAVITY REGRESSION  (Step 1) — ON WORLD DATA
+# 3.  GRAVITY REGRESSION  (Step 1)
 # ============================================================
 print()
 print("=" * 60)
-print("STEP 1 — Gravity regression (PPML) — World sample")
+print("STEP 1 — Gravity regression (PPML)")
 print("=" * 60)
 
-# Use full world data for PPML
+# Use the same country-filtered sample as in v4-gravity.ipynb
 ppml_df = df.copy()
 ppml_df = ppml_df[ppml_df["iso3_i"] != ppml_df["iso3_j"]].copy()
 print(f"  After removing i=j: {len(ppml_df):,} rows")
@@ -198,7 +202,10 @@ print(f"  After removing i=j: {len(ppml_df):,} rows")
 unique_iso_codes = set(ppml_df["iso3_i"]).union(set(ppml_df["iso3_j"]))
 assert not any(c not in COUNTRIES for c in unique_iso_codes), "PPML data contains countries not in COUNTRIES list"
 
-cols = ["a_ij", "d_ling", "d_ka_open", "d_num_articles", "d_geo", "year", "iso3_i", "iso3_j", "Y_i", "Y_j"]
+cols = [
+    "a_ij", "d_ling", "d_financial_development_index", "d_num_articles",
+    "d_geo", "year", "iso3_i", "iso3_j", "Y_i", "Y_j"
+]
 
 # PPML (Poisson MLE) requires non-negative a_ij — zeros are valid and must be KEPT.
 # Dropping zero-flow pairs would truncate the sample and cause systematic overprediction
@@ -233,8 +240,11 @@ print(f"  PPML scaling: a_ij ÷ {PPML_SCALE_A:.0e}  |  Y_i, Y_j ÷ {PPML_SCALE_Y
 
 print(ppml_df[cols].describe())
 
-# Fit PPML with gravity specification
-formula = 'a_ij ~ d_ling + d_num_articles + d_ka_open + d_geo + Y_i + Y_j + C(year)'
+# Fit PPML with gravity specification from v4-gravity.ipynb
+formula = (
+    "a_ij ~ d_ling + d_num_articles + d_financial_development_index "
+    "+ d_geo + Y_i + Y_j + C(year)"
+)
 
 ppml = smf.poisson(
     formula=formula,
@@ -268,29 +278,40 @@ for _k in _rescale:
 # Extract gravity coefficients
 beta_dict = {}
 
-beta_d_ling    = ppml.params.get("d_ling", 0.0)
-beta_d_ka_open = ppml.params.get("d_ka_open", 0.0)
-beta_numart    = ppml.params.get("d_num_articles", 0.0)
+beta_d_geo = ppml.params.get("d_geo", 0.0)
+beta_d_ling = ppml.params.get("d_ling", 0.0)
+beta_d_financial_development_index = ppml.params.get("d_financial_development_index", 0.0)
+beta_numart = ppml.params.get("d_num_articles", 0.0)
 
 print()
 print("  Gravity coefficients (friction regressors — scale-invariant):")
+print(f"    β_d_geo         : {beta_d_geo:+.4f}   p={ppml.pvalues.get('d_geo', np.nan):.3f}")
 print(f"    β_d_ling        : {beta_d_ling:+.4f}   p={ppml.pvalues.get('d_ling', np.nan):.3f}")
-print(f"    β_d_ka_open     : {beta_d_ka_open:+.4f}   p={ppml.pvalues.get('d_ka_open', np.nan):.3f}")
+print(
+    f"    β_d_fin_dev    : {beta_d_financial_development_index:+.4f}   "
+    f"p={ppml.pvalues.get('d_financial_development_index', np.nan):.3f}"
+)
 print(f"    β_d_num_articles: {beta_numart:+.4f}   p={ppml.pvalues.get('d_num_articles', np.nan):.3f}")
 print()
 
 # Store friction coefficients (negative sign indicates friction)
+if beta_d_geo < 0:
+    beta_dict["d_geo"] = beta_d_geo
+    print("  OK: β_d_geo < 0 → geographic distance enters as an immutable wedge.")
+else:
+    print("  WARNING: β_d_geo ≥ 0 — unexpected sign.")
+
 if beta_d_ling < 0:
     beta_dict["d_ling"] = beta_d_ling
-    print("  OK: β_d_ling < 0 → language distance is friction.")
+    print("  OK: β_d_ling < 0 → language distance enters as an immutable wedge.")
 else:
     print("  WARNING: β_d_ling ≥ 0 — unexpected sign.")
 
-if beta_d_ka_open < 0:
-    beta_dict["d_ka_open"] = beta_d_ka_open
-    print("  OK: β_d_ka_open < 0 → capital account openness distance is friction.")
+if beta_d_financial_development_index < 0:
+    beta_dict["d_financial_development_index"] = beta_d_financial_development_index
+    print("  OK: β_d_financial_development_index < 0 → financial development distance is friction.")
 else:
-    print("  WARNING: β_d_ka_open ≥ 0 — unexpected sign.")
+    print("  WARNING: β_d_financial_development_index ≥ 0 — unexpected sign.")
 
 # d_num_articles is a friction (β < 0): higher distance in news coverage → less investment
 if beta_numart < 0:
@@ -303,9 +324,9 @@ print(f"\n  Active friction regressors: {list(beta_dict.keys())}")
 
 # ============================================================
 # 4.  BILATERAL WEDGES  (Step 2)
-#     Hard barriers  = financial system distance   (policy lever: ω)
-#     Soft barriers γ = news article distance        (policy lever: γ)
-#     Fixed soft      = linguistic distance          (no policy lever)
+#     Hard barriers  = financial development distance   (policy lever: ω)
+#     Soft barriers γ = news article distance           (policy lever: γ)
+#     Immutable wedges = geographic + linguistic distance
 # ============================================================
 print()
 print("=" * 60)
@@ -314,24 +335,19 @@ print("=" * 60)
 
 base = df[(df["year"] == BASE_YEAR) & df["iso3_i"].isin(COUNTRIES) & df["iso3_j"].isin(COUNTRIES)].copy()
 
-# ka_open is available through 2023; carry forward last observed value per country
-ka_open_last = (
-    df[df["ka_open_i"].notna()]
-    .sort_values("year")
-    .drop_duplicates("iso3_i", keep="last")
-    .set_index("iso3_i")["ka_open_i"]
-)
+nan_geo = base["d_geo"].isna().sum()
+nan_ling = base["d_ling"].isna().sum()
+nan_fin_dev = base["d_financial_development_index"].isna().sum()
+nan_numart = base["d_num_articles"].isna().sum()
+print(f"  d_geo NaN count: {nan_geo}")
+print(f"  d_ling NaN count: {nan_ling}")
+print(f"  d_financial_development_index NaN count: {nan_fin_dev}")
+print(f"  d_num_articles NaN count: {nan_numart}")
 
-base["ka_open_i"] = base["iso3_i"].map(ka_open_last)
-base["ka_open_j"] = base["iso3_j"].map(ka_open_last)
-base["d_ka_open"] = np.abs(base["ka_open_i"] - base["ka_open_j"])
-
-nan_ka = base["d_ka_open"].isna().sum()
-print(f"  d_ka_open NaN count after carry-forward: {nan_ka}")
-
-Delta_hard   = np.ones((n, n))   # financial system distance (hard / policy lever: ω)
-Delta_ling   = np.ones((n, n))   # linguistic distance       (fixed — no policy lever)
-Delta_numart = np.ones((n, n))   # news article distance     (soft / policy lever: γ)
+Delta_hard = np.ones((n, n))      # financial development distance (hard / policy lever: ω)
+Delta_geo = np.ones((n, n))       # geographic distance (immutable)
+Delta_ling = np.ones((n, n))      # linguistic distance (immutable)
+Delta_numart = np.ones((n, n))    # news article distance (soft / policy lever: γ)
 
 for _, row in base.iterrows():
     i_iso, j_iso = row["iso3_i"], row["iso3_j"]
@@ -339,13 +355,19 @@ for _, row in base.iterrows():
         continue
     ii, jj = idx[i_iso], idx[j_iso]
 
-    # Hard barrier: capital account openness distance (reduced by ω)
+    # Hard barrier: financial development distance (reduced by ω)
     ln_hard = 0.0
-    if "d_ka_open" in beta_dict and pd.notna(row.get("d_ka_open")):
-        ln_hard -= beta_dict["d_ka_open"] * row["d_ka_open"]
+    if "d_financial_development_index" in beta_dict and pd.notna(row.get("d_financial_development_index")):
+        ln_hard -= beta_dict["d_financial_development_index"] * row["d_financial_development_index"]
     Delta_hard[ii, jj] = np.exp(ln_hard)
 
-    # Fixed soft barrier: linguistic distance (NOT reduced by γ)
+    # Immutable wedge: geographic distance
+    ln_geo = 0.0
+    if "d_geo" in beta_dict and pd.notna(row.get("d_geo")):
+        ln_geo -= beta_dict["d_geo"] * row["d_geo"]
+    Delta_geo[ii, jj] = np.exp(ln_geo)
+
+    # Immutable wedge: linguistic distance
     ln_ling = 0.0
     if "d_ling" in beta_dict and pd.notna(row.get("d_ling")):
         ln_ling -= beta_dict["d_ling"] * row["d_ling"]
@@ -357,17 +379,20 @@ for _, row in base.iterrows():
         ln_numart -= beta_dict["d_num_articles"] * row["d_num_articles"]
     Delta_numart[ii, jj] = np.exp(ln_numart)
 
-# Combined soft barrier (for baseline calibration)
-Delta_soft = Delta_ling * Delta_numart
+# Combined immutable and policy-sensitive wedges
+Delta_immutable = Delta_geo * Delta_ling
+Delta_soft = Delta_numart
 
 # Combined baseline wedge (diagonal still = 1, calibrated in Step 2.2)
-Delta_arr = Delta_hard * Delta_soft
+Delta_arr = Delta_hard * Delta_immutable * Delta_soft
 
 _offdiag = ~np.eye(n, dtype=bool)
-print(f"  Hard (fin) Δ range (off-diag):            [{Delta_hard[_offdiag].min():.3f}, {Delta_hard[_offdiag].max():.3f}]")
-print(f"  Ling (fixed) Δ range (off-diag):          [{Delta_ling[_offdiag].min():.3f}, {Delta_ling[_offdiag].max():.3f}]")
+print(f"  Hard (fin-dev) Δ range (off-diag):        [{Delta_hard[_offdiag].min():.3f}, {Delta_hard[_offdiag].max():.3f}]")
+print(f"  Geo (immutable) Δ range (off-diag):       [{Delta_geo[_offdiag].min():.3f}, {Delta_geo[_offdiag].max():.3f}]")
+print(f"  Ling (immutable) Δ range (off-diag):      [{Delta_ling[_offdiag].min():.3f}, {Delta_ling[_offdiag].max():.3f}]")
 print(f"  NumArt (γ-lever) Δ range (off-diag):      [{Delta_numart[_offdiag].min():.3f}, {Delta_numart[_offdiag].max():.3f}]")
-print(f"  Combined soft Δ range (off-diag):         [{Delta_soft[_offdiag].min():.3f}, {Delta_soft[_offdiag].max():.3f}]")
+print(f"  Immutable Δ range (off-diag):             [{Delta_immutable[_offdiag].min():.3f}, {Delta_immutable[_offdiag].max():.3f}]")
+print(f"  Soft-policy Δ range (off-diag):           [{Delta_soft[_offdiag].min():.3f}, {Delta_soft[_offdiag].max():.3f}]")
 print(f"  Combined Δ range (off-diag):              [{Delta_arr[_offdiag].min():.3f}, {Delta_arr[_offdiag].max():.3f}]")
 print(f"  Mean combined off-diagonal Δ:             {Delta_arr[_offdiag].mean():.3f}")
 
@@ -560,7 +585,7 @@ if corr_off < 0.5:
 # ============================================================
 # 9.  CMU SHOCK  (Steps 5–6)
 #   ω ∈ BARRIER_SCENARIOS — financial (hard) integration intensity
-#   γ ∈ BARRIER_SCENARIOS — language  (soft) integration intensity
+#   γ ∈ BARRIER_SCENARIOS — information / soft integration intensity
 #   All combinations computed independently
 # ============================================================
 print()
@@ -581,7 +606,7 @@ _GE_TOL      = 1e-7
 for omega, gamma in tqdm(_barrier_pairs, desc="CMU portfolios (ω×γ)", unit="scenario", position=0, leave=True):
     hard_cmu   = np.where(eu_pair_bool, Delta_hard   ** (1 - omega), Delta_hard)
     numart_cmu = np.where(eu_pair_bool, Delta_numart ** (1 - gamma), Delta_numart)
-    Delta_cmu  = hard_cmu * Delta_ling * numart_cmu
+    Delta_cmu  = hard_cmu * Delta_immutable * numart_cmu
     np.fill_diagonal(Delta_cmu, np.diag(Delta_baseline))
 
     # GE iteration: update returns after capital reallocation, re-optimise for ALL countries
@@ -690,7 +715,7 @@ print(f"\n  f_baseline range: [{f_baseline.min():.6f}, {f_baseline.max():.6f}]")
 print(f"\n  Δf_i (f_CMU - f_baseline) — ω={_gamma1}, γ={_gamma0} (fin only), EU27:")
 delta_f = results[(_gamma1, _gamma0)]["f_cmu"] - f_baseline
 print(pd.Series(delta_f, index=COUNTRIES)[EU27].round(6).to_string())
-print(f"\n  Δf_i (f_CMU - f_baseline) — ω={_gamma1}, γ={_gamma1} (fin+ling), EU27:")
+print(f"\n  Δf_i (f_CMU - f_baseline) — ω={_gamma1}, γ={_gamma1} (fin+soft), EU27:")
 delta_f = results[(_gamma1, _gamma1)]["f_cmu"] - f_baseline
 print(pd.Series(delta_f, index=COUNTRIES)[EU27].round(6).to_string())
 
@@ -741,7 +766,7 @@ print("STEP 8 — Output and productivity effects (endogenous TFP)")
 print("=" * 60)
 print(f"  θ scenarios: {THETA_SCENARIOS}")
 print(f"  ω (fin) scenarios: {BARRIER_SCENARIOS}")
-print(f"  γ (ling) scenarios: {BARRIER_SCENARIOS}")
+print(f"  γ (soft-policy / numart) scenarios: {BARRIER_SCENARIOS}")
 print(f"  Total output scenarios: {len(THETA_SCENARIOS) * len(BARRIER_SCENARIOS)**2}")
 print()
 
@@ -857,14 +882,14 @@ print("=" * 60)
 print("STEP 9 — Robustness checks (η × θ × φ)")
 print("=" * 60)
 
-def run_model_variant_endo(D_hard, D_ling, D_numart, R, M, s, k_pwt, A_bar_in,
+def run_model_variant_endo(D_hard, D_geo, D_ling, D_numart, R, M, s, k_pwt, A_bar_in,
                            L_in, alp_in, Pi_data_in, countries,
                            EU27_list, eta_val, barrier_list, theta_val, label):
     """
     Full model run for given (eta, theta).
     Scenarios: all (ω, γ) combinations from barrier_list × barrier_list.
     Re-calibrates Δ_ii for the given eta.
-    γ only reduces D_numart (news article distance); D_ling is fixed.
+    γ only reduces D_numart (news article distance); D_geo and D_ling are fixed.
     """
     n_ = len(countries)
     eu_flag_ = np.array([1 if c in EU27_list else 0 for c in countries])
@@ -872,7 +897,8 @@ def run_model_variant_endo(D_hard, D_ling, D_numart, R, M, s, k_pwt, A_bar_in,
     eu_pair_bool_ = eu_pair_.astype(bool)
     eu_idx_  = [i for i, c in enumerate(countries) if c in EU27_list]
 
-    D = (D_hard * D_ling * D_numart).copy()
+    D_immutable = D_geo * D_ling
+    D = (D_hard * D_immutable * D_numart).copy()
     RM_ = (R ** eta_val) * M
     pi_home_ = np.diag(Pi_data_in)
 
@@ -912,8 +938,7 @@ def run_model_variant_endo(D_hard, D_ling, D_numart, R, M, s, k_pwt, A_bar_in,
     for omega, gamma in tqdm(_pairs, desc=f"  {label} (ω×γ)", unit="scenario", position=1, leave=False):
         hard_cmu_   = np.where(eu_pair_bool_, D_hard   ** (1 - omega), D_hard)
         numart_cmu_ = np.where(eu_pair_bool_, D_numart ** (1 - gamma), D_numart)
-        # Linguistic barrier fixed — not reduced by γ
-        D_cmu_      = hard_cmu_ * D_ling * numart_cmu_
+        D_cmu_      = hard_cmu_ * D_immutable * numart_cmu_
         np.fill_diagonal(D_cmu_, np.diag(D))
 
         # GE iteration: returns update after capital reallocation
@@ -950,6 +975,7 @@ def run_model_variant_endo(D_hard, D_ling, D_numart, R, M, s, k_pwt, A_bar_in,
 
 
 D_hard_offdiag   = Delta_hard.copy();   np.fill_diagonal(D_hard_offdiag, 1.0)
+D_geo_offdiag    = Delta_geo.copy();    np.fill_diagonal(D_geo_offdiag, 1.0)
 D_ling_offdiag   = Delta_ling.copy();   np.fill_diagonal(D_ling_offdiag, 1.0)
 D_numart_offdiag = Delta_numart.copy(); np.fill_diagonal(D_numart_offdiag, 1.0)
 
@@ -958,7 +984,7 @@ _rob_combos = [(e, el, t) for e, el in [(0.5, "η=0.5"), (1.0, "η=1.0 (baseline
 for eta_val, eta_lbl, theta_val in tqdm(_rob_combos, desc="Robustness (η×θ)", unit="variant", position=0, leave=True):
     lbl = f"{eta_lbl}, θ={theta_val}"
     r   = run_model_variant_endo(
-        D_hard_offdiag, D_ling_offdiag, D_numart_offdiag,
+        D_hard_offdiag, D_geo_offdiag, D_ling_offdiag, D_numart_offdiag,
         R_vec, Y_vec, s_vec, k_PWT, A_bar,
         L_prod, alp, Pi_data.values, COUNTRIES, EU27,
         eta_val, BARRIER_SCENARIOS, theta_val, lbl,
@@ -978,7 +1004,7 @@ print("=" * 60)
 
 print("\nTable 1 — Gravity coefficients (PPML):")
 spec_coefs = {}
-for col in ["d_geo", "d_ling", "same_legal_origin", "ln_Y_i", "ln_Y_j"]:
+for col in ["d_geo", "d_ling", "d_num_articles", "d_financial_development_index", "Y_i", "Y_j"]:
     if col in ppml.params.index:
         spec_coefs[col] = {
             "coeff":    ppml.params.get(col, np.nan),
@@ -987,7 +1013,7 @@ for col in ["d_geo", "d_ling", "same_legal_origin", "ln_Y_i", "ln_Y_j"]:
         }
 grav_summary = pd.DataFrame(spec_coefs).T
 print(grav_summary.round(4).to_string())
-print(f"  Specification: d_geo + d_ling + same_legal_origin + ln_Y_i + ln_Y_j + C(year)")
+print("  Specification: d_geo + d_ling + d_num_articles + d_financial_development_index + Y_i + Y_j + C(year)")
 
 # -----------------------------------------------------------
 print(f"\nTable 2a — EU GDP gain (%) — γ={_gamma0} (fin only), θ={_theta1}")
@@ -999,7 +1025,7 @@ for omega in BARRIER_SCENARIOS:
           f"  {r['cap_contribution_EU']:>12.5f}%  {r['tfp_contribution_EU']:>10.5f}%"
           f"  {r['sigma_reduction']:>12.2f}%")
 
-print(f"\nTable 2b — EU GDP gain (%) — γ=ω (fin+ling together), θ={_theta1}")
+print(f"\nTable 2b — EU GDP gain (%) — γ=ω (fin+soft together), θ={_theta1}")
 print(f"  {'ω':>6}  {'Avg Δπ_EU':>12}  {'ΔY_EU/Y_EU':>12}  {'Capital':>12}  {'TFP':>10}  {'σ_MPK red.':>12}")
 print("-" * 72)
 for omega in BARRIER_SCENARIOS:
@@ -1099,21 +1125,28 @@ with pd.ExcelWriter(EXCEL_PATH, engine="openpyxl") as writer:
     macro_df.to_excel(writer, sheet_name="Macro_Variables", index=False)
 
     # ----------------------------------------------------------
-    # Sheet 4: Wedge_Hard  (financial system barriers)
+    # Sheet 4: Wedge_Hard  (financial development barriers)
     # ----------------------------------------------------------
     pd.DataFrame(Delta_hard, index=COUNTRIES, columns=COUNTRIES).to_excel(
         writer, sheet_name="Wedge_Hard"
     )
 
     # ----------------------------------------------------------
-    # Sheet 5: Wedge_Soft  (linguistic barriers)
+    # Sheet 5: Wedge_Immutable  (geographic × linguistic barriers)
     # ----------------------------------------------------------
-    pd.DataFrame(Delta_soft, index=COUNTRIES, columns=COUNTRIES).to_excel(
-        writer, sheet_name="Wedge_Soft"
+    pd.DataFrame(Delta_immutable, index=COUNTRIES, columns=COUNTRIES).to_excel(
+        writer, sheet_name="Wedge_Immutable"
     )
 
     # ----------------------------------------------------------
-    # Sheet 6: Wedge_Baseline  (combined + calibrated diagonal)
+    # Sheet 6: Wedge_SoftPolicy  (news-article barriers)
+    # ----------------------------------------------------------
+    pd.DataFrame(Delta_soft, index=COUNTRIES, columns=COUNTRIES).to_excel(
+        writer, sheet_name="Wedge_SoftPolicy"
+    )
+
+    # ----------------------------------------------------------
+    # Sheet 7: Wedge_Baseline  (combined + calibrated diagonal)
     # ----------------------------------------------------------
     pd.DataFrame(Delta_baseline, index=COUNTRIES, columns=COUNTRIES).to_excel(
         writer, sheet_name="Wedge_Baseline"
@@ -1192,6 +1225,9 @@ with pd.ExcelWriter(EXCEL_PATH, engine="openpyxl") as writer:
     _pi_baseline_diag = np.diag(Pi_baseline)        # π_ii baseline (home bias)
     _delta_diag       = np.diag(Delta_baseline)     # Δ_ii calibrated
     _delta_hard_diag  = np.diag(Delta_hard)
+    _delta_geo_diag   = np.diag(Delta_geo)
+    _delta_ling_diag  = np.diag(Delta_ling)
+    _delta_imm_diag   = np.diag(Delta_immutable)
     _delta_soft_diag  = np.diag(Delta_soft)
 
     out_rows = []
@@ -1244,7 +1280,10 @@ with pd.ExcelWriter(EXCEL_PATH, engine="openpyxl") as writer:
                 # ── wedges ────────────────────────────────────────
                 "delta_ii":         _delta_diag[ci_idx],        # home wedge (calibrated)
                 "delta_hard_mean":  Delta_hard[ci_idx, :].mean(),  # avg hard wedge (row i)
-                "delta_soft_mean":  Delta_soft[ci_idx, :].mean(),  # avg soft wedge (row i)
+                "delta_geo_mean":   Delta_geo[ci_idx, :].mean(),
+                "delta_ling_mean":  Delta_ling[ci_idx, :].mean(),
+                "delta_immutable_mean": Delta_immutable[ci_idx, :].mean(),
+                "delta_soft_policy_mean": Delta_soft[ci_idx, :].mean(),
 
                 # ── portfolio shares ──────────────────────────────
                 "pi_home_data":     pi_home[ci_idx],            # observed home bias

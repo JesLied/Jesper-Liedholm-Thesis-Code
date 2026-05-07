@@ -5,7 +5,6 @@ yahooquery
 pandas
 numpy
 matplotlib
-seaborn
 scipy
 scikit-learn
 statsmodels
@@ -19,3 +18,5 @@ openpyxl
 geopandas
 wrds
 xlrd
+SciencePlots
+lxmls
