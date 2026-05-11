@@ -1,0 +1,196 @@
+% Proposed Results section text
+% Assumes the following packages are already loaded in the main document:
+% \usepackage{graphicx}
+% \usepackage{float}
+% \usepackage{booktabs}
+% \usepackage{subcaption}
+
+\section{Results}
+\label{sec:results}
+
+This section presents the results from the gravity estimation and the counterfactual Capital Markets Union simulation. The interpretation follows the sequence of the model. First, the gravity model estimates how bilateral frictions affect observed portfolio investment. Second, these estimated frictions are used to construct bilateral wedges. Third, the CMU counterfactual reduces selected wedges and generates new portfolio allocations. Finally, the resulting capital reallocation is translated into model-implied output effects through the calibrated Cobb--Douglas production block.
+
+The results should therefore be interpreted as model-implied effects of financial integration, not as direct forecasts of realised GDP. The model directly simulates portfolio reallocations. Output changes are secondary effects obtained by mapping changes in effective capital into production. To make aggregate output comparisons meaningful, the production block is calibrated so that baseline country-level model output matches observed GDP in the base year when $\theta=0$.
+
+\subsection{Gravity Model and Friction Estimates}
+\label{sec:results_gravity}
+
+The first stage of the analysis estimates how bilateral frictions affect observed portfolio investment positions. The gravity regression provides the empirical link between investment flows and the four friction variables used in the simulation: linguistic distance, geographic distance, informational distance, and financial-development distance. These estimated coefficients determine the strength of the corresponding wedge components in the counterfactual model.
+
+The estimated signs are economically consistent with the intended interpretation of the frictions. Higher bilateral distance is associated with lower bilateral portfolio investment. In particular, linguistic distance and financial-development distance enter negatively and significantly, indicating that investors allocate less capital to countries that are culturally or financially more distant. Geographic distance is also negative, although weaker, while the informational-distance coefficient is negative but less precisely estimated. This pattern supports the use of the four variables as investment frictions, while also implying that the informational channel should be interpreted with more caution than the more precisely estimated coefficients.
+
+Table~\ref{tab:gravity_coefficients} reports the PPML coefficient estimates. The coefficients are not interpreted as structural elasticities in isolation. Their main role is to discipline the wedge matrices used in the simulation. A negative coefficient means that the corresponding distance variable raises the bilateral wedge and therefore lowers the attractiveness of the destination country in the portfolio allocation rule.
+
+\begin{table}[H]
+    \centering
+    \caption{Gravity model estimates}
+    \label{tab:gravity_coefficients}
+    % Insert PPML coefficient table here.
+\end{table}
+
+The gravity model is not expected to predict every bilateral position exactly. Some country pairs involve financial-centre effects, tax structures, or institutional ownership patterns that are difficult to capture with a parsimonious friction specification. The relevant validation exercise is whether the model produces plausible signs and enough cross-sectional variation to support the simulation. The predicted-versus-actual diagnostic plots are therefore reported in the appendix.
+
+\subsection{Aggregate EU Output Effects}
+\label{sec:results_aggregate_output}
+
+The central result is that the simulated CMU shock raises model-implied EU output over most of the policy space. Figure~\ref{fig:eu_output_heatmap} reports the percentage change in aggregate EU output across the two policy parameters $\omega$ and $\gamma$, holding the productivity amplification parameter $\theta$ fixed at the main scenario value. The parameter $\omega$ governs the reduction in financial-development wedges, while $\gamma$ governs the reduction in informational wedges.
+
+The heatmap shows that output gains are largest when informational frictions are reduced. Moving upward along the $\gamma$ dimension generates a clear increase in EU output. By contrast, the hard financial-development channel governed by $\omega$ has a weaker and more ambiguous effect. At low levels of $\gamma$, higher $\omega$ can even reduce the output gain. This indicates that reducing hard financial-development distance does not automatically improve aggregate allocation. The effect depends on whether the resulting capital reallocation sends capital toward countries where it is more productive.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.78\textwidth]{imgs/results_eu_output_heatmap.png}
+    \caption{Model-implied EU output change over $\omega$ and $\gamma$ at the main value of $\theta$.}
+    \label{fig:eu_output_heatmap}
+\end{figure}
+
+The aggregate result should be read as the model-implied change in EU GDP conditional on the production mapping. Since baseline output is calibrated to observed GDP, the aggregate effect can be interpreted as the percentage change in EU output implied by the simulated capital reallocation. However, it remains a model result rather than a direct macroeconomic forecast.
+
+\subsection{Policy Channel Decomposition: Hard Frictions, Soft Frictions, and TFP Amplification}
+\label{sec:results_policy_channels}
+
+Figure~\ref{fig:marginal_policy_channels} decomposes the aggregate result by showing the marginal effects of $\omega$, $\gamma$, and $\theta$ on EU output. The comparison is useful because the three parameters have different economic meanings. The parameter $\omega$ changes hard financial-development wedges. The parameter $\gamma$ changes informational wedges. The parameter $\theta$ does not change portfolio allocation; it changes how strongly finance exposure enters the productivity term in the production function.
+
+The strongest policy effect comes from the informational channel. Increasing $\gamma$ raises EU output over most of its range. This suggests that the largest growth gains in the model come from reducing informational barriers between EU countries rather than from harmonising hard financial-development distances alone. The effect is non-linear: output gains rise strongly at intermediate levels of $\gamma$ and then flatten at higher values.
+
+The effect of $\omega$ is weaker. Along the most probable path, higher $\omega$ is associated with a declining contribution to output. This does not mean that hard integration destroys capital. Total financial capital is conserved in the model. Rather, it means that the capital reallocation induced by the hard wedge is not always efficiency-enhancing at the EU aggregate level. It can shift capital toward countries that gain substantially in percentage terms but are too small, or not sufficiently high-MPK, to offset losses elsewhere.
+
+The productivity parameter $\theta$ amplifies the output effect. Since $\theta$ is applied to calibrated country-level productivity through the finance-exposure weight, it changes the production environment but does not directly alter portfolio choices. The result is that higher $\theta$ magnifies the output consequences of a given capital reallocation. The TFP channel should therefore be interpreted as an amplification mechanism, not as an independent source of capital reallocation.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{imgs/results_marginal_policy_channels.png}
+    \caption{Marginal effects of $\omega$, $\gamma$, and $\theta$ on model-implied EU output.}
+    \label{fig:marginal_policy_channels}
+\end{figure}
+
+\subsection{Capital Reallocation Across Europe}
+\label{sec:results_capital_reallocation}
+
+The main mechanism behind the aggregate output effect is capital reallocation. CMU lowers intra-European wedges and changes the relative attractiveness of destination countries. As a result, portfolio capital is reallocated across countries even though total financial capital is conserved.
+
+Figure~\ref{fig:equity_inflow_change_map} shows the change in equity inflows under the main CMU scenario. The pattern is strongly redistributive. Smaller and less capital-rich economies, especially in Eastern Europe and the Baltics, receive larger proportional inflows. In contrast, several larger Western and Southern European economies lose capital or gain much less. The model therefore predicts a convergence-style reallocation effect: capital moves from already large and developed economies toward countries that were previously less integrated into European portfolio markets.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{imgs/results_equity_inflow_change_map.png}
+    \caption{Change in equity inflows under the main CMU scenario.}
+    \label{fig:equity_inflow_change_map}
+\end{figure}
+
+This result is central for the economic interpretation of CMU. The model does not suggest that CMU merely deepens existing financial centres. Instead, it predicts that lower frictions redirect capital toward smaller economies. This is the ``Robin Hood'' logic of the simulation: capital is reallocated away from economies that are already large and financially deep, and toward economies that are smaller and previously less integrated. In the thesis discussion, this should be interpreted as a capital-market convergence effect rather than as redistribution in a fiscal sense.
+
+\subsection{Domestic Share and Home-Bias Reduction}
+\label{sec:results_home_bias}
+
+A direct implication of lower cross-border frictions is a reduction in home bias. Figure~\ref{fig:domestic_share_change_map} shows the change in domestic portfolio shares under the main CMU scenario. Domestic shares fall across EU countries. This means that EU investors allocate a smaller share of their portfolios to domestic assets and a larger share to foreign assets within the integrated market.
+
+The pattern is important because it confirms that the CMU shock operates through the intended financial-integration channel. The model is not generating output gains through an exogenous increase in capital. It is changing where investors allocate their existing portfolio wealth. Lower domestic shares therefore provide direct evidence that the counterfactual reduces home bias and increases cross-border portfolio integration.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{imgs/results_domestic_share_change_map.png}
+    \caption{Change in domestic portfolio share under the main CMU scenario.}
+    \label{fig:domestic_share_change_map}
+\end{figure}
+
+The non-EU countries move in the opposite direction. Their domestic shares rise because EU assets become relatively more attractive, drawing part of their foreign allocation toward Europe. This does not imply that non-EU economies become more home-biased in a behavioural sense. It reflects the portfolio accounting of the counterfactual: as the EU becomes a more attractive investment destination, non-EU portfolios are reweighted in response.
+
+\subsection{Country-Level GDP Winners and Losers}
+\label{sec:results_winners_losers}
+
+The country-level output effects are reported in Figures~\ref{fig:gdp_change_map} and~\ref{fig:winners_losers}. These results translate the simulated capital reallocation into model-implied GDP changes. The largest percentage gains occur in smaller economies that receive large proportional capital inflows. The strongest winners are mainly Eastern European and Baltic countries, together with some financial-centre economies. The weakest or negative effects are concentrated among larger economies and some non-EU countries.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{imgs/results_gdp_change_map.png}
+    \caption{Model-implied GDP change under the main CMU scenario.}
+    \label{fig:gdp_change_map}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{imgs/results_winners_losers_gdp.png}
+    \caption{Country-level winners and losers under the main CMU scenario.}
+    \label{fig:winners_losers}
+\end{figure}
+
+The country-level results should be interpreted in both percentage and aggregate terms. Percentage gains are naturally larger for small countries because the denominator is smaller. A large percentage gain in a small economy may still represent a modest absolute contribution to EU-wide output. Conversely, a small percentage loss in a large economy can matter substantially for the aggregate EU result. For this reason, the discussion of winners and losers should distinguish between proportional gains and absolute contributions to EU output.
+
+The main conclusion is that CMU is not distributionally neutral. It raises aggregate output in the main scenario, but the gains are unevenly distributed. The model predicts that smaller economies benefit most in percentage terms, while some large economies lose capital or experience weaker output gains. This provides the basis for the discussion of convergence, political economy, and potential compensation or sequencing issues.
+
+\subsection{Financing Conditions and the Marginal Product of Capital}
+\label{sec:results_mpk}
+
+The model-consistent measure of financing scarcity is the marginal product of capital. If CMU improves allocative efficiency, capital should move toward countries where baseline MPK is high, since these are countries where additional capital is most productive. Figure~\ref{fig:mpk_inflow_scatter} plots baseline MPK against the change in foreign investment inflows under the main scenario.
+
+The positive relationship indicates that countries with higher baseline MPK tend to receive larger foreign capital inflows. This provides evidence that the model is not only reallocating capital mechanically, but also moving capital toward countries where it can generate higher output. The relationship is not perfect, and some countries deviate from the fitted line, but the direction is consistent with the allocative-efficiency mechanism.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.78\textwidth]{imgs/results_mpk_vs_inflow_change.png}
+    \caption{Baseline MPK and change in foreign investment inflows under the main CMU scenario.}
+    \label{fig:mpk_inflow_scatter}
+\end{figure}
+
+Figure~\ref{fig:average_mpk_channels} further shows that the information channel and the hard-friction channel have different implications for average MPK. Average MPK rises with $\gamma$, suggesting that informational integration improves the allocation of capital toward higher-return destinations. By contrast, average MPK falls with $\omega$, consistent with the weaker aggregate output effect of the hard-wedge channel. This reinforces the conclusion that informational integration is the more efficiency-enhancing policy channel in the model.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{imgs/results_average_mpk_channels.png}
+    \caption{Average MPK along the $\omega$ and $\gamma$ dimensions.}
+    \label{fig:average_mpk_channels}
+\end{figure}
+
+The interpretation in terms of cost of capital should be cautious. The model does not estimate a market interest rate directly. However, MPK is the production-side object that corresponds most closely to capital scarcity. A fall in MPK after receiving capital can be interpreted as an easing of financing scarcity, while convergence in MPK across countries indicates a more efficient allocation of capital.
+
+\subsection{EU Attractiveness to Non-EU Investors}
+\label{sec:results_external_attraction}
+
+The simulation includes non-EU countries to avoid treating the EU as a closed financial system. This makes it possible to evaluate whether CMU only reallocates capital within Europe or also increases the EU's attractiveness to outside investors. Figure~\ref{fig:eu_net_transfer} shows the net transfer of capital into the EU across the three main parameter dimensions.
+
+The model predicts that CMU increases net capital allocation to the EU from the included non-EU countries. This effect is especially clear along the informational-friction channel. As $\gamma$ rises, the EU becomes more attractive as an investment destination and receives larger net inflows. The hard-friction channel also increases net transfers, but more gradually. The $\theta$ parameter has little effect on net transfers because it does not affect portfolio allocation directly.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{imgs/results_eu_net_transfer.png}
+    \caption{Effect of CMU on net capital transfer into the EU.}
+    \label{fig:eu_net_transfer}
+\end{figure}
+
+This result has an important interpretation. CMU does not only redistribute capital among EU countries. It can also make the EU more attractive relative to external investment destinations. If this mechanism generalises beyond the non-EU countries included in the sample, CMU could strengthen the EU's position as a financial hub by reducing the frictions that currently make European markets less integrated and less attractive to global investors.
+
+This conclusion should be stated carefully. The model includes only a limited set of outside countries. Therefore, the result should be interpreted as evidence that CMU can increase EU attractiveness within the modelled investment universe, not as a full general-equilibrium prediction for global capital flows.
+
+\subsection{TFP Amplification}
+\label{sec:results_tfp_amplification}
+
+The productivity channel is designed as an amplification mechanism. The model does not assume that CMU directly changes TFP. Instead, each country has a baseline finance-exposure weight $\phi_i$, and the parameter $\theta$ determines how strongly that exposure enters the production function. The TFP-adjusted productivity term is
+
+\begin{equation}
+A_i(\theta)=A_i^0(1+\theta\phi_i),
+\end{equation}
+
+where $A_i^0$ is calibrated so that baseline model output equals observed GDP when $\theta=0$. For a given value of $\theta$, the same $A_i(\theta)$ is used in both the baseline and CMU scenario. The TFP effect is therefore measured as an amplification of the output gap relative to the $\theta=0$ case, not as a direct difference between baseline and CMU productivity.
+
+Figure~\ref{fig:tfp_amplification_country} shows the country-level TFP amplification in the main scenario. The countries with the largest amplification are mainly the countries that already gain substantially from capital reallocation. This is expected. Since $\theta$ scales the production environment, it magnifies the output effect of the capital reallocation rather than creating a separate allocation channel.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.78\textwidth]{imgs/results_tfp_amplification_country.png}
+    \caption{Country-level TFP amplification under the main CMU scenario.}
+    \label{fig:tfp_amplification_country}
+\end{figure}
+
+The TFP result is secondary to the main allocation result. It does not overturn the ranking of mechanisms. The main driver of the simulation is still the reallocation of portfolio capital caused by changes in $\omega$ and $\gamma$. The role of $\theta$ is to show how sensitive the output results are to the assumption that finance exposure raises productivity. Higher $\theta$ increases the aggregate output effect, but the underlying capital-flow pattern is determined by the wedge reductions.
+
+\subsection{Robustness and Model Validation}
+\label{sec:results_robustness}
+
+The final set of results evaluates whether the main conclusions depend on a narrow parameter choice or on a specific diagnostic. The qualitative results are robust across the main scenario grid. EU output gains are positive over much of the policy space, the information channel is the strongest source of aggregate gains, and the country-level results show a clear reallocation toward smaller and less capital-rich economies.
+
+Several validation exercises support the mechanism. First, the domestic-share results confirm that CMU reduces home bias within the EU. Second, the capital-flow maps show that the policy shock reallocates capital rather than creating capital mechanically. Third, the MPK scatter indicates that higher-MPK countries tend to receive larger inflows under the main scenario. Fourth, the Lorenz-curve and Gini diagnostics show a modest reduction in the concentration of gains, consistent with a convergence interpretation. These diagnostics are reported in the appendix to avoid overloading the main results section.
+
+The robustness checks also clarify the limits of the model. Output effects are model-implied and depend on the Cobb--Douglas production mapping. The model does not include all macroeconomic adjustment channels, such as savings responses, labour-market changes, fiscal policy, banking-sector balance sheets, or endogenous firm entry. Moreover, percentage gains in small countries can look large even when their absolute contribution to EU output is modest. These limitations do not invalidate the capital-reallocation result, but they mean that the GDP effects should be interpreted as conditional model-implied output changes rather than unconditional forecasts.
+
+The main conclusion is therefore that CMU works in the model primarily as a reallocation policy. It reduces home bias, redirects capital toward smaller and less integrated economies, improves EU attractiveness to outside investors, and raises model-implied EU output mainly through the informational-integration channel. The results provide support for the view that CMU could contribute to European growth, but also show that the gains are unevenly distributed across countries.

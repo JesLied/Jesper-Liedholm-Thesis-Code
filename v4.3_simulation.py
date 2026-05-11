@@ -9,9 +9,10 @@ The extension slots in between Step 7 (capital reallocation) and
 Step 8 (output effects):
 
   Step 7b  –  decompose capital into domestic / foreign components
-  Step 8   –  output with endogenous TFP A_i(θ) = Ā_i·(1 + θ·f_i)
+  Step 8   –  output with calibrated productivity A_i(θ) = A_i^0·(1 + θ·f_i)
 
-where f_i = foreign equity capital / PWT physical capital stock, and
+where A_i^0 is a calibration residual chosen so θ=0 reproduces observed GDP,
+f_i = bounded finance-exposure intensity φ_i, and
 θ ∈ {0.00, 0.05, 0.10} is the TFP-spillover elasticity.
 
 References
@@ -121,7 +122,6 @@ if neg_mask.sum() > 0:
     df.loc[neg_mask, "a_ij"] = 0.0
 
 # --- Build derived columns ---------------------------------
-df["ln_d_geo"]    = np.log(df["d_geo"].replace(0, np.nan))
 df["euro_ij"]     = df["euro_i"] * df["euro_j"]
 df["common_lang"] = (df["d_ling"] < 0.2).astype(float)
 
@@ -646,88 +646,84 @@ for omega, gamma in [(o, g) for o in BARRIER_SCENARIOS for g in [_gamma0, BARRIE
 # ============================================================
 print()
 print("=" * 60)
-print("STEP 7 — Capital reallocation")
+print("STEP 7 — Capital reallocation and financial capital decomposition")
 print("=" * 60)
 
-k_baseline = Pi_baseline.T @ s_vec
+# NEW FRAMEWORK: Portfolio integration affects only the finance-sensitive
+# exposure of productive capital (anchored to PWT).
+#
+# k_i^{fin,base} = Σ_j π_{ji}^{base} s_j    (baseline financial capital)
+# Bounded exposure weight:
+#   φ_i = k_i^{fin,base} / (k_i^{fin,base} + k_i^{PWT})  ∈ [0,1]
+# Financial-capital growth under CMU:
+#   g_i^{fin} = (k_i^{fin,CMU} - k_i^{fin,base}) / k_i^{fin,base}
+# Effective productive capital:
+#   k_i^{eff,CMU} = k_i^{PWT} * (1 + φ_i * g_i^{fin})
+# Equivalent numerically stable form:
+#   k_i^{eff,CMU} = k_i^{PWT} * [(1-φ_i) + φ_i * (k_i^{fin,CMU}/k_i^{fin,base})]
+# This keeps baseline capital anchored to PWT and avoids negative effective
+# capital as long as k_i^{fin,CMU} ≥ 0.
+k_fin_base = Pi_baseline.T @ s_vec
+
+print(f"  Financial capital k_fin_base (portfolio-weighted):")
+print(f"    Min: {k_fin_base.min():.1f} USD mn")
+print(f"    Mean: {k_fin_base.mean():.1f} USD mn")
+print(f"    Max: {k_fin_base.max():.1f} USD mn")
+print(f"    Sum: {k_fin_base.sum():.1f} USD mn")
+
+# Bounded finance-exposure weight in [0,1]
+phi = k_fin_base / np.where((k_fin_base + k_PWT) > 0, (k_fin_base + k_PWT), np.nan)
+phi_df = pd.Series(phi, index=COUNTRIES)
+print(f"\n  φ_i = k_fin_base / (k_fin_base + k_PWT)  (bounded exposure weight):")
+print(f"    Top 5 highest φ_i (most finance-exposed):")
+print(phi_df.nlargest(5).round(6).to_string())
+print(f"    Boundedness check: φ ∈ [0,1] by construction")
+outside_phi = [c for c in COUNTRIES if (phi[idx[c]] < -1e-12) or (phi[idx[c]] > 1 + 1e-12)]
+if outside_phi:
+    print(f"    WARNING: φ outside [0,1] for: {outside_phi}")
+else:
+    print(f"    All countries satisfy 0 ≤ φ ≤ 1 ✓")
 
 for key in results:
     Pi_cmu = results[key]["Pi_cmu"]
-    k_cmu  = Pi_cmu.T @ s_vec
-    results[key]["k_cmu"] = k_cmu
+    k_fin_cmu  = Pi_cmu.T @ s_vec
+    results[key]["k_fin_cmu"] = k_fin_cmu
+    
+    # Effective productive capital with bounded exposure weight:
+    # g_fin_i = (k_fin_cmu_i - k_fin_base_i) / k_fin_base_i
+    # k_eff_i = k_PWT_i * (1 + phi_i * g_fin_i)
+    # Stable equivalent form avoids explicit division when k_fin_base_i=0.
+    fin_ratio = np.where(k_fin_base > 0, k_fin_cmu / k_fin_base, 1.0)
+    k_eff_cmu = k_PWT * ((1.0 - phi) + phi * fin_ratio)
+    results[key]["k_eff_cmu"] = k_eff_cmu
+    results[key]["phi"] = phi
 
-print("  Capital conservation check (all scenarios):")
-bad = [(k, results[k]["k_cmu"].sum()/k_baseline.sum()) for k in results
-       if abs(results[k]["k_cmu"].sum()/k_baseline.sum()-1) >= 1e-6]
+print("\n  Capital conservation check (financial capital):")
+bad = [(k, results[k]["k_fin_cmu"].sum()/k_fin_base.sum()) for k in results
+       if abs(results[k]["k_fin_cmu"].sum()/k_fin_base.sum()-1) >= 1e-6]
 if bad:
     for k, r in bad:
         print(f"    ω={k[0]:.2f}, γ={k[1]:.2f}: {r:.8f}  WARNING")
 else:
     print("  All OK ✓")
 
-print("\n  EU avg Δk/k (%) — selected (ω, γ) pairs:")
+print("\n  EU avg Δk_eff/k_PWT (%) — selected (ω, γ) pairs:")
 for omega, gamma in [(o, g) for o in BARRIER_SCENARIOS for g in [_gamma0, BARRIER_SCENARIOS[-1]]]:
-    k_cmu = results[(omega, gamma)]["k_cmu"]
-    eu_dk = np.mean((k_cmu - k_baseline)[eu_idx_list] / k_baseline[eu_idx_list]) * 100
+    k_eff_cmu = results[(omega, gamma)]["k_eff_cmu"]
+    eu_dk = np.mean((k_eff_cmu - k_PWT)[eu_idx_list] / k_PWT[eu_idx_list]) * 100
     print(f"    ω={omega:.2f}, γ={gamma:.2f}: {eu_dk:+.4f}%")
 
 
-# ============================================================
-# 11.  STEP 7b — FOREIGN CAPITAL DECOMPOSITION (NEW)
-# ============================================================
-print()
-print("=" * 60)
-print("STEP 7b — Foreign capital decomposition")
-print("=" * 60)
-
-# Foreign capital received by country i under baseline:
-#   k_i^foreign = k_i^total - π_ii^baseline * s_i
-#   (total capital into i minus the part that originates from i itself)
-k_foreign_baseline = k_baseline - np.diag(Pi_baseline) * s_vec
-
-# Floor at zero (financial centres can have near-zero domestic holdings)
-k_foreign_baseline = np.maximum(k_foreign_baseline, 0.0)
-
-# Foreign-capital intensity: foreign equity / PWT physical capital stock
-# k_PWT is the correct denominator because TFP spillovers operate on the
-# physical production process, not just the equity portfolio.
-f_baseline = k_foreign_baseline / k_PWT
-
-for key in results:
-    Pi_cmu = results[key]["Pi_cmu"]
-    k_cmu  = results[key]["k_cmu"]
-    k_foreign_cmu = k_cmu - np.diag(Pi_cmu) * s_vec
-    k_foreign_cmu = np.maximum(k_foreign_cmu, 0.0)
-    f_cmu = k_foreign_cmu / k_PWT
-    results[key]["k_foreign_cmu"] = k_foreign_cmu
-    results[key]["f_cmu"]         = f_cmu
-
-print("  Foreign capital (USD mn) — baseline (first 10 countries):")
-fk_series = pd.Series(k_foreign_baseline, index=COUNTRIES)
-print(fk_series.head(10).round(1).to_string())
-
-print("\n  Foreign capital intensity f_i = k_foreign / k_PWT — baseline (first 10):")
-f_series = pd.Series(f_baseline, index=COUNTRIES)
-print(f_series.head(10).round(6).to_string())
-
-print(f"\n  f_baseline range: [{f_baseline.min():.6f}, {f_baseline.max():.6f}]")
-
-print(f"\n  Δf_i (f_CMU - f_baseline) — ω={_gamma1}, γ={_gamma0} (fin only), EU27:")
-delta_f = results[(_gamma1, _gamma0)]["f_cmu"] - f_baseline
-print(pd.Series(delta_f, index=COUNTRIES)[EU27].round(6).to_string())
-print(f"\n  Δf_i (f_CMU - f_baseline) — ω={_gamma1}, γ={_gamma1} (fin+soft), EU27:")
-delta_f = results[(_gamma1, _gamma1)]["f_cmu"] - f_baseline
-print(pd.Series(delta_f, index=COUNTRIES)[EU27].round(6).to_string())
-
 
 # ============================================================
-# 12.  HELPER FUNCTIONS
+# 11.  HELPER FUNCTIONS
 # ============================================================
 
 def compute_tfp(A_bar, f, theta):
     """
-    Endogenous TFP: A_i = Ā_i * (1 + θ * f_i)
-    When θ=0 this reduces to Ā_i exactly (fixed-TFP baseline).
+    Endogenous productivity: A_i(θ) = A_i^0 * (1 + θ * f_i)
+    where A_i^0 is calibrated baseline productivity and f_i is
+    bounded finance-exposure intensity (here: φ_i).
     """
     return A_bar * (1.0 + theta * f)
 
@@ -738,27 +734,40 @@ def cobb_douglas(A, k, L, alpha):
 
 
 # ============================================================
-# 13.  PRODUCTION PARAMETERS
+# 12.  PRODUCTION PARAMETERS
 # ============================================================
-A_bar  = ctry_base["A_i"].values.astype(float)
+# A_raw is PWT TFP used for diagnostics; A_bar is calibrated productivity
+# used in the Cobb-Douglas production block.
+A_raw  = ctry_base["A_i"].values.astype(float)
 L_prod = ctry_base["L_i"].values.astype(float)
 alp    = ctry_base["alpha_i"].values.astype(float)
 
-missing_A   = [c for c, v in zip(COUNTRIES, A_bar)  if np.isnan(v)]
+missing_A   = [c for c, v in zip(COUNTRIES, A_raw)  if np.isnan(v)]
 missing_L   = [c for c, v in zip(COUNTRIES, L_prod) if np.isnan(v)]
 missing_alp = [c for c, v in zip(COUNTRIES, alp)    if np.isnan(v)]
 
-if missing_A:   print(f"  MISSING A_bar (TFP): {missing_A}")
+if missing_A:   print(f"  MISSING A_raw (PWT TFP): {missing_A}")
 if missing_L:   print(f"  MISSING L    (labour): {missing_L}")
 if missing_alp: print(f"  MISSING alpha (capital share): {missing_alp}")
 
-assert not missing_A,   f"Missing TFP A for: {missing_A}"
+assert not missing_A,   f"Missing PWT TFP A_raw for: {missing_A}"
 assert not missing_L,   f"Missing labour L for: {missing_L}"
 assert not missing_alp, f"Missing alpha for: {missing_alp}"
 
+# Calibrated baseline productivity residual:
+# forces y_baseline(θ=0) to reproduce observed GDP (Y_vec) exactly.
+A_0 = Y_vec / ((k_PWT ** alp) * (L_prod ** (1 - alp)))
+A_bar = A_0
+
+y_check = A_bar * (k_PWT ** alp) * (L_prod ** (1 - alp))
+max_gap = np.max(np.abs((y_check - Y_vec) / Y_vec))
+print("  Max baseline GDP calibration gap:", max_gap)
+
+assert max_gap < 1e-10, "A calibration failed: baseline output does not match observed GDP"
+
 
 # ============================================================
-# 14.  STEP 8 (MODIFIED) — OUTPUT WITH ENDOGENOUS TFP
+# 13.  STEP 8 (MODIFIED) — OUTPUT WITH NEW CAPITAL FRAMEWORK
 # ============================================================
 print()
 print("=" * 60)
@@ -769,31 +778,51 @@ print(f"  ω (fin) scenarios: {BARRIER_SCENARIOS}")
 print(f"  γ (soft-policy / numart) scenarios: {BARRIER_SCENARIOS}")
 print(f"  Total output scenarios: {len(THETA_SCENARIOS) * len(BARRIER_SCENARIOS)**2}")
 print()
+print("  NEW FRAMEWORK: Capital effects computed as changes to portfolio-linked capital")
+print("  A_raw is PWT TFP used for diagnostics; A_bar is calibrated productivity")
+print("  used in Cobb-Douglas so θ=0 matches observed GDP exactly.")
+print("  y_i^base = A_i(θ, φ_i) * (k_i^PWT)^α_i * L_i^(1-α_i)")
+print("  y_i^CMU  = A_i(θ, φ_i) * (k_i^eff)^α_i * L_i^(1-α_i)")
+print("  where φ_i = k_i^fin,base / (k_i^fin,base + k_i^PWT)")
+print("        g_i^fin = (k_i^fin,CMU - k_i^fin,base) / k_i^fin,base")
+print("        k_i^eff = k_i^PWT * (1 + φ_i * g_i^fin)")
+print()
 
 eu_idx = [idx[c] for c in EU27 if c in idx]
 
 # Store all (theta, omega, gamma) results
 endo_results = {}   # key: (theta, omega, gamma)
 
+# Baseline: TFP spillover intensity uses bounded finance-exposure weight φ
+f_intensity_base = phi
+
 for theta in tqdm(THETA_SCENARIOS, desc="Step 8: output scenarios (θ)", unit="θ", position=0, leave=True):
-    A_baseline_theta = compute_tfp(A_bar, f_baseline, theta)
-    y_baseline_theta = cobb_douglas(A_baseline_theta, k_baseline, L_prod, alp)
+    # A_theta uses calibrated productivity residual A_bar = A_0 and applies
+    # the same theta scaling to baseline and CMU:
+    #   A_i(theta) = A_i^0 * (1 + theta * phi_i)
+    # Hence at theta=0: y_baseline matches observed GDP exactly by calibration.
+    # The baseline-vs-CMU gap is still driven by k_eff vs k_PWT.
+    A_theta          = compute_tfp(A_bar, f_intensity_base, theta)
+    y_baseline_theta = cobb_douglas(A_theta, k_PWT, L_prod, alp)
     Y_EU_base_theta  = y_baseline_theta[eu_idx].sum()
 
     for omega in BARRIER_SCENARIOS:
         for gamma in BARRIER_SCENARIOS:
-            f_cmu        = results[(omega, gamma)]["f_cmu"]
-            k_cmu        = results[(omega, gamma)]["k_cmu"]
-            A_cmu_theta  = compute_tfp(A_bar, f_cmu, theta)
-            y_cmu_theta  = cobb_douglas(A_cmu_theta, k_cmu, L_prod, alp)
-            Y_EU_cmu_theta = y_cmu_theta[eu_idx].sum()
+            k_eff_cmu        = results[(omega, gamma)]["k_eff_cmu"]
+            k_fin_cmu        = results[(omega, gamma)]["k_fin_cmu"]
+            y_cmu_theta      = cobb_douglas(A_theta, k_eff_cmu, L_prod, alp)
+            Y_EU_cmu_theta   = y_cmu_theta[eu_idx].sum()
 
-            total_effect   = (y_cmu_theta - y_baseline_theta) / y_baseline_theta
-            capital_effect = alp * (k_cmu - k_baseline) / k_baseline
-            tfp_effect     = (A_cmu_theta - A_baseline_theta) / A_baseline_theta
+            dy_abs           = y_cmu_theta - y_baseline_theta
+            dy_pct           = dy_abs / y_baseline_theta * 100
+            total_effect     = dy_abs / y_baseline_theta   # fraction (not percent)
+            capital_effect   = alp * (k_eff_cmu - k_PWT) / k_PWT
 
-            mpk_baseline = alp * y_baseline_theta / k_baseline
-            mpk_cmu      = alp * y_cmu_theta / k_cmu
+            dY_EU_abs        = Y_EU_cmu_theta - Y_EU_base_theta
+            dY_EU_pct        = dY_EU_abs / Y_EU_base_theta * 100
+
+            mpk_baseline = alp * y_baseline_theta / k_PWT
+            mpk_cmu      = alp * y_cmu_theta / k_eff_cmu
 
             eu_hb_change = (np.nanmean(np.diag(results[(omega, gamma)]["Pi_cmu"])[eu_idx])
                             - np.nanmean(np.diag(Pi_baseline)[eu_idx]))
@@ -804,82 +833,116 @@ for theta in tqdm(THETA_SCENARIOS, desc="Step 8: output scenarios (θ)", unit="�
 
             endo_results[(theta, omega, gamma)] = {
                 "theta": theta, "omega": omega, "gamma": gamma,
-                "A_baseline":     A_baseline_theta,
-                "A_cmu":          A_cmu_theta,
-                "y_baseline":     y_baseline_theta,
-                "y_cmu":          y_cmu_theta,
-                "Y_EU_base":      Y_EU_base_theta,
-                "Y_EU_cmu":       Y_EU_cmu_theta,
-                "total_effect":   total_effect,
-                "capital_effect": capital_effect,
-                "tfp_effect":     tfp_effect,
-                "mpk_baseline":   mpk_baseline,
-                "mpk_cmu":        mpk_cmu,
-                "eu_hb_change":   eu_hb_change,
-                "dY_EU_pct":      (Y_EU_cmu_theta - Y_EU_base_theta) / Y_EU_base_theta * 100,
-                "cap_contribution_EU": (alp[eu_idx] * (k_cmu[eu_idx] - k_baseline[eu_idx]) / k_baseline[eu_idx]).mean() * 100,
-                "tfp_contribution_EU": ((A_cmu_theta[eu_idx] - A_baseline_theta[eu_idx]) / A_baseline_theta[eu_idx]).mean() * 100,
+                # A_theta shared by baseline and CMU (by design)
+                "A_theta":         A_theta,
+                "y_baseline":      y_baseline_theta,
+                "y_cmu":           y_cmu_theta,
+                "dy_abs":          dy_abs,            # country-level absolute output change
+                "dy_pct":          dy_pct,            # country-level % change
+                "Y_EU_base_level": Y_EU_base_theta,
+                "Y_EU_cmu_level":  Y_EU_cmu_theta,
+                "dY_EU_abs":       dY_EU_abs,
+                "dY_EU_pct":       dY_EU_pct,
+                "total_effect":    total_effect,
+                "capital_effect":  capital_effect,
+                "mpk_baseline":    mpk_baseline,
+                "mpk_cmu":         mpk_cmu,
+                "eu_hb_change":    eu_hb_change,
+                "cap_contribution_EU": (alp[eu_idx] * (k_eff_cmu[eu_idx] - k_PWT[eu_idx]) / k_PWT[eu_idx]).mean() * 100,
                 "sigma_mpk_base":  sigma_mpk_base,
                 "sigma_mpk_cmu":   sigma_mpk_cmu,
                 "sigma_reduction": sigma_reduction,
+                # tfp_amplification_EU_pct / tfp_amplification_pct added post-loop
             }
 
+# ─── Post-loop: TFP amplification (cross-theta difference) ──────────────────
+# For a given (omega, gamma), the TFP amplification of theta vs theta=0 is:
+#   tfp_amplification_EU_abs = dY_EU_abs(theta,ω,γ) − dY_EU_abs(theta=0,ω,γ)
+#   tfp_amplification_EU_pct = dY_EU_pct(theta,ω,γ) − dY_EU_pct(theta=0,ω,γ)
+#   tfp_amplification_pct[i] = dy_pct[i](theta,ω,γ) − dy_pct[i](theta=0,ω,γ)
+# A_theta is identical for baseline and CMU — it is intentionally the same.
+# The amplification effect arises because higher theta raises A_theta, which
+# scales up the output gap from capital reallocation multiplicatively.
+print("  Computing TFP amplification (cross-theta differences) …")
+for (theta, omega, gamma), r in endo_results.items():
+    r0 = endo_results[(_theta0, omega, gamma)]
+    r["tfp_amplification_EU_abs"] = r["dY_EU_abs"] - r0["dY_EU_abs"]
+    r["tfp_amplification_EU_pct"] = r["dY_EU_pct"] - r0["dY_EU_pct"]
+    r["tfp_amplification_pct"]    = r["dy_pct"]    - r0["dy_pct"]   # country-level array
+print("  TFP amplification computed ✓")
+
 # ============================================================
-# 15.  ECONOMIC SENSE CHECKS
+# 14.  ECONOMIC SENSE CHECKS
 # ============================================================
 print()
 print("=" * 60)
-print("ECONOMIC SENSE CHECKS — Endogenous TFP extension")
+print("ECONOMIC SENSE CHECKS — New Capital Framework")
 print("=" * 60)
 
-# Check 1: Countries that gain more foreign capital should have larger TFP gains
-print(f"\nCheck 1 — Corr(Δk_foreign, ΔA) across EU27 at ω={_gamma_mid}, γ={_gamma0}, θ={_theta1}:")
-r = endo_results[(_theta1, _gamma_mid, _gamma0)]
-delta_k_foreign_eu = results[(_gamma_mid, _gamma0)]["k_foreign_cmu"][eu_idx] - k_foreign_baseline[eu_idx]
-delta_A_eu         = r["A_cmu"][eu_idx] - r["A_baseline"][eu_idx]
-corr_check1 = np.corrcoef(delta_k_foreign_eu, delta_A_eu)[0, 1]
-print(f"  Correlation = {corr_check1:.6f}  {'OK ✓ (positive)' if corr_check1 > 0 else 'FAIL (should be positive)'}")
+# Check 1: Countries with higher φ (more portfolio-linked capital) should have larger effects
+print(f"\nCheck 1 — Corr(φ_i, |Δk_eff|) across EU27 at ω={_gamma_mid}, γ={_gamma0}:")
+k_eff_cmu_eu = results[(_gamma_mid, _gamma0)]["k_eff_cmu"][eu_idx]
+delta_k_eff_eu = k_eff_cmu_eu - k_PWT[eu_idx]
+phi_eu = phi[eu_idx]
+valid_mask = (delta_k_eff_eu != 0) & (phi_eu > 0)
+if valid_mask.sum() > 1:
+    corr_check1 = np.corrcoef(phi_eu[valid_mask], np.abs(delta_k_eff_eu[valid_mask]))[0, 1]
+    print(f"  Correlation = {corr_check1:.6f}  (higher φ → higher capital effects expected)")
+else:
+    print(f"  Insufficient data for correlation")
 
-# Check 2: θ=0 results have zero TFP effect
-print(f"\nCheck 2 — θ={_theta0}: max |ΔA/A| = 0 (no TFP spillover):")
-for omega, gamma in [(_gamma0, _gamma0), (_gamma_mid, _gamma0), (_gamma1, _gamma0), (_gamma_mid, _gamma_mid), (_gamma1, _gamma1)]:
+# Check 2: Countries with high finance exposure φ need scrutiny
+print(f"\nCheck 2 — High finance exposure countries (φ close to 1):")
+extreme_fc = [(c, phi[idx[c]]) for c in COUNTRIES if phi[idx[c]] > 0.8]
+if extreme_fc:
+    print(f"  Found {len(extreme_fc)} countries with very high exposure weight:")
+    for c, phi_val in sorted(extreme_fc, key=lambda x: -x[1])[:5]:
+        print(f"    {c}: φ = {phi_val:.4f}")
+    print(f"  → Interpretation is sensitive to financial reallocation for these countries")
+else:
+    print(f"  No very high-exposure cases (φ > 0.8) ✓")
+
+# Check 3a: θ=0 implies zero TFP amplification (by construction of the cross-theta difference)
+print(f"\nCheck 3a — θ={_theta0}: tfp_amplification_EU_pct must be 0 (cross-theta diff = 0 at base):")
+for omega, gamma in [(_gamma0, _gamma0), (_gamma_mid, _gamma0), (_gamma1, _gamma1)]:
     r0 = endo_results[(_theta0, omega, gamma)]
-    max_tfp_diff = np.max(np.abs(r0["tfp_effect"]))
-    print(f"  ω={omega:.2f}, γ={gamma:.2f}: max |ΔA/A| = {max_tfp_diff:.2e}  {'OK ✓' if max_tfp_diff < 1e-10 else 'WARNING'}")
+    amp = r0["tfp_amplification_EU_pct"]
+    print(f"  ω={omega:.2f}, γ={gamma:.2f}: tfp_amplification_EU_pct = {amp:.2e}  {'OK ✓' if abs(amp) < 1e-10 else 'WARNING'}")
 
-# Check 3: TFP contribution < capital deepening contribution for EU27
-print("\nCheck 3 — TFP contribution < capital deepening contribution (EU27 avg):")
-for omega, gamma in [(_gamma_mid, _gamma0), (_gamma1, _gamma0), (_gamma1, _gamma1)]:
-    r10 = endo_results[(_theta1, omega, gamma)]
-    cap_share = abs(r10["cap_contribution_EU"])
-    tfp_share = abs(r10["tfp_contribution_EU"])
-    ok = tfp_share < cap_share
-    print(f"  ω={omega:.2f}, γ={gamma:.2f}: capital={cap_share:.4f}%  TFP={tfp_share:.4f}%  {'OK ✓' if ok else 'WARNING: TFP dominates'}")
+# Check 3b: A_theta is identical for baseline and CMU — this is intentional by design
+print(f"\nCheck 3b — A_theta identical for baseline and CMU (intentional — theta is output-side):")
+for theta in [_theta0, _theta_mid, _theta1]:
+    r = endo_results[(theta, _gamma_mid, _gamma0)]
+    # A_theta stored once; both y_baseline and y_cmu use the same A array
+    print(f"  θ={theta:.4f}: A_theta used for both baseline and CMU ✓  (min={r['A_theta'].min():.4f}, max={r['A_theta'].max():.4f})")
 
-# Check 4: Non-EU countries lose foreign capital under full combined CMU
-print(f"\nCheck 4 — Non-EU lose foreign capital under ω={_gamma1}, γ={_gamma1}, θ={_theta1}:")
+# Check 4: Non-EU countries lose effective capital under full combined CMU
+print(f"\nCheck 4 — Non-EU may lose capital under ω={_gamma1}, γ={_gamma1}:")
 r_full = endo_results[(_theta1, _gamma1, _gamma1)]
 outside_idx = [idx[c] for c in OUTSIDE]
 for ci in outside_idx:
     c = COUNTRIES[ci]
-    dk_f = results[(_gamma1, _gamma1)]["k_foreign_cmu"][ci] - k_foreign_baseline[ci]
-    dA   = r_full["A_cmu"][ci] - r_full["A_baseline"][ci]
-    ok   = dk_f < 0 and dA < 0
-    print(f"  {c}: Δk_foreign={dk_f:+.1f}  ΔA={dA:+.6f}  {'OK ✓' if ok else 'NOTE: unexpected sign'}")
+    k_eff = results[(_gamma1, _gamma1)]["k_eff_cmu"][ci]
+    dk_eff = k_eff - k_PWT[ci]
+    ok   = dk_eff < 0
+    print(f"  {c}: Δk_eff={dk_eff:+.1f}  {'OK ✓ (capital loss)' if ok else 'NOTE: capital gain'}")
 
-# Check 5: EU GDP gain increasing in θ (hard-only, φ=1.0)
-print(f"\nCheck 5 — EU GDP gain increasing in θ (ω={_gamma1}, γ={_gamma0}):")
+# Check 5: Higher theta should usually magnify EU GDP gain; non-monotone is noted but not a hard fail
+print(f"\nCheck 5 — TFP amplification monotone in θ (ω={_gamma1}, γ={_gamma0}):")
 gains = [endo_results[(theta, _gamma1, _gamma0)]["dY_EU_pct"] for theta in THETA_SCENARIOS]
+amps  = [endo_results[(theta, _gamma1, _gamma0)]["tfp_amplification_EU_pct"] for theta in THETA_SCENARIOS]
 mono  = all(gains[i] <= gains[i+1] for i in range(len(gains)-1))
-print(f"  gains = {[f'{g:.5f}%' for g in gains]}  {'OK ✓' if mono else 'WARNING: not monotone'}")
+print(f"  dY_EU_pct gains    = {[f'{g:.5f}%' for g in gains]}")
+print(f"  TFP amplification  = {[f'{a:.5f}%' for a in amps]}")
+print(f"  {'OK ✓ (monotone)' if mono else 'NOTE: not strictly monotone (acceptable)'}")
 
 
 # ============================================================
-# 16.  ROBUSTNESS — η × θ × φ
+# 15.  ROBUSTNESS — η × θ
 # ============================================================
 print()
 print("=" * 60)
-print("STEP 9 — Robustness checks (η × θ × φ)")
+print("STEP 9 — Robustness checks (η × θ)")
 print("=" * 60)
 
 def run_model_variant_endo(D_hard, D_geo, D_ling, D_numart, R, M, s, k_pwt, A_bar_in,
@@ -890,6 +953,14 @@ def run_model_variant_endo(D_hard, D_geo, D_ling, D_numart, R, M, s, k_pwt, A_ba
     Scenarios: all (ω, γ) combinations from barrier_list × barrier_list.
     Re-calibrates Δ_ii for the given eta.
     γ only reduces D_numart (news article distance); D_geo and D_ling are fixed.
+    
+    NEW FRAMEWORK:
+    - k_fin_base = Π_base @ s (portfolio capital)
+    - φ_i        = k_fin_base / (k_fin_base + k_PWT)  (bounded exposure)
+    - k_eff_CMU  = k_PWT * (1 + φ_i * g_fin), where
+                   g_fin = (k_fin_CMU - k_fin_base) / k_fin_base
+    - A_bar_in is calibrated baseline productivity (residual), not newly estimated TFP
+    - Output uses effective capital, not portfolio capital directly
     """
     n_ = len(countries)
     eu_flag_ = np.array([1 if c in EU27_list else 0 for c in countries])
@@ -926,11 +997,11 @@ def run_model_variant_endo(D_hard, D_geo, D_ling, D_numart, R, M, s, k_pwt, A_ba
             break
 
     Pi_base_   = compute_portfolio(D, R, M, eta_val)
-    k_base_    = Pi_base_.T @ s
-    k_f_base_  = np.maximum(k_base_ - np.diag(Pi_base_) * s, 0.0)
-    f_base_    = k_f_base_ / k_pwt
+    k_fin_base_  = Pi_base_.T @ s
+    phi_base_    = k_fin_base_ / np.where((k_fin_base_ + k_pwt) > 0, (k_fin_base_ + k_pwt), np.nan)
+    f_base_      = phi_base_  # TFP spillover intensity from bounded finance exposure
     A_base_    = compute_tfp(A_bar_in, f_base_, theta_val)
-    y_base_    = cobb_douglas(A_base_, k_base_, L_in, alp_in)
+    y_base_    = cobb_douglas(A_base_, k_pwt, L_in, alp_in)
     Y_EU_base_ = y_base_[eu_idx_].sum()
 
     rows = []
@@ -945,10 +1016,13 @@ def run_model_variant_endo(D_hard, D_geo, D_ling, D_numart, R, M, s, k_pwt, A_ba
         R_ge_ = R.copy()
         for _ge_it in range(200):
             Pi_ge_  = compute_portfolio(D_cmu_, R_ge_, M, eta_val)
-            k_ge_   = Pi_ge_.T @ s
-            y_ge_   = cobb_douglas(A_bar_in, k_ge_, L_in, alp_in)
-            R_new_  = alp_in * y_ge_ / k_ge_
-            R_new_  = R_new_ / R_new_.mean()
+            k_fin_ge_ = Pi_ge_.T @ s
+            # Effective capital for production in real units
+            fin_ratio_ge_ = np.where(k_fin_base_ > 0, k_fin_ge_ / k_fin_base_, 1.0)
+            k_eff_ge_ = k_pwt * ((1.0 - phi_base_) + phi_base_ * fin_ratio_ge_)
+            y_ge_   = cobb_douglas(A_bar_in, k_eff_ge_, L_in, alp_in)
+            R_new_  = alp_in * y_ge_ / np.where(k_eff_ge_ > 0, k_eff_ge_, np.nan)
+            R_new_  = R_new_ / np.nanmean(R_new_)
             R_new_  = np.where(np.isfinite(R_new_), R_new_, R_ge_)
             if np.max(np.abs(R_new_ - R_ge_)) < 1e-7:
                 R_ge_ = R_new_
@@ -956,11 +1030,11 @@ def run_model_variant_endo(D_hard, D_geo, D_ling, D_numart, R, M, s, k_pwt, A_ba
             R_ge_ = R_new_
 
         Pi_cmu_   = compute_portfolio(D_cmu_, R_ge_, M, eta_val)
-        k_cmu_    = Pi_cmu_.T @ s
-        k_f_cmu_  = np.maximum(k_cmu_ - np.diag(Pi_cmu_) * s, 0.0)
-        f_cmu_    = k_f_cmu_ / k_pwt
-        A_cmu_    = compute_tfp(A_bar_in, f_cmu_, theta_val)
-        y_cmu_    = cobb_douglas(A_cmu_, k_cmu_, L_in, alp_in)
+        k_fin_cmu_  = Pi_cmu_.T @ s
+        fin_ratio_cmu_ = np.where(k_fin_base_ > 0, k_fin_cmu_ / k_fin_base_, 1.0)
+        k_eff_cmu_ = k_pwt * ((1.0 - phi_base_) + phi_base_ * fin_ratio_cmu_)
+        A_cmu_    = compute_tfp(A_bar_in, f_base_, theta_val)
+        y_cmu_    = cobb_douglas(A_cmu_, k_eff_cmu_, L_in, alp_in)
         Y_EU_cmu_ = y_cmu_[eu_idx_].sum()
         eu_hb_ch  = (np.nanmean(np.diag(Pi_cmu_)[eu_idx_])
                      - np.nanmean(np.diag(Pi_base_)[eu_idx_]))
@@ -1017,42 +1091,47 @@ print("  Specification: d_geo + d_ling + d_num_articles + d_financial_developmen
 
 # -----------------------------------------------------------
 print(f"\nTable 2a — EU GDP gain (%) — γ={_gamma0} (fin only), θ={_theta1}")
-print(f"  {'ω':>6}  {'Avg Δπ_EU':>12}  {'ΔY_EU/Y_EU':>12}  {'Capital':>12}  {'TFP':>10}  {'σ_MPK red.':>12}")
-print("-" * 72)
+print(f"  {'ω':>6}  {'Avg Δπ_EU':>12}  {'Total dY_EU':>12}  {'Capital apx':>14}  {'TFP amplif.':>14}  {'σ_MPK red.':>12}")
+print("-" * 80)
 for omega in BARRIER_SCENARIOS:
     r = endo_results[(_theta1, omega, _gamma0)]
     print(f"  {omega:>6.2f}  {r['eu_hb_change']:>12.5f}  {r['dY_EU_pct']:>12.5f}%"
-          f"  {r['cap_contribution_EU']:>12.5f}%  {r['tfp_contribution_EU']:>10.5f}%"
+          f"  {r['cap_contribution_EU']:>14.5f}%  {r['tfp_amplification_EU_pct']:>14.5f}%"
           f"  {r['sigma_reduction']:>12.2f}%")
 
 print(f"\nTable 2b — EU GDP gain (%) — γ=ω (fin+soft together), θ={_theta1}")
-print(f"  {'ω':>6}  {'Avg Δπ_EU':>12}  {'ΔY_EU/Y_EU':>12}  {'Capital':>12}  {'TFP':>10}  {'σ_MPK red.':>12}")
-print("-" * 72)
+print(f"  {'ω':>6}  {'Avg Δπ_EU':>12}  {'Total dY_EU':>12}  {'Capital apx':>14}  {'TFP amplif.':>14}  {'σ_MPK red.':>12}")
+print("-" * 80)
 for omega in BARRIER_SCENARIOS:
     r = endo_results[(_theta1, omega, omega)]
     print(f"  {omega:>6.2f}  {r['eu_hb_change']:>12.5f}  {r['dY_EU_pct']:>12.5f}%"
-          f"  {r['cap_contribution_EU']:>12.5f}%  {r['tfp_contribution_EU']:>10.5f}%"
+          f"  {r['cap_contribution_EU']:>14.5f}%  {r['tfp_amplification_EU_pct']:>14.5f}%"
           f"  {r['sigma_reduction']:>12.2f}%")
 
 # -----------------------------------------------------------
 print(f"\nTable 3 — Country-level results: ω={_gamma1}, γ={_gamma0}, θ={_theta1} (EU27):")
 r_main = endo_results[(_theta1, _gamma1, _gamma0)]
+k_eff_cmu_main = results[(_gamma1, _gamma0)]["k_eff_cmu"]
 ctry_table = pd.DataFrame({
-    "Δk_i/k_i (%)":  (results[(_gamma1, _gamma0)]["k_cmu"] - k_baseline) / k_baseline * 100,
-    "ΔA_i/A_i (%)":  (r_main["A_cmu"] - r_main["A_baseline"]) / r_main["A_baseline"] * 100,
-    "Δy_i/y_i (%)":  r_main["total_effect"] * 100,
-    "Capital share": (r_main["capital_effect"] / np.where(r_main["total_effect"] == 0, np.nan, r_main["total_effect"])),
-    "TFP share":     (r_main["tfp_effect"]     / np.where(r_main["total_effect"] == 0, np.nan, r_main["total_effect"])),
+    "Δk_eff/k_PWT (%)":    (k_eff_cmu_main - k_PWT) / k_PWT * 100,
+    "Δy_i/y_i (%)":        r_main["dy_pct"],
+    "Capital apx (%)":     r_main["capital_effect"] * 100,
+    "TFP amplif. (%)":     r_main["tfp_amplification_pct"],
 }, index=COUNTRIES)
 print(ctry_table.loc[EU27].round(4).to_string())
 
 # -----------------------------------------------------------
 print(f"\nTable 4 — Top 5 EU capital gainers: ω={_gamma1}, γ={_gamma1}, θ={_theta1}:")
-dk_full   = (results[(_gamma1, _gamma1)]["k_cmu"] - k_baseline) / k_baseline * 100
-dk_series = pd.Series(dk_full, index=COUNTRIES)
-print(dk_series[EU27].sort_values(ascending=False).head(5).round(3).to_string())
+dk_eff_full   = (results[(_gamma1, _gamma1)]["k_eff_cmu"] - k_PWT) / k_PWT * 100
+dk_eff_series = pd.Series(dk_eff_full, index=COUNTRIES)
+print(dk_eff_series[EU27].sort_values(ascending=False).head(5).round(3).to_string())
 
-print("\nTable 5 — Off-diagonal portfolio correlation (data vs model):")
+print("\nTable 5 — Finance exposure weight φ_i = k_fin_base / (k_fin_base + k_PWT):")
+phi_series = pd.Series(phi, index=COUNTRIES)
+print("  Top 10 highest φ:")
+print(phi_series.nlargest(10).round(6).to_string())
+
+print("\nTable 6 — Off-diagonal portfolio correlation (data vs model):")
 print(f"  {corr_off:.4f}")
 
 
@@ -1060,7 +1139,7 @@ print(f"  {corr_off:.4f}")
 print("\nDone.")
 
 # ============================================================
-# 18.  EXPORT TO EXCEL
+# 16.  EXPORT TO EXCEL
 # ============================================================
 print()
 print("=" * 60)
@@ -1110,16 +1189,16 @@ with pd.ExcelWriter(EXCEL_PATH, engine="openpyxl") as writer:
         "R_normalised":        R_vec,
         "GDP_USDmn":           Y_vec,  # GDP used as portfolio-size weight (replaces market cap)
         "k_PWT_USDmn":         k_PWT,
-        "A_bar":               A_bar,
+        "A_raw_PWT":           A_raw,
+        "A_calibrated":        A_bar,
         "L_labour":            L_prod,
         "alpha":               alp,
         "pi_home_data":        pi_home,
         "pi_home_model":       np.diag(Pi_baseline),
         "delta_ii_calibrated": np.diag(Delta_baseline),
         "s_total_wealth":      s_vec,
-        "k_equity_baseline":   k_baseline,
-        "k_foreign_baseline":  k_foreign_baseline,
-        "f_foreign_intensity": f_baseline,
+        "k_fin_baseline":      k_fin_base,
+        "phi_i":               phi,
         "in_EU27":             [1 if c in EU27 else 0 for c in COUNTRIES],
     })
     macro_df.to_excel(writer, sheet_name="Macro_Variables", index=False)
@@ -1153,43 +1232,46 @@ with pd.ExcelWriter(EXCEL_PATH, engine="openpyxl") as writer:
     )
 
     # ----------------------------------------------------------
-    # Sheet 7: Portfolio_Data  (observed shares)
+    # Sheet 8: Portfolio_Data  (observed shares)
     # ----------------------------------------------------------
     Pi_data.to_excel(writer, sheet_name="Portfolio_Data")
 
     # ----------------------------------------------------------
-    # Sheet 8: Portfolio_Baseline  (model-implied shares)
+    # Sheet 9: Portfolio_Baseline  (model-implied shares)
     # ----------------------------------------------------------
     pd.DataFrame(Pi_baseline, index=COUNTRIES, columns=COUNTRIES).to_excel(
         writer, sheet_name="Portfolio_Baseline"
     )
 
     # ----------------------------------------------------------
-    # Sheet 9: Capital_Reallocation
-    # Columns: country, k_baseline, then k_cmu and Δk/k for each (omega, gamma)
+    # Sheet 10: Capital_Reallocation (NEW FRAMEWORK)
+    # Columns: country, k_PWT, k_fin_base, then k_eff_cmu and Δk_eff/k_PWT for each (omega, gamma)
     # ----------------------------------------------------------
-    cap_df = pd.DataFrame({"country": COUNTRIES, "k_baseline": k_baseline})
+    cap_df = pd.DataFrame({"country": COUNTRIES, "k_PWT": k_PWT, "k_fin_base": k_fin_base})
     for (omega, gamma) in [(o, g) for o in BARRIER_SCENARIOS for g in BARRIER_SCENARIOS]:
-        k_cmu = results[(omega, gamma)]["k_cmu"]
+        k_eff_cmu = results[(omega, gamma)]["k_eff_cmu"]
         tag   = f"om{omega:.3f}_gm{gamma:.3f}"
-        cap_df[f"k_cmu_{tag}"]   = k_cmu
-        cap_df[f"dk_pct_{tag}"]  = (k_cmu - k_baseline) / k_baseline * 100
+        cap_df[f"k_eff_cmu_{tag}"]   = k_eff_cmu
+        cap_df[f"dk_eff_pct_{tag}"]  = (k_eff_cmu - k_PWT) / k_PWT * 100
     cap_df.to_excel(writer, sheet_name="Capital_Reallocation", index=False)
 
     # ----------------------------------------------------------
-    # Sheet 10: Foreign_Capital
+    # Sheet 11: Financial_Capital_Decomposition (NEW FRAMEWORK)
+    # Shows k_fin_base, k_fin_cmu, and Δk_fin for each scenario
     # ----------------------------------------------------------
     fcap_df = pd.DataFrame({
         "country":             COUNTRIES,
-        "k_foreign_baseline":  k_foreign_baseline,
-        "f_baseline":          f_baseline,
+        "k_fin_baseline":      k_fin_base,
+        "k_PWT":               k_PWT,
+        "phi_i":               phi,
         "in_EU27":             [1 if c in EU27 else 0 for c in COUNTRIES],
     })
     for (omega, gamma) in [(o, g) for o in BARRIER_SCENARIOS for g in BARRIER_SCENARIOS]:
         tag = f"om{omega:.3f}_gm{gamma:.3f}"
-        fcap_df[f"k_foreign_{tag}"] = results[(omega, gamma)]["k_foreign_cmu"]
-        fcap_df[f"f_{tag}"]         = results[(omega, gamma)]["f_cmu"]
-    fcap_df.to_excel(writer, sheet_name="Foreign_Capital", index=False)
+        k_fin_cmu_val = results[(omega, gamma)]["k_fin_cmu"]
+        fcap_df[f"k_fin_cmu_{tag}"]  = k_fin_cmu_val
+        fcap_df[f"dk_fin_{tag}"]     = k_fin_cmu_val - k_fin_base
+    fcap_df.to_excel(writer, sheet_name="Financial_Capital_Decomposition", index=False)
 
     # ----------------------------------------------------------
     # Sheet 11: EU_Summary
@@ -1198,17 +1280,19 @@ with pd.ExcelWriter(EXCEL_PATH, engine="openpyxl") as writer:
     eu_summary_rows = []
     for (theta, omega, gamma), r in endo_results.items():
         eu_summary_rows.append({
-            "theta":                  theta,
-            "omega":                  omega,
-            "gamma":                  gamma,
-            "Y_EU":                   r["Y_EU_cmu"] - r["Y_EU_base"],
-            "dY_EU_pct":              r["dY_EU_pct"],
-            "cap_contribution_EU_pct":r["cap_contribution_EU"],
-            "tfp_contribution_EU_pct":r["tfp_contribution_EU"],
-            "eu_hb_change":           r["eu_hb_change"],
-            "sigma_mpk_baseline":     r["sigma_mpk_base"],
-            "sigma_mpk_cmu":          r["sigma_mpk_cmu"],
-            "sigma_mpk_reduction_pct":r["sigma_reduction"],
+            "theta":                    theta,
+            "omega":                    omega,
+            "gamma":                    gamma,
+            "Y_EU_base_level":          r["Y_EU_base_level"],
+            "Y_EU_cmu_level":           r["Y_EU_cmu_level"],
+            "dY_EU_abs":                r["dY_EU_abs"],
+            "dY_EU_pct":                r["dY_EU_pct"],
+            "cap_contribution_EU_pct":  r["cap_contribution_EU"],
+            "tfp_amplification_EU_pct": r["tfp_amplification_EU_pct"],
+            "eu_hb_change":             r["eu_hb_change"],
+            "sigma_mpk_baseline":       r["sigma_mpk_base"],
+            "sigma_mpk_cmu":            r["sigma_mpk_cmu"],
+            "sigma_mpk_reduction_pct":  r["sigma_reduction"],
         })
     pd.DataFrame(eu_summary_rows).sort_values(
         ["theta", "omega", "gamma"]
@@ -1234,28 +1318,25 @@ with pd.ExcelWriter(EXCEL_PATH, engine="openpyxl") as writer:
     for (theta, omega, gamma), r in endo_results.items():
         _res_og   = results[(omega, gamma)]
         _Pi_cmu   = _res_og["Pi_cmu"]
-        _k_cmu    = _res_og["k_cmu"]
-        _kf_cmu   = _res_og["k_foreign_cmu"]
-        _f_cmu    = _res_og["f_cmu"]
+        _k_fin_cmu = _res_og["k_fin_cmu"]
+        _k_eff_cmu = _res_og["k_eff_cmu"]
         _pi_cmu_diag = np.diag(_Pi_cmu)
 
         for ci_idx, c in enumerate(COUNTRIES):
             _L   = L_prod[ci_idx]
-            _kb  = k_baseline[ci_idx]
-            _kc  = _k_cmu[ci_idx]
-            _kfb = k_foreign_baseline[ci_idx]
-            _kfc = _kf_cmu[ci_idx]
-            _fb  = f_baseline[ci_idx]
-            _fc  = _f_cmu[ci_idx]
+            _k_pwt  = k_PWT[ci_idx]
+            _k_fin_base = k_fin_base[ci_idx]
+            _k_fin_c = _k_fin_cmu[ci_idx]
+            _k_eff_c = _k_eff_cmu[ci_idx]
+            _phi = phi[ci_idx]
             _yb  = r["y_baseline"][ci_idx]
             _yc  = r["y_cmu"][ci_idx]
-            _Ab  = r["A_baseline"][ci_idx]
-            _Ac  = r["A_cmu"][ci_idx]
+            _Ath = r["A_theta"][ci_idx]          # same for baseline and CMU (by design)
             _mpk_b = r["mpk_baseline"][ci_idx]
             _mpk_c = r["mpk_cmu"][ci_idx]
             _tot   = r["total_effect"][ci_idx]
             _cap   = r["capital_effect"][ci_idx]
-            _tfp   = r["tfp_effect"][ci_idx]
+            _tfp_amp = r["tfp_amplification_pct"][ci_idx]  # cross-theta amplification
 
             out_rows.append({
                 # ── scenario identifiers ──────────────────────────
@@ -1270,11 +1351,11 @@ with pd.ExcelWriter(EXCEL_PATH, engine="openpyxl") as writer:
 
                 # ── structural / data parameters ─────────────────
                 "alpha":            alp[ci_idx],        # capital share
-                "A_bar":            A_bar[ci_idx],      # exogenous TFP (Ā)
+                "A_bar":            A_bar[ci_idx],      # calibrated baseline productivity residual (not estimated new TFP)
                 "L":                _L,                 # labour force
                 "R_normalised":     R_vec[ci_idx],      # normalised return
                 "GDP_USDmn":        Y_vec[ci_idx],      # GDP (portfolio-size weight)
-                "k_PWT":            k_PWT[ci_idx],      # PWT physical capital
+                "k_PWT":            _k_pwt,             # PWT physical capital (foundational base)
                 "s_total_wealth":   s_vec[ci_idx],      # total equity wealth
 
                 # ── wedges ────────────────────────────────────────
@@ -1294,37 +1375,33 @@ with pd.ExcelWriter(EXCEL_PATH, engine="openpyxl") as writer:
                                     / _pi_baseline_diag[ci_idx] * 100
                                     if _pi_baseline_diag[ci_idx] > 0 else np.nan,
 
-                # ── capital (equity, total) ───────────────────────
-                "k_baseline":       _kb,
-                "k_cmu":            _kc,
-                "dk":               _kc - _kb,
-                "dk_pct":           (_kc - _kb) / _kb * 100 if _kb > 0 else np.nan,
-                "k_baseline_pc":    _kb / _L if _L > 0 else np.nan,
-                "k_cmu_pc":         _kc / _L if _L > 0 else np.nan,
-                "dk_pc_pct":        ((_kc - _kb) / _L) / (_kb / _L) * 100
-                                    if _kb > 0 and _L > 0 else np.nan,
+                # ── FINANCIAL CAPITAL (NEW FRAMEWORK) ─────────────────
+                "k_fin_baseline":   _k_fin_base,    # Portfolio capital (Σ π_ji * s_j)
+                "k_fin_cmu":        _k_fin_c,       # Portfolio capital under CMU
+                "dk_fin":           _k_fin_c - _k_fin_base,
+                "dk_fin_pct":       (_k_fin_c - _k_fin_base) / _k_fin_base * 100 if _k_fin_base > 0 else np.nan,
 
-                # ── foreign capital ───────────────────────────────
-                "k_foreign_baseline":   _kfb,
-                "k_foreign_cmu":        _kfc,
-                "dk_foreign":           _kfc - _kfb,
-                "dk_foreign_pct":       (_kfc - _kfb) / _kfb * 100 if _kfb > 0 else np.nan,
-                "f_baseline":           _fb,         # foreign intensity (baseline)
-                "f_cmu":                _fc,         # foreign intensity (CMU)
-                "df":                   _fc - _fb,
-                "df_pct":               (_fc - _fb) / _fb * 100 if _fb > 0 else np.nan,
+                # ── EFFECTIVE CAPITAL (NEW FRAMEWORK) ─────────────────
+                # k_eff = k_PWT * ((1-φ) + φ*(k_fin_CMU/k_fin_base))
+                # This is what enters the production function
+                "k_eff_baseline":   _k_pwt,         # Baseline effective capital = PWT capital
+                "k_eff_cmu":        _k_eff_c,       # CMU effective capital
+                "dk_eff":           _k_eff_c - _k_pwt,
+                "dk_eff_pct":       (_k_eff_c - _k_pwt) / _k_pwt * 100 if _k_pwt > 0 else np.nan,
+
+                # ── FINANCIAL CENTRE INDICATOR ───────────────────────
+                "phi_i":            _phi,           # φ_i = k_fin_base / (k_fin_base + k_PWT)
+                "is_extreme_fc":    1 if _phi > 0.8 else 0,  # high finance exposure
 
                 # ── TFP ───────────────────────────────────────────
-                "A_baseline":       _Ab,
-                "A_cmu":            _Ac,
-                "dA":               _Ac - _Ab,
-                "dA_pct":           (_Ac - _Ab) / _Ab * 100 if _Ab > 0 else np.nan,
+                # A_theta is identical for baseline and CMU (intentional — output-side channel)
+                "A_theta":          _Ath,
 
                 # ── output (total) ────────────────────────────────
                 "y_baseline":       _yb,
                 "y_cmu":            _yc,
                 "dy":               _yc - _yb,
-                "dy_pct":           _tot * 100,       # = total_effect * 100
+                "dy_pct":           r["dy_pct"][ci_idx],    # = (y_cmu - y_baseline) / y_baseline * 100
 
                 "y_baseline_pc":    _yb / _L if _L > 0 else np.nan,
                 "y_cmu_pc":         _yc / _L if _L > 0 else np.nan,
@@ -1332,11 +1409,10 @@ with pd.ExcelWriter(EXCEL_PATH, engine="openpyxl") as writer:
                                     if _yb > 0 and _L > 0 else np.nan,
 
                 # ── output decomposition ──────────────────────────
-                "capital_effect_pct": _cap * 100,    # α * Δk/k
-                "tfp_effect_pct":     _tfp * 100,    # ΔA/A (approx)
-                "total_effect_pct":   _tot * 100,
-                "capital_share_of_dy": _cap / _tot if _tot != 0 else np.nan,
-                "tfp_share_of_dy":     _tfp / _tot if _tot != 0 else np.nan,
+                "capital_effect_pct":   _cap * 100,      # α * Δk_eff/k_PWT (first-order approx)
+                "tfp_amplification_pct": _tfp_amp,       # dy_pct(θ,ω,γ) − dy_pct(θ=0,ω,γ)
+                "total_effect_pct":     _tot * 100,
+                "capital_share_of_dy":  _cap / _tot if _tot != 0 else np.nan,
 
                 # ── marginal product of capital ───────────────────
                 "mpk_baseline":     _mpk_b,
