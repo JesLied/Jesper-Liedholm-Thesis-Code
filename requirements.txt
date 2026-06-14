@@ -19,4 +19,4 @@ geopandas
 wrds
 xlrd
 SciencePlots
-lxmls
+lxml
