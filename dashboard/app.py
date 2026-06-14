@@ -15,6 +15,8 @@ ROOT_DIR = APP_DIR.parent
 EXCEL_PATH = ROOT_DIR / "v4-simulation.xlsx"
 GEOJSON_PATH = ROOT_DIR / "Data" / "europe.geo.json"
 LOGO_PATH = ROOT_DIR / "CBSlogo_extended_rgb_blue.png"
+ZERO_ABS_TOL = 1e-6
+ZERO_PCT_TOL = 5e-4
 
 OUTPUT_COUNTRY_COLUMNS = [
     "theta",
@@ -33,6 +35,18 @@ OUTPUT_COUNTRY_COLUMNS = [
     "dy_pct",
     "capital_effect_pct",
     "tfp_amplification_pct",
+    "mpk_baseline",
+    "mpk_cmu",
+]
+
+PORTFOLIO_FLOW_COLUMNS = [
+    "scenario",
+    "theta",
+    "omega",
+    "gamma",
+    "iso3_i",
+    "iso3_j",
+    "k_flow",
 ]
 
 
@@ -53,7 +67,7 @@ st.markdown(
     }
 
     .block-container {
-        max-width: 130rem;
+        max-width: 170rem;
         padding-left: 1.5rem;
         padding-right: 1.5rem;
     }
@@ -93,6 +107,19 @@ def load_output_country(path: Path) -> pd.DataFrame:
     return df
 
 
+@st.cache_data(show_spinner="Loading Portfolio_Flows from v4-simulation.xlsx")
+def load_portfolio_flows(path: Path) -> pd.DataFrame:
+    df = pd.read_excel(
+        path,
+        sheet_name="Portfolio_Flows",
+        usecols=PORTFOLIO_FLOW_COLUMNS,
+        engine="openpyxl",
+    )
+    numeric_cols = ["theta", "omega", "gamma", "k_flow"]
+    df[numeric_cols] = df[numeric_cols].apply(pd.to_numeric, errors="coerce")
+    return df
+
+
 @st.cache_data(show_spinner=False)
 def load_geojson(path: Path) -> dict:
     with path.open("r", encoding="utf-8") as fh:
@@ -112,11 +139,6 @@ def load_geojson(path: Path) -> dict:
     return {"type": "FeatureCollection", "features": features}
 
 
-def nearest_value(values: np.ndarray, target: float) -> float:
-    values = np.asarray(values, dtype=float)
-    return float(values[np.argmin(np.abs(values - target))])
-
-
 def scenario_slice(df: pd.DataFrame, omega: float, gamma: float, theta: float) -> pd.DataFrame:
     mask = (
         np.isclose(df["omega"], omega)
@@ -125,12 +147,123 @@ def scenario_slice(df: pd.DataFrame, omega: float, gamma: float, theta: float) -
     )
     scenario = df.loc[mask].copy()
     scenario["region"] = np.where(scenario["in_EU27"].eq(1), "EU27", "Outside")
+    zero_small_changes(scenario)
     return scenario.sort_values("country")
+
+
+def compare_to_fixed_baseline(scenario: pd.DataFrame, baseline: pd.DataFrame) -> pd.DataFrame:
+    baseline_cols = baseline[
+        [
+            "country",
+            "y_baseline",
+            "k_fin_baseline",
+        ]
+    ].rename(
+        columns={
+            "y_baseline": "fixed_y_baseline",
+            "k_fin_baseline": "fixed_k_fin_baseline",
+        }
+    )
+    compared = scenario.merge(baseline_cols, on="country", how="left")
+    compared["dy"] = compared["y_cmu"] - compared["fixed_y_baseline"]
+    compared["dy_pct"] = np.where(
+        np.isclose(compared["fixed_y_baseline"], 0.0),
+        np.nan,
+        compared["dy"] / compared["fixed_y_baseline"] * 100,
+    )
+    compared["dk_fin"] = compared["k_fin_cmu"] - compared["fixed_k_fin_baseline"]
+    compared["dk_fin_pct"] = np.where(
+        np.isclose(compared["fixed_k_fin_baseline"], 0.0),
+        np.nan,
+        compared["dk_fin"] / compared["fixed_k_fin_baseline"] * 100,
+    )
+    compared["y_baseline"] = compared["fixed_y_baseline"]
+    compared["k_fin_baseline"] = compared["fixed_k_fin_baseline"]
+    zero_small_changes(compared)
+    return compared.drop(columns=["fixed_y_baseline", "fixed_k_fin_baseline"])
+
+
+def zero_small_changes(df: pd.DataFrame) -> None:
+    for col in ["dy", "dk_fin", "return_change"]:
+        if col in df:
+            df.loc[df[col].abs() < ZERO_ABS_TOL, col] = 0.0
+    for col in ["dy_pct", "dk_fin_pct", "return_change_pct"]:
+        if col in df:
+            df.loc[df[col].abs() < ZERO_PCT_TOL, col] = 0.0
+
+
+def positive_count(values: pd.Series) -> int:
+    return int((values > ZERO_PCT_TOL).sum())
+
+
+def available_flow_scenarios(flows: pd.DataFrame) -> pd.DataFrame:
+    scenarios = flows[["scenario", "omega", "gamma", "theta"]].drop_duplicates().copy()
+    preferred_order = {
+        "baseline": 0,
+        "most_probable": 1,
+        "mid": 2,
+        "max": 3,
+    }
+    scenarios["sort_order"] = scenarios["scenario"].map(preferred_order).fillna(99)
+    return scenarios.sort_values(["sort_order", "omega", "gamma", "theta"]).drop(columns="sort_order")
+
+
+def calculate_capital_returns(
+    output_country: pd.DataFrame,
+    flows: pd.DataFrame,
+    return_scenario: pd.Series,
+) -> pd.DataFrame:
+    baseline_country = scenario_slice(output_country, 0.0, 0.0, 0.0)
+    scenario_country = scenario_slice(
+        output_country,
+        float(return_scenario["omega"]),
+        float(return_scenario["gamma"]),
+        float(return_scenario["theta"]),
+    )
+
+    baseline_flows = flows[flows["scenario"].eq("baseline")].copy()
+    scenario_flows = flows[
+        flows["scenario"].eq(return_scenario["scenario"])
+        & np.isclose(flows["omega"], return_scenario["omega"])
+        & np.isclose(flows["gamma"], return_scenario["gamma"])
+        & np.isclose(flows["theta"], return_scenario["theta"])
+    ].copy()
+
+    baseline_mpk = baseline_country[["country", "mpk_baseline"]].rename(
+        columns={"country": "iso3_j", "mpk_baseline": "mpk"}
+    )
+    scenario_mpk_col = "mpk_baseline" if return_scenario["scenario"] == "baseline" else "mpk_cmu"
+    scenario_mpk = scenario_country[["country", scenario_mpk_col]].rename(
+        columns={"country": "iso3_j", scenario_mpk_col: "mpk"}
+    )
+
+    baseline_returns = baseline_flows.merge(baseline_mpk, on="iso3_j", how="left")
+    baseline_returns["return_on_capital_baseline"] = baseline_returns["k_flow"] * baseline_returns["mpk"]
+    baseline_returns = (
+        baseline_returns.groupby("iso3_i", as_index=False)["return_on_capital_baseline"].sum()
+    )
+
+    scenario_returns = scenario_flows.merge(scenario_mpk, on="iso3_j", how="left")
+    scenario_returns["return_on_capital_cmu"] = scenario_returns["k_flow"] * scenario_returns["mpk"]
+    scenario_returns = scenario_returns.groupby("iso3_i", as_index=False)["return_on_capital_cmu"].sum()
+
+    returns = baseline_returns.merge(scenario_returns, on="iso3_i", how="outer").fillna(0)
+    returns["return_change"] = returns["return_on_capital_cmu"] - returns["return_on_capital_baseline"]
+    returns["return_change_pct"] = np.where(
+        np.isclose(returns["return_on_capital_baseline"], 0.0),
+        np.nan,
+        returns["return_change"] / returns["return_on_capital_baseline"] * 100,
+    )
+    zero_small_changes(returns)
+
+    return scenario_country.merge(returns, left_on="country", right_on="iso3_i", how="left")
 
 
 def metric_delta(value: float, suffix: str = "%") -> str:
     if not np.isfinite(value):
         return ""
+    if abs(value) < ZERO_PCT_TOL:
+        value = 0.0
     sign = "+" if value > 0 else ""
     return f"{sign}{value:.3f}{suffix}"
 
@@ -138,6 +271,8 @@ def metric_delta(value: float, suffix: str = "%") -> str:
 def format_usd_mn(value: float) -> str:
     if not np.isfinite(value):
         return "n/a"
+    if abs(value) < ZERO_ABS_TOL:
+        value = 0.0
     abs_value = abs(value)
     sign = "-" if value < 0 else ""
     if abs_value >= 1_000_000:
@@ -183,6 +318,7 @@ def make_choropleth(
     title: str,
     colorbar_title: str,
     hover_template: str,
+    custom_data: list[str],
 ):
     range_color = symmetric_range(df[value_col])
 
@@ -196,16 +332,7 @@ def make_choropleth(
         color_continuous_midpoint=0,
         range_color=range_color,
         hover_name="country",
-        custom_data=[
-            "country",
-            "dy_pct",
-            "dy",
-            "dk_fin_pct",
-            "dk_fin",
-            "y_baseline",
-            "k_fin_baseline",
-            "region",
-        ],
+        custom_data=custom_data,
     )
 
     fig.update_traces(
@@ -291,60 +418,68 @@ def main() -> None:
         st.stop()
 
     df = load_output_country(EXCEL_PATH)
+    flows = load_portfolio_flows(EXCEL_PATH)
     geojson = load_geojson(GEOJSON_PATH)
-
-    omegas = [float(v) for v in np.sort(df["omega"].dropna().unique())]
-    gammas = [float(v) for v in np.sort(df["gamma"].dropna().unique())]
-    thetas = [float(v) for v in np.sort(df["theta"].dropna().unique())]
-
-    default_omega = nearest_value(omegas, 0.30)
-    default_gamma = nearest_value(gammas, 0.10)
-    default_theta = nearest_value(thetas, 0.03)
+    flow_scenarios = available_flow_scenarios(flows)
+    scenario_labels = flow_scenarios["scenario"].tolist()
+    scenario_lookup = flow_scenarios.set_index("scenario", drop=False)
+    scenario_display = {
+        row["scenario"]: (
+            f"{row['scenario']} "
+            f"(omega={row['omega']:.3f}, gamma={row['gamma']:.3f}, tfp={row['theta']:.3f})"
+        )
+        for _, row in flow_scenarios.iterrows()
+    }
+    default_scenario_idx = (
+        scenario_labels.index("most_probable")
+        if "most_probable" in scenario_labels
+        else 0
+    )
 
     with st.sidebar:
         st.title("CMU Parameters")
 
-        omega = st.select_slider(
-            "Omega (hard integration)",
-            options=omegas,
-            value=default_omega,
-            format_func=lambda v: f"{v:.3f}",
+        selected_scenario = st.selectbox(
+            "Scenario",
+            options=scenario_labels,
+            index=default_scenario_idx,
+            format_func=lambda label: scenario_display[label],
         )
+        return_scenario = scenario_lookup.loc[selected_scenario]
+        omega = float(return_scenario["omega"])
+        gamma = float(return_scenario["gamma"])
+        theta = float(return_scenario["theta"])
+        st.caption(f"Selected: omega={omega:.3f}, gamma={gamma:.3f}, tfp={theta:.3f}")
 
-        gamma = st.select_slider(
-            "Gamma (soft integration)",
-            options=gammas,
-            value=default_gamma,
-            format_func=lambda v: f"{v:.3f}",
-        )
-
-        theta = st.select_slider(
-            "TFP spillover",
-            options=thetas,
-            value=default_theta,
-            format_func=lambda v: f"{v:.3f}",
-        )
-
-        st.caption(f"Scenario grid: omega={omega:.3f}, gamma={gamma:.3f}, tfp={theta:.3f}")
-
-    selected = scenario_slice(df, omega, gamma, theta)
+    fixed_baseline = scenario_slice(df, 0.0, 0.0, 0.0)
+    selected = compare_to_fixed_baseline(scenario_slice(df, omega, gamma, theta), fixed_baseline)
+    return_data = calculate_capital_returns(df, flows, return_scenario)
     eu = selected[selected["in_EU27"].eq(1)]
 
     eu_gdp_base = eu["y_baseline"].sum()
-    eu_gdp_cmu = eu["y_cmu"].sum()
-    eu_gdp_pct = (eu_gdp_cmu - eu_gdp_base) / eu_gdp_base * 100 if eu_gdp_base else np.nan
+    eu_gdp_change = eu["dy"].sum()
+    eu_gdp_pct = eu_gdp_change / eu_gdp_base * 100 if eu_gdp_base else np.nan
     eu_flow_base = eu["k_fin_baseline"].sum()
     eu_flow_change = eu["dk_fin"].sum()
     eu_flow_pct = eu_flow_change / eu_flow_base * 100 if eu_flow_base else np.nan
+    aggregate_return_base = return_data["return_on_capital_baseline"].sum()
+    aggregate_return_change = return_data["return_change"].sum()
+    aggregate_return_pct = (
+        aggregate_return_change / aggregate_return_base * 100
+        if aggregate_return_base
+        else np.nan
+    )
+    if np.isfinite(aggregate_return_pct) and abs(aggregate_return_pct) < ZERO_PCT_TOL:
+        aggregate_return_pct = 0.0
 
     render_logo(LOGO_PATH)
     st.title("CMU Simulation Dashboard")
 
-    metric_cols = st.columns(4)
+    metric_cols = st.columns(5)
     with metric_cols[0]:
         st.metric(
             "EU GDP change",
-            format_usd_mn(eu_gdp_cmu - eu_gdp_base),
+            format_usd_mn(eu_gdp_change),
             metric_delta(eu_gdp_pct),
         )
     with metric_cols[1]:
@@ -354,10 +489,26 @@ def main() -> None:
             metric_delta(eu_flow_pct),
         )
     with metric_cols[2]:
-        st.metric("Countries with GDP gain", f"{int((selected['dy_pct'] > 0).sum())}/{len(selected)}")
+        st.metric("Countries with GDP gain", f"{positive_count(selected['dy_pct'])}/{len(selected)}")
     with metric_cols[3]:
-        st.metric("Countries with inflow gain", f"{int((selected['dk_fin'] > 0).sum())}/{len(selected)}")
+        st.metric("Countries with inflow gain", f"{positive_count(selected['dk_fin_pct'])}/{len(selected)}")
+    with metric_cols[4]:
+        st.metric(
+            "Aggregate return / year",
+            format_usd_mn(aggregate_return_change),
+            metric_delta(aggregate_return_pct),
+        )
 
+    country_custom_data = [
+        "country",
+        "dy_pct",
+        "dy",
+        "dk_fin_pct",
+        "dk_fin",
+        "y_baseline",
+        "k_fin_baseline",
+        "region",
+    ]
     gdp_hover = (
         "<b>%{customdata[0]}</b><br>"
         "Region: %{customdata[7]}<br>"
@@ -374,8 +525,25 @@ def main() -> None:
         "Baseline portfolio capital: %{customdata[6]:,.0f} USD mn"
         "<extra></extra>"
     )
+    return_custom_data = [
+        "country",
+        "region",
+        "return_change_pct",
+        "return_change",
+        "return_on_capital_baseline",
+        "return_on_capital_cmu",
+    ]
+    return_hover = (
+        "<b>%{customdata[0]}</b><br>"
+        "Region: %{customdata[1]}<br>"
+        "Annual return change: %{customdata[2]:+.3f}%<br>"
+        "Annual return change: %{customdata[3]:+,.0f} USD mn<br>"
+        "Baseline annual return: %{customdata[4]:,.0f} USD mn<br>"
+        "Scenario annual return: %{customdata[5]:,.0f} USD mn"
+        "<extra></extra>"
+    )
 
-    left, right = st.columns(2, gap="small")
+    left, middle, right = st.columns(3, gap="small")
     with left:
         st.plotly_chart(
             make_choropleth(
@@ -385,12 +553,13 @@ def main() -> None:
                 "Change in GDP",
                 "Delta GDP (%)",
                 gdp_hover,
+                country_custom_data,
             ),
             use_container_width=True,
             config={"displayModeBar": False, "responsive": True},
         )
 
-    with right:
+    with middle:
         st.plotly_chart(
             make_choropleth(
                 selected,
@@ -399,6 +568,22 @@ def main() -> None:
                 "Change in Net Portfolio Flow",
                 "Delta flow (%)",
                 flow_hover,
+                country_custom_data,
+            ),
+            use_container_width=True,
+            config={"displayModeBar": False, "responsive": True},
+        )
+
+    with right:
+        st.plotly_chart(
+            make_choropleth(
+                return_data,
+                geojson,
+                "return_change_pct",
+                "Change in Annual Return on Capital",
+                "Delta return (%)",
+                return_hover,
+                return_custom_data,
             ),
             use_container_width=True,
             config={"displayModeBar": False, "responsive": True},
