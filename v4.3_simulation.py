@@ -1473,13 +1473,13 @@ with pd.ExcelWriter(EXCEL_PATH, engine="openpyxl") as writer:
     # Sheet 17: Portfolio_Flows  (long format)
     # Four named scenarios only — keeps the sheet manageable:
     #   baseline      : ω=0,   γ=0,   θ=0,    η=1.0
-    #   most_probable : ω≈0.3, γ≈0.3, θ≈0.05, η=1.0
+    #   most_probable : ω≈0.316, γ≈0.105, θ≈0.032, η=1.0
     #   mid           : ω=0.5, γ=0.5, θ=0.05, η=1.0
     #   max           : ω=1,   γ=1,   θ=0.10, η=1.0
     # ----------------------------------------------------------
     _FLOW_SCENARIOS = [
         ("baseline",      ETA, _theta0,   _gamma0,    _gamma0),
-        ("most_probable", ETA, _theta_mid, nearest(BARRIER_SCENARIOS, 0.30), nearest(BARRIER_SCENARIOS, 0.30)),
+        ("most_probable", ETA, nearest(THETA_SCENARIOS, 0.032), nearest(BARRIER_SCENARIOS, 0.316), nearest(BARRIER_SCENARIOS, 0.105)),
         ("mid",           ETA, _theta_mid, _gamma_mid, _gamma_mid),
         ("max",           ETA, _theta1,   _gamma1,    _gamma1),
     ]
